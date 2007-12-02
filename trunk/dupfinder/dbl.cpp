@@ -15,7 +15,7 @@ using namespace std;
 /********* options ************/
 
 // #define BENCHMARK
-// #define TEST
+#define TEST
 // #define PROFILE
 
 /********* further, of the upper dependent options **********/
@@ -97,6 +97,10 @@ int main(int argc, char *argv[])
 	clock_t tstart, tend;
 	ULARGE_INTEGER nMaxFileSizeIgnore = {0};
 	bool bReverse = true;
+
+	ULARGE_INTEGER sumsize;
+	int nDoubleFiles;
+	int nDifferentFiles;
 
 #ifdef TEST
 	list<fileinfo>::iterator __it5, __it;
@@ -231,7 +235,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	fprintf(stderr, "%i which are important. \n", orderedbysize.size());
+	fprintf(stderr, "%i which matter. \n", orderedbysize.size());
 
 }
 
@@ -248,6 +252,10 @@ int main(int argc, char *argv[])
 	tlast = time(NULL);
 
 	sizeN = 0;
+
+	nDifferentFiles = 0;
+	sumsize.QuadPart = 0;
+	nDoubleFiles = 0;
 
 	STARTTIME(comparetime);
 
@@ -332,6 +340,10 @@ int main(int argc, char *argv[])
 						else {
 							(*it2).equalfiles.back().files.push_back(*it3);
 						}
+
+						nDoubleFiles++;
+						sumsize.QuadPart += (*it3).size.QuadPart;
+							
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
@@ -340,6 +352,25 @@ int main(int argc, char *argv[])
 					}
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
 				}
+				if(!bFirstDouble) {
+					nDifferentFiles++;
+				}
+#ifdef TEST
+				/* no doubles found */
+				if(bFirstDouble) {
+					bool bNotEqual = true;
+					it3 = it;
+					for(it3++; it3 != (*it2).files.end(); it3++) {
+						bEqual = comparefiles0(*it, *it3);
+						if(bEqual) {
+							bNotEqual = false;
+							break;
+						}
+					}
+					assert(bNotEqual);
+					if(!bNotEqual) { abort(); }
+				}
+#endif
 				erase((*it2).files.front());
 				(*it2).files.pop_front();
 				it = (*it2).files.begin();
@@ -382,29 +413,9 @@ int main(int argc, char *argv[])
 }
 
 {
-	ULARGE_INTEGER sumsize;
-	int nDoubleFiles;
-	int nDifferentFiles;
-
-	nDifferentFiles = 0;
-
-	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
-		nDifferentFiles += (*it2).equalfiles.size();
-	}
-
 	fprintf(stderr, "Step 4: printing the results...\n");
 	fprintf(stderr, "Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
 	printf("Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
-
-	sumsize.QuadPart = 0;
-	nDoubleFiles = 0;
-
-	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
-		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
-			sumsize.QuadPart += ((*it4).files.size()-1)*((*it4).files.front().size.QuadPart);
-			nDoubleFiles += (*it4).files.size()-1;
-		}
-	}
 
 #ifdef TEST
 	for(__it2 = orderedbysize.begin(); __it2 != orderedbysize.end(); __it2++) {
@@ -423,7 +434,7 @@ int main(int argc, char *argv[])
 #endif
 	
 
-	fprintf(stderr, "%i double files consume altogether %" I64 "  bytes (%" I64 " kb, %" I64 " mb)\n", 
+	fprintf(stderr, "%i duplicates consume altogether %" I64 " bytes (%" I64 " kb, %" I64 " mb)\n", 
 		nDoubleFiles, sumsize.QuadPart, sumsize.QuadPart/1024, sumsize.QuadPart/1024/1024);
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
