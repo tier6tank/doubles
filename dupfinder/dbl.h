@@ -32,5 +32,6 @@ struct fileinfosize
 	list<fileinfo> files;
 	list<fileinfoequal> equalfiles;
 };
+
 #endif /* defined(__DBL_H_123) */
 
