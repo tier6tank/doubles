@@ -5,6 +5,18 @@ THE PROGRAM:
 The goal of the program is shortly described:
 It is a command-line program which searches for duplicate files in the given path(s). 
 
+INSTALLATION:
+-------------
+
+Windows: simply copy the executable (dbl.exe) for example to C:\windows, so that you can call it from the commandline 
+         from every directory
+
+Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory
+
+USAGE:
+-------
+
+From the commandline, simply type dbl <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
 
 TODO:
 -----
@@ -53,3 +65,9 @@ the program (under different compilers):
 3. Cygwin gnu/gnu gcc compiler under linux (as well as before: i'm not that familiar with that compiler, it's just the minimal 
    commandline provided here): 
    g++ -o dbl dbl.cpp os_cc_specific.cpp
+
+
+LICENSE:
+-------
+See license.txt
+
