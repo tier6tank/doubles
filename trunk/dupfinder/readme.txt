@@ -17,20 +17,23 @@ USAGE:
 -------
 
 From the commandline, simply type dbl <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
+The output can be redirected to a file. 
 
 TODO:
 -----
 - Create a nice (os- and make-utitlity-independent?! if possible) makefile
 - Adding license text as header
-- converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files)
++ converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
 - (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose)
-- adding option -max (max size of files to compare with each other)
+- adding option -max (max size of files to compare with each other) or -maxbytes (compare max. n bytes of a file)
 - adding IsSameFileFunction
 - adding error messages (when finding files, comparing files...)
-- supporting files over 4 GB always?!
++ supporting files over 4 GB always?! yes, i do hope so. 
 - adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
   unicode output
+- adding option which determines if the small sized files or the large sized files are treated and displayed firstd
+- adding option for not going in subdirectories
 
 DESCRIPTION:
 ------------

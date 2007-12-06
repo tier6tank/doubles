@@ -8,8 +8,8 @@ struct fileinfo
 {
 	_TCHAR name[MAX_PATH];
 	ULARGE_INTEGER size;
-	int nFirstBytes;
-	int nMaxFirstBytes;
+	unsigned int nFirstBytes;
+	unsigned int nMaxFirstBytes;
 	char *firstbytes;
 	FileHandle fh;
 };
