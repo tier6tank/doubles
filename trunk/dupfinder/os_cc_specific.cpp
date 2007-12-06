@@ -18,27 +18,27 @@ using namespace std;
 #define UNREFERENCED_PARAMETER(x) ((x) = (x))
 #endif
 
-int sprintf_s(char *buffer, int buflen, const char *format, ... ) {
+int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... ) {
 	UNREFERENCED_PARAMETER(buflen);
-	return sprintf(buffer, format);
+	return _stprintf(buffer, format);
 }
 
-int sscanf_s(char *buffer, const char *format, ... ) {
-	return sscanf(buffer, format);
+int _stscanf_s(_TCHAR *buffer, const _TCHAR *format, ... ) {
+	return _stscanf(buffer, format);
 }
 
-char* strcpy_s(char *a, int nLength, const char *b) {
+_TCHAR *_tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b) {
 	UNREFERENCED_PARAMETER(nLength);
-	return strcpy(a, b);
+	return _tcscpy(a, b);
 }
 
-char *strcat_s(char *a, int nLength, const char *b) {
+_TCHAR *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b) {
 	UNREFERENCED_PARAMETER(nLength);
-	return strcat(a, b);
+	return _tcscat(a, b);
 }
 
-int fopen_s(FILE **ppf, const char *filename, const char *mode) {
-	*ppf = fopen(filename, mode);
+int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
+	*ppf = _tfopen(filename, mode);
 	return (*ppf != NULL);
 }
 
@@ -48,8 +48,8 @@ int fopen_s(FILE **ppf, const char *filename, const char *mode) {
 
 #if !defined(_WIN32)
 
-bool OpenFile(FileHandle *f, const char *name) {
-	return fopen_s(&f->f, name, "rb");
+bool OpenFile(FileHandle *f, const _TCHAR *name) {
+	return _tfopen_s(&f->f, name, _T("rb"));
 }
 
 bool 	ReadFile(const FileHandle *f, char * buffer, DWORD nLength, DWORD *pRead) {
@@ -85,15 +85,15 @@ bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto) {
 	return res == 0;
 }
 
-void	for_each_file(const char *pRootDir, for_each_file_func function, void *pData)
+void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData)
 {
-	const char * array[2] = { pRootDir, NULL };
+	const _TCHAR * array[2] = { pRootDir, NULL };
 	FTS *hFind;
 	FTSENT *fe;
 	FindFile ff;
 
 	errno = 0;
-	hFind = fts_open((char *const*)array, FTS_PHYSICAL, NULL);
+	hFind = fts_open((_TCHAR *const*)array, FTS_PHYSICAL, NULL);
 
 	if(errno != 0) {
 		return;
@@ -104,7 +104,7 @@ void	for_each_file(const char *pRootDir, for_each_file_func function, void *pDat
 
 		if(fe != NULL) {
 			if(fe->fts_info == FTS_F) {
-				strcpy_s(ff.cFileName, MAX_PATH, fe->fts_path);
+				_tcscpy_s(ff.cFileName, MAX_PATH, fe->fts_path);
 				ff.size.QuadPart = fe->fts_statp->st_size;
 				// ff.bDirectory = fe->fts_info == FTS_D;
 				function(&ff, pData);
@@ -119,7 +119,7 @@ void	for_each_file(const char *pRootDir, for_each_file_func function, void *pDat
 
 #else /* defined(_WIN32) */
 
-bool OpenFile(FileHandle *f, const char *name) {
+bool OpenFile(FileHandle *f, const _TCHAR *name) {
 	DWORD dwFileAttributes = GetFileAttributes(name);
 	f->hFile = CreateFile(
 		name, 
@@ -162,22 +162,22 @@ void InitFileHandle(FileHandle *f) {
 	f->hFile = INVALID_HANDLE_VALUE; 
 }
 
-void for_each_file(const char *pDir, for_each_file_func function, void *pData) 
+void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData) 
 {
 	WIN32_FIND_DATA fd;
-	char Dir[MAX_PATH+1];
-	char Search[MAX_PATH+1];
-	char Down[MAX_PATH+1];
+	_TCHAR Dir[MAX_PATH+1];
+	_TCHAR Search[MAX_PATH+1];
+	_TCHAR Down[MAX_PATH+1];
 	HANDLE hFind;
 	// fileinfo fi;
 	BOOL bNoEnd;
 
 	// printf("(%s\n", pDir);
 
-	strcpy_s(Dir, MAX_PATH, pDir);
+	_tcscpy_s(Dir, MAX_PATH, pDir);
 	PathAddBackslash(Dir);
-	strcpy_s(Search, MAX_PATH, Dir);
-	strcat_s(Search, MAX_PATH, "*");
+	_tcscpy_s(Search, MAX_PATH, Dir);
+	_tcscat_s(Search, MAX_PATH, _T("*"));
 
 	hFind = FindFirstFile(
 		Search, 
@@ -188,18 +188,18 @@ void for_each_file(const char *pDir, for_each_file_func function, void *pData)
 
 	do
 	{
-		if(!(strcmp(fd.cFileName, ".") == 0 || 
-		   strcmp(fd.cFileName, "..") == 0)) {
+		if(!(_tcscmp(fd.cFileName, _T(".")) == 0 || 
+		   _tcscmp(fd.cFileName, _T("..")) == 0)) {
 			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-				strcpy_s(Down, MAX_PATH, Dir);
-				strcat_s(Down, MAX_PATH, fd.cFileName);
+				_tcscpy_s(Down, MAX_PATH, Dir);
+				_tcscat_s(Down, MAX_PATH, fd.cFileName);
 				// findfiles(Down, files);
 				for_each_file(Down, function, pData);
 			}
 			else {
 				FindFile ff;
-				strcpy_s(ff.cFileName, MAX_PATH, Dir);
-				strcat_s(ff.cFileName, MAX_PATH, fd.cFileName);
+				_tcscpy_s(ff.cFileName, MAX_PATH, Dir);
+				_tcscat_s(ff.cFileName, MAX_PATH, fd.cFileName);
 				ff.size.LowPart = fd.nFileSizeLow;
 				ff.size.HighPart = fd.nFileSizeHigh;
 				// fprintf(stderr, "%" I64 " %s\n", ff.size, ff.cFileName);

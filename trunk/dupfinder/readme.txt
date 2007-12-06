@@ -20,12 +20,17 @@ From the commandline, simply type dbl <path1> <path2> <...> to search the dirtec
 
 TODO:
 -----
-Create a nice (os- and make-utitlity-independent?! if possible) makefile
-Adding license text as header
-converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files)
-unicode support for windows...
-delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose
-
+- Create a nice (os- and make-utitlity-independent?! if possible) makefile
+- Adding license text as header
+- converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files)
++ unicode support for windows... done!
+- (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose)
+- adding option -max (max size of files to compare with each other)
+- adding IsSameFileFunction
+- adding error messages (when finding files, comparing files...)
+- supporting files over 4 GB always?!
+- adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
+  unicode output
 
 DESCRIPTION:
 ------------

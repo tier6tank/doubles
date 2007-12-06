@@ -63,7 +63,7 @@ void	addfile(const FindFile *, void *);
 void	deleteline(void);
 void	erase(fileinfo &);
 
-void	FindFiles(findfileinfo &, char *[], int);
+void	FindFiles(findfileinfo &, _TCHAR *[], int);
 void	SortFilesBySize(list<fileinfo> &, list<fileinfosize> &, bool);
 void	GetEqualFiles(list<fileinfosize> &);
 void	PrintResults(list<fileinfosize> &);
@@ -85,7 +85,7 @@ LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
 
-int main(int argc, char *argv[]) 
+int _tmain(int argc, _TCHAR *argv[]) 
 {
 	list<fileinfo> files;
 	list<fileinfosize> orderedbysize;
@@ -120,19 +120,19 @@ int main(int argc, char *argv[])
 	tstart = clock();
 
 	if(argc <= 1) {
-		fprintf(stderr, "dbl: Finds equal files\n\n");
-		fprintf(stderr, "dbl [-m size] Path1 [Path2 [Path3 ...] ]\n");
-		fprintf(stderr, "option -m x: Compare only files with size greater than x (in bytes)\n");
+		_ftprintf(stderr, _T("dbl: Finds equal files\n\n"));
+		_ftprintf(stderr, _T("dbl [-m size] Path1 [Path2 [Path3 ...] ]\n"));
+		_ftprintf(stderr, _T("option -m x: Compare only files with size greater than x (in bytes)\n"));
 		return 1;
 	}
 
-	if(strcmp(argv[1], "-m") == 0) {
+	if(_tcscmp(argv[1], _T("-m")) == 0) {
 		if(argc <= 3) {
-			fprintf(stderr, "Error in commandline! \n");
+			_ftprintf(stderr, _T("Error in commandline! \n"));
 			return 1;
 		}
-		if(sscanf_s(argv[2], "%" I64, &nMaxFileSizeIgnore) == 0) {
-			fprintf(stderr, "Error in commandline: Number expected! \n");
+		if(_stscanf_s(argv[2], _T("%") I64, &nMaxFileSizeIgnore) == 0) {
+			_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
 			return 1;
 		}
 		argv+=2;
@@ -158,9 +158,9 @@ int main(int argc, char *argv[])
 	/* Calculation and output of consumed time */
 
 	const int tmpsize = 20;
-	char szMinutes[tmpsize] = "";
-	char szHours[tmpsize] = "";
-	char szDays[tmpsize] = "";
+	_TCHAR szMinutes[tmpsize] = _T("");
+	_TCHAR szHours[tmpsize] = _T("");
+	_TCHAR szDays[tmpsize] = _T("");
 	
 	double dseconds = (double)(tend-tstart)/CLOCKS_PER_SEC;
 	int sumseconds = (int)dseconds;
@@ -170,55 +170,55 @@ int main(int argc, char *argv[])
 	int days = sumseconds/60/60/24;
 
 	if(days) {
-		sprintf_s(szDays, tmpsize, "%i d, ", days);
-		sprintf_s(szHours, tmpsize, "%i h, ", hours);
-		sprintf_s(szMinutes, tmpsize, "%i min, %i sec", minutes, seconds);
+		_stprintf_s(szDays, tmpsize, _T("%i d, "), days);
+		_stprintf_s(szHours, tmpsize, _T("%i h, "), hours);
+		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else if(hours) {
-		sprintf_s(szHours, tmpsize, "%i h, ", hours);
-		sprintf_s(szMinutes, tmpsize, "%i min, %i sec", minutes, seconds);
+		_stprintf_s(szHours, tmpsize, _T("%i h, "), hours);
+		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else if(minutes) { 
-		sprintf_s(szMinutes, tmpsize, "%i min, %i sec", minutes, seconds);
+		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else {
-		sprintf_s(szMinutes, tmpsize, "%.2f sec", dseconds);
+		_stprintf_s(szMinutes, tmpsize, _T("%.2f sec"), dseconds);
 	}
 
-	fprintf(stderr, "Time: %s%s%s. \n", szDays, szHours, szMinutes);
+	_ftprintf(stderr, _T("Time: %s%s%s. \n"), szDays, szHours, szMinutes);
 
 	STOPTIME(all);
 
 #ifdef PROFILE
-	fprintf(stderr, "Profile-Times: \n");
-	fprintf(stderr, "   all: %.3f\n", SECONDS(all));
-	fprintf(stderr, "   compare-time: %.3f (%.3f %% of all)\n", 
+	_ftprintf(stderr, _T("Profile-Times: \n"));
+	_ftprintf(stderr, _T("   all: %.3f\n"), SECONDS(all));
+	_ftprintf(stderr, _T("   compare-time: %.3f (%.3f %% of all)\n"), 
 		SECONDS(comparetime), SECONDS(comparetime)/SECONDS(all)*100);
-	fprintf(stderr, "   disk: %.3f (%.3f %% of all, %.3f %% of comparetime)\n", 
+	_ftprintf(stderr, _T("   disk: %.3f (%.3f %% of all, %.3f %% of comparetime)\n"), 
 		SECONDS(disk), SECONDS(disk)/SECONDS(all)*100, SECONDS(disk)/SECONDS(comparetime)*100);
-	fprintf(stderr, "     fileopen: %.3f (%.3f %%)\n", SECONDS(fileopen), SECONDS(fileopen)/SECONDS(disk)*100);
-	fprintf(stderr, "     fileseek: %.3f (%.3f %%)\n", SECONDS(fileseek), SECONDS(fileseek)/SECONDS(disk)*100);
-	fprintf(stderr, "     fileread: %.3f (%.3f %%)\n", SECONDS(fileread), SECONDS(fileread)/SECONDS(disk)*100);
+	_ftprintf(stderr, _T("     fileopen: %.3f (%.3f %%)\n"), SECONDS(fileopen), SECONDS(fileopen)/SECONDS(disk)*100);
+	_ftprintf(stderr, _T("     fileseek: %.3f (%.3f %%)\n"), SECONDS(fileseek), SECONDS(fileseek)/SECONDS(disk)*100);
+	_ftprintf(stderr, _T("     fileread: %.3f (%.3f %%)\n"), SECONDS(fileread), SECONDS(fileread)/SECONDS(disk)*100);
 #endif
 
 	
 	return 0;
 }
 
-void	FindFiles(findfileinfo &ffi, char * argv[], int argc)
+void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 {
 	int i;
 
-	fprintf(stderr, "Step 1: Searching files... \n");
+	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
 
 	for (i = 0; i < argc; i++) {
 		int nPreviousSize = ffi.pFiles->size();
-		fprintf(stderr, " in \"%s\" ... ", argv[i]);
+		_ftprintf(stderr, _T(" in \"%s\" ... "), argv[i]);
 		for_each_file(argv[i], addfile, &ffi);
-		fprintf(stderr, "%i files\n", ffi.pFiles->size() - nPreviousSize);
+		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 
-	fprintf(stderr, "done. Found %i file(s). \n", ffi.pFiles->size());
+	_ftprintf(stderr, _T("done. Found %i file(s). \n"), ffi.pFiles->size());
 
 	/* DeleteDoubleFiles(files); 
 	// Crucial for this task: function bool SameFile(char *, char *)
@@ -235,7 +235,7 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	bool bDeleted;
 	
 	
-	fprintf(stderr, "Step 2: Sorting files by size... ");
+	_ftprintf(stderr, _T("Step 2: Sorting files by size... "));
 
 	for(it = files.begin(); it != files.end(); it++) {
 		bool bResult;
@@ -267,11 +267,11 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	/* now i can delete the first file-list */
 	files.clear();
 
-	fprintf(stderr, "done. %i different sizes, ", orderedbysize.size());
+	_ftprintf(stderr, _T("done. %i different sizes, "), orderedbysize.size());
 
 	list<fileinfosize>::iterator it2tmp;
 	
-	// fprintf(stderr, "Step 3: Delete unimportant sizes... ");
+	// _ftprintf(stderr, _T("Step 3: Delete unimportant sizes... "));
 
 	// nSizes = 0;
 
@@ -288,7 +288,7 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 		}
 	}
 
-	fprintf(stderr, "%i which matter. \n", orderedbysize.size());
+	_ftprintf(stderr, _T("%i which matter. \n"), orderedbysize.size());
 
 }
 
@@ -311,9 +311,16 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 	int __x, __y;
 #endif /* defined(BENCHMARKBUFSIZE) */
 #endif /* defined(BENCHMARK) */
+#ifdef TEST
+	list<fileinfo>::iterator __it3;
+	list<fileinfo>::iterator __it5, __it;
+	list<fileinfosize>::iterator __it2;
+	list<fileinfoequal>::iterator __it4;
+#endif /*defined(TEST) */
+	
 
 	
-	fprintf(stderr, "Step 3: Comparing files with same size for equity... ");
+	_ftprintf(stderr, _T("Step 3: Comparing files with same size for equity... "));
 
 	tlast = time(NULL);
 
@@ -327,16 +334,16 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 #ifdef BENCHMARK
 
-	list<fileinfosize> oldlist = orderedbysize;
+	list<fileinfosize> __oldlist = orderedbysize;
 
 #ifdef BENCHMARKBUFSIZE
 	FILE *__fLog;
-	fopen_s(&__fLog, "benchmbufsize.log", "w");
+	_tfopen_s(&__fLog, _T("benchmbufsize.log"), _T("w"));
 	assert(__fLog);
 	for(__y = 0; __y < MAXMAXFIRSTBYTESMULT; __y++) {
-		fprintf(__fLog, ";%i", __y);
+		_ftprintf(__fLog, _T(";%i"), __y);
 	}
-	fprintf(__fLog, "\n");
+	_ftprintf(__fLog, _T("\n"));
 	/* __x BUFSIZE, __y MAXFIRSTBYTES */
 	for(__x = 0; __x < MAXBUFSIZEMULT; __x++) {
 		__BufSize = __MinBufSize << __x;
@@ -345,20 +352,20 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 		__b[0] = new char[__BufSize];
 		__b[1] = new char[__BufSize];
 		
-		fprintf(__fLog, "%i", __x);
+		_ftprintf(__fLog, _T("%i"), __x);
 		for(__y = 0; __y < __x; __y++) {
-			fprintf(__fLog, ";");
+			_ftprintf(__fLog, _T(";"));
 		}
 	for(__y = __x; __y < MAXMAXFIRSTBYTESMULT; __y++) {
 		__MaxFirstBytes = __MinBufSize << __y;
-		fprintf(stderr, "\n%i, %i\n", __x, __y);
+		_ftprintf(stderr, _T("\n%i, %i\n"), __x, __y);
 #endif /* defined(BENCHMARKBUFSIZE) */	
 
 	__tstart = clock();
 
 	for(__i = 0; __i < TESTCNT; __i++) {
 
-	orderedbysize = oldlist;
+	orderedbysize = __oldlist;
 
 #endif /* BENCHMARK*/
 
@@ -375,7 +382,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				bHeaderDisplayed = true;
 			}
 			deleteline();
-			fprintf(stderr, "size %i/%i (%i files of size %" I64 ")", 
+			_ftprintf(stderr, _T("size %i/%i (%i files of size %") I64 _T(")"), 
 				sizeN, nOrderedBySizeLen, (*it2).files.size(), (*it2).size.QuadPart);
 			tlast = tnow;
 		}
@@ -425,9 +432,9 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				/* no doubles found */
 				if(bFirstDouble) {
 					bool bNotEqual = true;
-					it3 = it;
-					for(it3++; it3 != (*it2).files.end(); it3++) {
-						bEqual = comparefiles0(*it, *it3);
+					__it3 = it;
+					for(__it3++; __it3 != (*it2).files.end(); __it3++) {
+						bEqual = comparefiles0(*it, *__it3);
 						if(bEqual) {
 							bNotEqual = false;
 							break;
@@ -461,11 +468,11 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 	__tend = clock();
 
 #ifdef BENCHMARKBUFSIZE
-	fprintf(__fLog, ";%.6f", ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
+	_ftprintf(__fLog, _T(";%.6f"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
 	fflush(__fLog);
 	__MaxFirstBytes <<= 1;
 	}
-	fprintf(__fLog, "\n");
+	_ftprintf(__fLog, _T("\n"));
 	__BufSize <<= 1; 
 	}
 #endif
@@ -475,40 +482,24 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 	STOPTIME(comparetime);
 
 	deleteline();
-	fprintf(stderr, "done. \n");
+	_ftprintf(stderr, _T("done. \n"));
 
-	fprintf(stderr, "Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
-	fprintf(stderr, "%i duplicates consume altogether %" I64 " bytes (%" I64 " kb, %" I64 " mb)\n", 
+	_ftprintf(stderr, _T("Found %i files, of which exist at least one more copy. \n"), nDifferentFiles);
+	_ftprintf(stderr, _T("%i duplicates consume altogether %") I64 _T(" bytes (%") I64 _T(" kb, %") I64 _T(" mb)\n"), 
 		nDoubleFiles, sumsize.QuadPart, sumsize.QuadPart/1024, sumsize.QuadPart/1024/1024);
 
 #ifdef BENCHMARK
-	fprintf(stderr, "Time/run: %.3f\n", ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
-	fprintf(stderr, "Bytes read:   %10.2f (%10" I64 ")\n", 
+	_ftprintf(stderr, _T("Time/run: %.3f\n"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
+	_ftprintf(stderr, _T("Bytes read:   %10.2f (%10") I64 _T(")\n"), 
 		(double)todouble(__nBytesRead.QuadPart)/TESTCNT, 
 		__nBytesRead.QuadPart/TESTCNT);
-	fprintf(stderr, "Sectors read: %10.2f (%10" I64 ")\n", 
+	_ftprintf(stderr, _T("Sectors read: %10.2f (%10") I64 _T(")\n"), 
 		(double)todouble(__nSectorsRead.QuadPart)/TESTCNT, 
 		__nSectorsRead.QuadPart/TESTCNT);
-	fprintf(stderr, "Files opened: %10.2f (%10" I64 ")\n", 
+	_ftprintf(stderr, _T("Files opened: %10.2f (%10") I64 _T(")\n"), 
 		(double)todouble(__nFilesOpened.QuadPart)/TESTCNT, 
 		__nFilesOpened.QuadPart/TESTCNT);
 #endif /* BENCHMARK */
-
-}
-
-void	PrintResults(list<fileinfosize> &orderedbysize)
-{
-	list<fileinfo>::iterator it, it3;
-	list<fileinfosize>::iterator it2;
-	list<fileinfoequal>::iterator it4;
-#ifdef TEST
-	list<fileinfo>::iterator __it5, __it;
-	list<fileinfosize>::iterator __it2;
-	list<fileinfoequal>::iterator __it4;
-#endif /* defined(TEST) */
-
-	fprintf(stderr, "Step 4: printing the results...\n");
-	// printf("Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
 
 #ifdef TEST
 	for(__it2 = orderedbysize.begin(); __it2 != orderedbysize.end(); __it2++) {
@@ -517,7 +508,7 @@ void	PrintResults(list<fileinfosize> &orderedbysize)
 				__it5 = __it;
 				for(__it5++; __it5 != (*__it4).files.end(); __it5++) {
 					if(!comparefiles0((*__it), (*__it5))) {
-						fprintf(stderr, "Error: %s != %s\n", 
+						_ftprintf(stderr, _T("Error: %s != %s\n"), 
 							(*__it).name, (*__it5).name);
 					}
 				}
@@ -525,13 +516,26 @@ void	PrintResults(list<fileinfosize> &orderedbysize)
 		}
 	}
 #endif
+
+}
+
+void	PrintResults(list<fileinfosize> &orderedbysize)
+{
+	list<fileinfo>::iterator it, it3;
+	list<fileinfosize>::iterator it2;
+	list<fileinfoequal>::iterator it4;
+
+	_ftprintf(stderr, _T("Step 4: printing the results...\n"));
+	// printf("Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
+
 	
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
-			printf("+ Equal (%i files of size %" I64 "): \n", (*it4).files.size(), (*it4).files.front().size.QuadPart);
+			_ftprintf(stdout, _T("+ Equal (%i files of size %") I64 _T("): \n"), 
+				(*it4).files.size(), (*it4).files.front().size.QuadPart);
 			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				printf("- \"%s\"\n", (*it).name);
+				_ftprintf(stdout, _T("- \"%s\"\n"), (*it).name);
 			}
 		}
 	}
@@ -546,7 +550,7 @@ void	addfile(const FindFile *ff, void *pData)
 	/* important: > (no null-length files! ) */
 	if(ff->size > ffi->nMaxFileSizeIgnore) {
 		// printf("adding %s\n", ff->cFileName);
-		strcpy_s(fi.name, MAX_PATH, ff->cFileName);
+		_tcscpy_s(fi.name, MAX_PATH, ff->cFileName);
 		fi.size = ff->size;
 		fi.nFirstBytes = 0;
 		fi.nMaxFirstBytes = 0;
@@ -561,13 +565,13 @@ void	addfile(const FindFile *ff, void *pData)
 void	deleteline(void) {
 	int t;
 	for(t = 0; t < 79; t++) {
-		fprintf(stderr, "\b");
+		_ftprintf(stderr, _T("\b"));
 	}
 	for(t = 0; t < 79; t++) {
-		fprintf(stderr, " ");
+		_ftprintf(stderr, _T(" "));
 	}
 	for(t = 0; t < 79; t++) {
-		fprintf(stderr, "\b");
+		_ftprintf(stderr, _T("\b"));
 	}
 }
 
@@ -591,8 +595,8 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 
 	F1 = NULL;
 	F2 = NULL;
-	fopen_s(&F1, f1.name, "rb");
-	fopen_s(&F2, f2.name, "rb");
+	_tfopen_s(&F1, f1.name, _T("rb"));
+	_tfopen_s(&F2, f2.name, _T("rb"));
 
 #ifdef BENCHMARK
 	if(F1) { __nFilesOpened.QuadPart++; }
@@ -755,7 +759,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	}
 	*/
 
-	// fprintf(stderr, "%s <-> %s\n", pfi[0]->name, pfi[1]->name);
+	// _ftprintf(stderr, _T("%s <-> %s\n"), pfi[0]->name, pfi[1]->name);
 	
 	for(i = 0; i < 2; i++) {
 		nOffset[i].QuadPart = 0;

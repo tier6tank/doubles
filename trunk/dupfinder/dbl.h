@@ -6,7 +6,7 @@
 
 struct fileinfo
 {
-	char name[MAX_PATH];
+	_TCHAR name[MAX_PATH];
 	ULARGE_INTEGER size;
 	int nFirstBytes;
 	int nMaxFirstBytes;
