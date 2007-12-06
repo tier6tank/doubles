@@ -4,7 +4,7 @@
 debug = 0
 unicode = 1
 
-minopt = -W4 -EHsc
+minopt = -W4 -EHsc -Wp64
 opt = -Yu"stdinc.h" $(minopt)
 !if $(debug)==1
 dbg = -Zi -D_DEBUG -DDEBUG -MTd -GS -RTCs -RTCu -RTCc

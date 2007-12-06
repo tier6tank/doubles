@@ -14,9 +14,9 @@ using namespace std;
 
 /********* options ************/
 
-#define BENCHMARK
-#define TEST
-#define PROFILE
+// #define BENCHMARK
+// #define TEST
+// #define PROFILE
 // #define BENCHMARKBUFSIZE
 
 /********* further, of the upper dependent options **********/
@@ -58,7 +58,7 @@ ULARGE_INTEGER __nFilesOpened = { 0 };
 
 bool	comparefiles0(fileinfo &, fileinfo &);
 bool	comparefiles1(fileinfo &, fileinfo &);
-int	roundup(const ULARGE_INTEGER &, int);
+ULARGE_INTEGER	roundup(const ULARGE_INTEGER &, int);
 void	addfile(const FindFile *, void *);
 void	deleteline(void);
 void	erase(fileinfo &);
@@ -212,13 +212,13 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
 
 	for (i = 0; i < argc; i++) {
-		int nPreviousSize = ffi.pFiles->size();
-		_ftprintf(stderr, _T(" in \"%s\" ... "), argv[i]);
+		size_t nPreviousSize = ffi.pFiles->size();
+		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
 		for_each_file(argv[i], addfile, &ffi);
 		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 
-	_ftprintf(stderr, _T("done. Found %i file(s). \n"), ffi.pFiles->size());
+	_ftprintf(stderr, _T("        done. Found %i file(s). \n"), ffi.pFiles->size());
 
 	/* DeleteDoubleFiles(files); 
 	// Crucial for this task: function bool SameFile(char *, char *)
@@ -299,11 +299,11 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 	list<fileinfoequal>::iterator it4;
 	int sizeN;
 	bool bHeaderDisplayed = false;
-	int nOrderedBySizeLen;
+	size_t nOrderedBySizeLen;
 	time_t tlast, tnow;
 	ULARGE_INTEGER sumsize;
-	int nDoubleFiles;
-	int nDifferentFiles;
+	ULARGE_INTEGER nDoubleFiles;
+	ULARGE_INTEGER nDifferentFiles;
 #ifdef BENCHMARK 
 	clock_t __tstart = 0, __tend = 0;
 	int __i;
@@ -326,9 +326,9 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 	sizeN = 0;
 
-	nDifferentFiles = 0;
+	nDifferentFiles.QuadPart = 0;
 	sumsize.QuadPart = 0;
-	nDoubleFiles = 0;
+	nDoubleFiles.QuadPart = 0;
 
 	STARTTIME(comparetime);
 
@@ -414,7 +414,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 							(*it2).equalfiles.back().files.push_back(*it3);
 						}
 
-						nDoubleFiles++;
+						nDoubleFiles.QuadPart++;
 						sumsize.QuadPart += (*it3).size.QuadPart;
 							
 						bDeleted3 = true;
@@ -426,7 +426,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
 				}
 				if(!bFirstDouble) {
-					nDifferentFiles++;
+					nDifferentFiles.QuadPart++;
 				}
 #ifdef TEST
 				/* no doubles found */
@@ -481,12 +481,14 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 	STOPTIME(comparetime);
 
-	deleteline();
+	if(bHeaderDisplayed) {
+		deleteline();
+	}
 	_ftprintf(stderr, _T("done. \n"));
 
-	_ftprintf(stderr, _T("Found %i files, of which exist at least one more copy. \n"), nDifferentFiles);
-	_ftprintf(stderr, _T("%i duplicates consume altogether %") I64 _T(" bytes (%") I64 _T(" kb, %") I64 _T(" mb)\n"), 
-		nDoubleFiles, sumsize.QuadPart, sumsize.QuadPart/1024, sumsize.QuadPart/1024/1024);
+	_ftprintf(stderr, _T("Found %") I64 _T(" files, of which exist at least one more copy. \n"), nDifferentFiles.QuadPart);
+	_ftprintf(stderr, _T("%") I64 _T(" duplicates consume altogether %") I64 _T(" bytes (%") I64 _T(" kb, %") I64 _T(" mb)\n"), 
+		nDoubleFiles.QuadPart, sumsize.QuadPart, sumsize.QuadPart/1024, sumsize.QuadPart/1024/1024);
 
 #ifdef BENCHMARK
 	_ftprintf(stderr, _T("Time/run: %.3f\n"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
@@ -526,9 +528,6 @@ void	PrintResults(list<fileinfosize> &orderedbysize)
 	list<fileinfoequal>::iterator it4;
 
 	_ftprintf(stderr, _T("Step 4: printing the results...\n"));
-	// printf("Found %i files, of which exist at least one more copy. \n", nDifferentFiles);
-
-	
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
@@ -591,7 +590,8 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 	bool bResult;
 	const int BUFSIZE = BASEBUFSIZE << 5;
 	char b1[BUFSIZE], b2[BUFSIZE];
-	int n1, n2, i;
+	size_t n1, n2;
+	size_t i;
 
 	F1 = NULL;
 	F2 = NULL;
@@ -646,35 +646,35 @@ End:	if(F1) fclose(F1);
 
 #endif /* defined(BENCHMARK) || defined(TEST) */
 
-int	roundup(const ULARGE_INTEGER &a, int b)
+ULARGE_INTEGER roundup(const ULARGE_INTEGER &a, int b)
 {
 	ULARGE_INTEGER c;
-	c.QuadPart = a.QuadPart/b+(a.QuadPart%b != 0 ? 1 : 0);
-	return c.HighPart ? 0xffffffff : c.LowPart;
+	c.QuadPart = (a.QuadPart/b+(a.QuadPart%b != 0 ? 1 : 0)) * b;
+	return c;
 }
 
 bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 #if !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK)
-	const int BUFSIZE = BASEBUFSIZE << 5;
-	const int MAXFIRSTBYTES = BASEBUFSIZE << 14;
+	const unsigned int BUFSIZE = BASEBUFSIZE << 7;
+	const unsigned int MAXFIRSTBYTES = BASEBUFSIZE << 7;
 	static char *b[2] = {NULL, NULL };
 	if(b[0] == NULL) { b[0] = new char[BUFSIZE]; }
 	if(b[1] == NULL) { b[1] = new char[BUFSIZE]; }
 #else
-	int BUFSIZE = __BufSize;
-	int MAXFIRSTBYTES = __MaxFirstBytes;
+	unsigned int BUFSIZE = __BufSize;
+	unsigned int MAXFIRSTBYTES = __MaxFirstBytes;
 	char *b[2] = { __b[0], __b[1] };
 #endif /* !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK) */
 
 	fileinfo *pfi[2] = {&f1, &f2 };
 	char *pbuf[2];
 	int n[2];
-	ULARGE_INTEGER nOffset[2] = { { 0}, {0} };
+	ULARGE_INTEGER nOffset[2];
 	bool usingbuffer[2], writetofirstbytes[2];
 	bool bResult;
 	int i;
 	bool seeked[2];
-	
+
 	assert(MAXFIRSTBYTES % BUFSIZE == 0);
 
 	/* 
@@ -777,7 +777,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				/* (int)nOffset[i].QuadPart works, because nOffset[i].QuadPart < pfi[i]->nFirstBytes 
 				   look up, but nevertheless not very nice, perhaps convert all integers 
 				   to ULARGE_INTEGER (better also with big files)? */
-				n[i] = min(pfi[i]->nFirstBytes - (int)nOffset[i].QuadPart, BUFSIZE);
+				n[i] = min(pfi[i]->nFirstBytes - (unsigned int)nOffset[i].LowPart, BUFSIZE);
 			}
 			else {
 				if(!IsValidFileHandle(&pfi[i]->fh)) {
@@ -793,8 +793,8 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 						bResult = false;
 						goto End;
 					}
-					pfi[i]->nMaxFirstBytes = min(MAXFIRSTBYTES, 
-						roundup(pfi[i]->size, BUFSIZE)*BUFSIZE);
+					pfi[i]->nMaxFirstBytes = (unsigned int)min((ULONGLONG)MAXFIRSTBYTES, 
+						roundup(pfi[i]->size, BUFSIZE).QuadPart);
 					pfi[i]->firstbytes = new char[pfi[i]->nMaxFirstBytes];
 					pfi[i]->nFirstBytes = 0;
 				}
