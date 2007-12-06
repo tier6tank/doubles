@@ -1,7 +1,8 @@
 
 # this makefile isn't very nice, and propably only works on my computer
 
-debug = 1
+debug = 0
+unicode = 1
 
 minopt = -W4 -EHsc
 opt = -Yu"stdinc.h" $(minopt)
@@ -10,15 +11,21 @@ dbg = -Zi -D_DEBUG -DDEBUG -MTd -GS -RTCs -RTCu -RTCc
 !else
 dbg = -Ox -DNDEBUG
 !endif
-opt = $(opt) $(dbg)
-minopt = $(minopt) $(dbg)
+!if $(unicode)==1
+unicode = -D_UNICODE -DUNICODE
+!else
+unicode = 
+!endif
+
+opt = $(opt) $(dbg) $(unicode)
+minopt = $(minopt) $(dbg) $(unicode)
 libs = shlwapi.lib
 nostdincheaders = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 headers = $(nostdincheaders) stdinc.pch
 
-all: dbl.exe #dblunix.exe dblbl.exe
+#all: dbl.exe dblunix.exe dblbl.exe
 
-#all: dbl.exe dblunix.exe
+all: dbl.exe dblunix.exe
 
 dbl.exe:  dbl.obj os_cc_specific.obj 
 	cl $(opt) -Fe"dbl.exe" dbl.obj os_cc_specific.obj $(libs)
@@ -41,8 +48,8 @@ dbl4.exe: dbl.cpp stdinc.pch dbl.h os_cc_specific.h
 stdinc.pch: stdinc.cpp $(nostdincheaders)
 	cl -c $(minopt) -Yc"stdinc.h" stdinc.cpp
 
-dblunix.exe: dbl.cpp dbl.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
-	C:\cygwin\bin\bash --login -i /cygdrive/c/programs/cpp/dbl/buildunix.sh
+dblunix.exe: dbl.cpp os_cc_specific.cpp $(headers)
+	C:\cygwin\bin\bash --login -i /cygdrive/c/programs/cpp/dbl_cvs/dbl/buildunix.sh
 
 dblbl.exe: dbl.cpp os_cc_specific.cpp $(headers)
 	bcc32 -e"dblbl.exe" dbl.cpp os_cc_specific.cpp PSDK\shlwapi.lib
