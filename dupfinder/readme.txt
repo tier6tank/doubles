@@ -8,8 +8,8 @@ It is a command-line program which searches for duplicate files in the given pat
 INSTALLATION:
 -------------
 
-Windows: simply copy the executable (dbl.exe) for example to C:\windows, so that you can call it from the commandline 
-         from every directory
+Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if there is that file) 
+         for example to C:\windows, so that you can call it from the commandline from every directory
 
 Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory
 
@@ -18,11 +18,14 @@ USAGE:
 
 From the commandline, simply type dbl <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
 The output can be redirected to a file. 
+Please avoid such things like "dbl /path1 /path1" or "dbl /path1/path2 /path1". If you specify directly or 
+indirectly directories twice or more on the commandline, the files in these directories are compared with 
+themselves. Up to now, I did'nt fix this problem, but it will probably later be fixed. 
 
 TODO:
 -----
 - Create a nice (os- and make-utitlity-independent?! if possible) makefile
-- Adding license text as header
+- Adding license text as header in source files
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
 - (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose)
@@ -34,6 +37,8 @@ TODO:
   unicode output
 - adding option which determines if the small sized files or the large sized files are treated and displayed firstd
 - adding option for not going in subdirectories
+- adding unicode support for linux/unix
+ 
 
 DESCRIPTION:
 ------------
