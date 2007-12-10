@@ -7,22 +7,21 @@
 #define _tmain main
 #define _ftprintf fprintf
 #define _tcscmp strcmp
-#define _tprintf printf
-#define _stprintf_s sprintf_s
-#define _stprintf sprintf
-#define _stscanf_s sscanf_s
-#define _stscanf sscanf
 #define _tcscpy strcpy
-#define _tcscat_s strcat_s
-#define _tcscat strcat
-#define _tfopen_s fopen_s
-#define _tfopen fopen
-/*
+#define _tprintf printf
 #define _stprintf sprintf
-*/
+#define _tcscat strcat
+#define _tfopen fopen
+#define _vstprintf vsprintf
+
+#define _stscanf_s sscanf_s
+#define _tcscpy_s strcpy_s
+#define _stprintf_s sprintf_s
+#define _stscanf_s sscanf_s
+#define _tcscat_s strcat_s
+#define _tfopen_s fopen_s
 
 #endif /* !defined(_WIN32) */
-
 
 #if !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400)
 
@@ -31,10 +30,15 @@
 #endif
 
 int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... );
-int _stscanf_s(_TCHAR *buffer, const _TCHAR *format, ... );
 char* _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b);
 char *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b);
 int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
+
+#ifndef _stscanf_s
+#define _stscanf_s _tscanf
+#endif
+
+#define sscanf_s sscanf
 
 #endif /* !(defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
 

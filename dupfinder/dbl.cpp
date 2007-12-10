@@ -1,6 +1,5 @@
 
-/* TODO: linux and borland c do not usablely utilize clock values (but that is neglectable) !  
-         do not search files twice or more (for example by the commandline ..\ .\ or .\ .\: such cases, 
+/* TODO: do not search files twice or more (for example by the commandline ..\ .\ or .\ .\: such cases, 
          when a previously searched directory is once again searched */
 
 #include "stdinc.h"
@@ -668,7 +667,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 
 	fileinfo *pfi[2] = {&f1, &f2 };
 	char *pbuf[2];
-	int n[2];
+	unsigned int n[2];
 	ULARGE_INTEGER nOffset[2];
 	bool usingbuffer[2], writetofirstbytes[2];
 	bool bResult;
@@ -851,7 +850,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 			goto End;
 		}
 
-		if(memcmp(pbuf[0], pbuf[1], n[0]) != 0) {
+		if(memcmp(pbuf[0], pbuf[1], /*(size_t)*/n[0]) != 0) {
 			bResult = false;
 			goto End;
 		}
