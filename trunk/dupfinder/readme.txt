@@ -38,7 +38,14 @@ TODO:
 - adding option which determines if the small sized files or the large sized files are treated and displayed firstd
 - adding option for not going in subdirectories
 - adding unicode support for linux/unix
- 
+- removing clock_t from source, replacing it with time_t
+- (correct cygwin-build lf/cr errors)
+- merging searching files and sorting files by size algorithms ?
++ somehow fixing the problem with the sprintf_s routines, which are currently supported only by microsoft v14 (or deleting
+  them?? but they are to nice to delete them, so something other, but what!?!?, has to be done...) done! with v-printf-routines. 
+  Nevertheless a call to sscaf_s (if occuring) with an "%s" format argument would very propably leed into trouble, so i must not
+  use this!
+- playing a bit with some compiling options (especcially optimization for gcc!)
 
 DESCRIPTION:
 ------------

@@ -1,7 +1,7 @@
 
 # this makefile isn't very nice, and propably only works on my computer
 
-debug = 0
+debug = 1
 unicode = 1
 
 minopt = -W4 -EHsc -Wp64

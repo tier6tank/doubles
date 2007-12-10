@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <fts.h>
 #include <cerrno>
+#include <stdarg.h>
 
 #endif /* !defined(_WIN32) */
 

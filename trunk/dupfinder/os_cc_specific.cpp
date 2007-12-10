@@ -20,19 +20,36 @@ using namespace std;
 
 int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... ) {
 	UNREFERENCED_PARAMETER(buflen);
-	return _stprintf(buffer, format);
+
+	va_list marker;
+	va_start (marker, format);
+	int nResult;
+
+	nResult = _vstprintf(buffer, format, marker);
+
+	va_end(marker);
+	return nResult;
 }
 
+/*
 int _stscanf_s(_TCHAR *buffer, const _TCHAR *format, ... ) {
-	return _stscanf(buffer, format);
-}
+	
+	va_list marker;
+	va_start (marker, format);
+	int nResult;
 
-_TCHAR *_tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b) {
+	nResult = _vstscanf(buffer, format, marker);
+
+	va_end(marker);
+	return nResult;
+}*/
+
+_TCHAR * _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b) {
 	UNREFERENCED_PARAMETER(nLength);
 	return _tcscpy(a, b);
 }
 
-_TCHAR *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b) {
+_TCHAR * _tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b) {
 	UNREFERENCED_PARAMETER(nLength);
 	return _tcscat(a, b);
 }
@@ -142,7 +159,7 @@ bool ReadFile(const FileHandle *f, char *buffer, DWORD nLength, DWORD *pRead) {
 bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto) {
 	ULARGE_INTEGER tmp;
 	tmp = *pto;
-	tmp.LowPart = SetFilePointer(f->hFile, tmp.LowPart, (PLONG)&tmp.HighPart, FILE_BEGIN);
+	tmp.LowPart = SetFilePointer(f->hFile, (LONG)tmp.LowPart, (PLONG)&tmp.HighPart, FILE_BEGIN);
 	return !(tmp.LowPart == 0xffffffff && GetLastError() != 0);
 }
 	
