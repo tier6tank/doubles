@@ -30,8 +30,8 @@
 #endif
 
 int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... );
-char* _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b);
-char *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b);
+_TCHAR* _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b);
+_TCHAR *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b);
 int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 
 #ifndef _stscanf_s
@@ -40,7 +40,23 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 
 #define sscanf_s sscanf
 
-#endif /* !(defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
+#endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
+
+
+// MingW does not support unicode wmain
+#if defined(__MINGW32_VERSION) && defined(_WIN32) && defined(_UNICODE)
+#define DECLARE_MAIN int main(int argc, char *_argv[]) { \
+	wchar_t **argv = new wchar_t *[argc+1]; \
+	argv[argc] = NULL; \
+	{ char **__ptr; int __i; \
+	for(__ptr = _argv, __i = 0; __ptr[0] != NULL; __ptr++, __i++) { \
+		int __length = strlen(__ptr[0])+1; \
+		argv[__i] = new wchar_t[__length*2]; \
+		mbstowcs(argv[__i], _argv[__i], __length*2); \
+	} } 
+#else
+#define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
+#endif /* defined(__MINGW32_VERSION) */
 
 // todouble is there, because msc < 1300 do not handle typecast from unsigned __int64 to double
 #if defined(_MSC_VER) && _MSC_VER < 1300
