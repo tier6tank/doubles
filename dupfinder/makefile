@@ -25,7 +25,7 @@ headers = $(nostdincheaders) stdinc.pch
 
 #all: dbl.exe dblunix.exe dblbl.exe
 
-all: dbl.exe dblunix.exe
+all: dbl.exe dblunix.exe dblmingw.exe
 
 dbl.exe:  dbl.obj os_cc_specific.obj 
 	cl $(opt) -Fe"dbl.exe" dbl.obj os_cc_specific.obj $(libs)
@@ -36,20 +36,11 @@ dbl.obj: dbl.cpp $(headers)
 os_cc_specific.obj: os_cc_specific.cpp $(headers)
 	cl $(opt) -c os_cc_specific.cpp
 
-#dbl.exe: dbl.cpp stdinc.pch dbl.h os_cc_specific.h profile.h
-#	cl $(opt) dbl.cpp $(libs)
-
-dbl0.exe: dbl.cpp stdinc.pch dbl.h os_cc_specific.h
-	cl $(opt) -DBENCHMARK -DTESTFUNC=0 -DTESTCNT=1 -Fedbl0.exe dbl.cpp $(libs)
-
-dbl4.exe: dbl.cpp stdinc.pch dbl.h os_cc_specific.h
-	cl $(opt) -DBENCHMARK -DBENCHMARKBUFSIZE -DTESTFUNC=4 -Fedbl4.exe dbl.cpp $(libs)
-
 stdinc.pch: stdinc.cpp $(nostdincheaders)
 	cl -c $(minopt) -Yc"stdinc.h" stdinc.cpp
 
-dblunix.exe: dbl.cpp os_cc_specific.cpp $(headers)
+dblunix.exe dblmingw: dbl.cpp os_cc_specific.cpp $(headers)
 	C:\cygwin\bin\bash --login -i /cygdrive/c/programs/cpp/dbl_cvs/dbl/buildunix.sh
 
 dblbl.exe: dbl.cpp os_cc_specific.cpp $(headers)
-	bcc32 -e"dblbl.exe" dbl.cpp os_cc_specific.cpp PSDK\shlwapi.lib
+	bcc32 -e"dblbl.exe" -WU dbl.cpp os_cc_specific.cpp PSDK\shlwapi.lib

@@ -8,7 +8,7 @@ It is a command-line program which searches for duplicate files in the given pat
 INSTALLATION:
 -------------
 
-Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if there is that file) 
+Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if present) 
          for example to C:\windows, so that you can call it from the commandline from every directory
 
 Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory
@@ -33,13 +33,13 @@ TODO:
 - adding IsSameFileFunction
 - adding error messages (when finding files, comparing files...)
 + supporting files over 4 GB always?! yes, i do hope so. 
-- adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
-  unicode output
-- adding option which determines if the small sized files or the large sized files are treated and displayed firstd
++ adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
+  unicode output. done
++ adding option which determines if the small sized files or the large sized files are treated and displayed firstd. done
 - adding option for not going in subdirectories
 - adding unicode support for linux/unix
-- removing clock_t from source, replacing it with time_t
-- (correct cygwin-build lf/cr errors) related to "adding option -f <filename> "
++ removing clock_t from source, replacing it with time_t: that wasn't an error, it was my fault!
++ (correct cygwin-build lf/cr errors) related to "adding option -f <filename> " seems not to be possible
 - merging searching files and sorting files by size algorithms ?
 + somehow fixing the problem with the sprintf_s routines, which are currently supported only by microsoft v14 (or deleting
   them?? but they are to nice to delete them, so something other, but what!?!?, has to be done...) done! with v-printf-routines. 
@@ -47,6 +47,7 @@ TODO:
   use this!
 - playing a bit with some compiling options (especcially optimization for gcc!)
 - internationalization
++ replacing the f* c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
 
 THE FAR, FAR, FUTURE:
 -----------

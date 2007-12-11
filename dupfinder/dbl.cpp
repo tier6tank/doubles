@@ -65,7 +65,7 @@ void	erase(fileinfo &);
 void	FindFiles(findfileinfo &, _TCHAR *[], int);
 void	SortFilesBySize(list<fileinfo> &, list<fileinfosize> &, bool);
 void	GetEqualFiles(list<fileinfosize> &);
-void	PrintResults(list<fileinfosize> &);
+void	PrintResults(list<fileinfosize> &, FileHandle *);
 
 #ifdef BENCHMARK
 typedef bool (*__comparefunc)(fileinfo &, fileinfo &);
@@ -99,7 +99,11 @@ DECLARE_MAIN
 	list<fileinfoequal>::iterator it4;
 
 	clock_t tstart, tend;
-	bool bReverse = true;
+	bool bReverse;
+	int i;
+	int nOptions;
+	FileHandle fOutput;
+	bool bRecurseIntoSubdirectories;
 
 
 #ifdef BENCHMARK
@@ -120,14 +124,71 @@ DECLARE_MAIN
 
 	tstart = clock();
 
-	if(argc <= 1) {
-		_ftprintf(stderr, _T("dbl: Finds equal files\n\n"));
-		_ftprintf(stderr, _T("dbl [-m size] Path1 [Path2 [Path3 ...] ]\n"));
-		_ftprintf(stderr, _T("option -m x: Compare only files with size greater than x (in bytes)\n"));
+	argv++;
+	argc--;
+
+	if(argc == 0) {
+		_ftprintf(stderr, _T("dbl: Finds duplicates\n\n"));
+		_ftprintf(stderr, _T("dbl [OPTIONS] Path1 [Path2] [Path3] ...\n\n"));
+		_ftprintf(stderr, _T("Options: \n"));
+		_ftprintf(stderr, _T("-m x: Take care only of files with size greater than x (in bytes)\n"));
+		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
+		_ftprintf(stderr, _T("-f x: Print results to file x (e.g. if the output to stdout is bad \n"));
+		_ftprintf(stderr, _T("      because of unicode characters\n"));
+		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories (not yet implemented)\n"));
 		return 1;
 	}
 
-	if(_tcscmp(argv[1], _T("-m")) == 0) {
+	nOptions = 0;
+	nMaxFileSizeIgnore.QuadPart = 0;
+	fOutput = /*stdout*/GetStdOutputHandle();
+	bReverse = false;
+	bRecurseIntoSubdirectories = true;
+
+	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
+		if(_tcscmp(argv[i], _T("-m")) == 0) {
+			if(argv[i+1]) {
+				if(_stscanf_s(argv[i+1], _T("%") I64, &nMaxFileSizeIgnore) == 0) {
+					_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+					return 1;
+				}
+			} else {
+				_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+				return 1;
+			}
+			i++;
+			nOptions += 2;
+		}
+		else if(_tcscmp(argv[i], _T("-r")) == 0) {
+			bReverse = true;
+			nOptions += 1;
+		}
+		else if(_tcscmp(argv[i], _T("-f")) == 0) {
+			if(!argv[i+1]) {
+				_ftprintf(stderr, _T("Error: Filename expected! \n"));
+				return 1;
+			}
+			// _tfopen_s(&fOutput, argv[i+1], _T("w"));
+			CreateFile(&fOutput, argv[i+1]);
+			if(!IsValidFileHandle(&fOutput)) {
+				_ftprintf(stderr, _T("Error: Cannot open %s! \n"), argv[i+1]);
+				return 1;
+			}
+			nOptions += 2;
+			i++;
+		}
+		else if(_tcscmp(argv[i], _T("-n")) == 0) {
+			bRecurseIntoSubdirectories = false;
+			nOptions += 1;
+		}
+	}
+
+	if(argc-nOptions <= 0) {
+		_ftprintf(stderr, _T("Error in commandline: arguments expected! \n"));
+		return 1;
+	}
+
+	/* if(_tcscmp(argv[1], _T("-m")) == 0) {
 		if(argc <= 3) {
 			_ftprintf(stderr, _T("Error in commandline! \n"));
 			return 1;
@@ -138,20 +199,22 @@ DECLARE_MAIN
 		}
 		argv+=2;
 		argc-=2;
-	}
+	} */
 
 	/* add reverse option -r (printing files with lowest/highest size first) */
 
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFiles = &files;
 
-	FindFiles(ffi, argv+1, argc-1);
+	FindFiles(ffi, argv+i, argc-nOptions);
 
 	SortFilesBySize(files, orderedbysize, bReverse);
 
 	GetEqualFiles(orderedbysize);
 
-	PrintResults(orderedbysize);
+	PrintResults(orderedbysize, &fOutput);
+
+	CloseFile(&fOutput);
 
 
 	tend = clock();
@@ -522,20 +585,27 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 }
 
-void	PrintResults(list<fileinfosize> &orderedbysize)
+void	PrintResults(list<fileinfosize> &orderedbysize, FileHandle *pfOutput)
 {
 	list<fileinfo>::iterator it, it3;
 	list<fileinfosize>::iterator it2;
 	list<fileinfoequal>::iterator it4;
+	const int BUFSIZE = 1000;
+	_TCHAR Buffer[BUFSIZE];
 
 	_ftprintf(stderr, _T("Step 4: printing the results...\n"));
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
-			_ftprintf(stdout, _T("+ Equal (%i files of size %") I64 _T("): \n"), 
+			// _ftprintf(fOutput, _T("+ Equal (%i files of size %") I64 _T("): \n"), 
+			// 	(*it4).files.size(), (*it4).files.front().size.QuadPart);
+			_stprintf_s(Buffer, BUFSIZE, _T("+ Equal (%i files of size %") I64 _T("): \r\n"), 
 				(*it4).files.size(), (*it4).files.front().size.QuadPart);
+			WriteString(pfOutput, Buffer);
 			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				_ftprintf(stdout, _T("- \"%s\"\n"), (*it).name);
+				// _ftprintf(fOutput, _T("- \"%s\"\n"), (*it).name);
+				_stprintf_s(Buffer, BUFSIZE, _T("- \"%s\"\r\n"), (*it).name);
+				WriteString(pfOutput, Buffer);
 			}
 		}
 	}
