@@ -7,12 +7,7 @@ using namespace std;
 #if !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400)
 
 // sprintf_s, scanf_s, ... aren't defined
-// so wrap them into the old functions
-
-/* that works ???????????????, because there aren't any variables declared, 
-   so bp and sp don't change */
-
-/* implement perhaps own versions of *_s functions ... */
+// so wrap them into the old functions (where buffer overflows unfortunately *can* occur!)
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(x) ((x) = (x))
@@ -31,19 +26,6 @@ int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... ) {
 	return nResult;
 }
 
-/*
-int _stscanf_s(_TCHAR *buffer, const _TCHAR *format, ... ) {
-	
-	va_list marker;
-	va_start (marker, format);
-	int nResult;
-
-	nResult = _vstscanf(buffer, format, marker);
-
-	va_end(marker);
-	return nResult;
-}*/
-
 _TCHAR * _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b) {
 	UNREFERENCED_PARAMETER(nLength);
 	return _tcscpy(a, b);
@@ -59,7 +41,8 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
 	return (*ppf != NULL);
 }
 
-#endif /* !(defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
+
+#endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
 
 /****************************************************************/
 

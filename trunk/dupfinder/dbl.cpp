@@ -83,9 +83,12 @@ LARGE_INTEGER fileopen;
 LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
-
-int _tmain(int argc, _TCHAR *argv[]) 
-{
+// int _tmain(int argc, _TCHAR *argv[]) 
+// {
+// a little bit ugly, this DECLARE_MAIN
+// that's because of mingw32 build which
+// does not support wmain, but still unicode
+DECLARE_MAIN
 	list<fileinfo> files;
 	list<fileinfosize> orderedbysize;
 	findfileinfo ffi;
@@ -95,7 +98,6 @@ int _tmain(int argc, _TCHAR *argv[])
 	list<fileinfosize>::iterator it2;
 	list<fileinfoequal>::iterator it4;
 
-	
 	clock_t tstart, tend;
 	bool bReverse = true;
 
@@ -850,7 +852,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 			goto End;
 		}
 
-		if(memcmp(pbuf[0], pbuf[1], /*(size_t)*/n[0]) != 0) {
+		if(memcmp(pbuf[0], pbuf[1], n[0]) != 0) {
 			bResult = false;
 			goto End;
 		}
