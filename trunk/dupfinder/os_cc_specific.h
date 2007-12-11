@@ -13,6 +13,7 @@
 #define _tcscat strcat
 #define _tfopen fopen
 #define _vstprintf vsprintf
+#define _fputts fputs
 
 #define _stscanf_s sscanf_s
 #define _tcscpy_s strcpy_s
@@ -52,7 +53,13 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 	for(__ptr = _argv, __i = 0; __ptr[0] != NULL; __ptr++, __i++) { \
 		int __length = strlen(__ptr[0])+1; \
 		argv[__i] = new wchar_t[__length*2]; \
-		mbstowcs(argv[__i], _argv[__i], __length*2); \
+		/*mbstowcs(argv[__i], _argv[__i], __length*2);*/MultiByteToWideChar( \
+			CP_THREAD_ACP, \
+			0, \
+			_argv[__i], \
+			-1, \
+			argv[__i], \
+			__length*2); \
 	} } 
 #else
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
@@ -128,14 +135,15 @@ struct FindFile {
 typedef void (*for_each_file_func)(const FindFile *, void *);
 
 bool	OpenFile(FileHandle *f, const _TCHAR *name);
+bool	CreateFile(FileHandle *f, const _TCHAR *name);
 bool 	ReadFile(const FileHandle *f, char * buffer, DWORD nLength, DWORD *pRead);
+bool	WriteString(FileHandle *f, const _TCHAR *buffer);
 bool	CloseFile(FileHandle *f);
 bool	IsValidFileHandle(const FileHandle *f);
 void	InitFileHandle(FileHandle *f);
 bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto);
 void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData);
-
-
+FileHandle GetStdOutputHandle();
 
 
 

@@ -52,6 +52,10 @@ bool OpenFile(FileHandle *f, const _TCHAR *name) {
 	return _tfopen_s(&f->f, name, _T("rb"));
 }
 
+bool CreateFile(FileHandle *f, const _TCHAR *name) {
+	return _tfopen_s(&f->f, name, _T("wb"));
+}
+
 bool 	ReadFile(const FileHandle *f, char * buffer, DWORD nLength, DWORD *pRead) {
 	*pRead = fread(buffer, 1, nLength, f->f);
 	return !ferror(f->f);
@@ -116,6 +120,17 @@ void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pD
 	fts_close(hFind);
 }
 
+FileHandle GetStdOutputHandle() {
+	FileHandle f;
+	f.f = stdout;
+	return f;
+}
+
+bool	WriteString(FileHandle *f, const _TCHAR *buffer) {
+	_fputts(buffer, f->f);
+	return !ferror(f->f);
+}
+
 
 #else /* defined(_WIN32) */
 
@@ -131,7 +146,19 @@ bool OpenFile(FileHandle *f, const _TCHAR *name) {
 		NULL);
 	return (f->hFile != INVALID_HANDLE_VALUE);
 }
-		
+
+bool CreateFile(FileHandle *f, const _TCHAR *name) {
+	f->hFile = CreateFile(
+		name, 
+		GENERIC_WRITE, 
+		FILE_SHARE_READ, 
+		NULL, 
+		CREATE_ALWAYS, 
+		FILE_ATTRIBUTE_NORMAL, 
+		NULL);
+	return (f->hFile != INVALID_HANDLE_VALUE);
+}
+
 bool ReadFile(const FileHandle *f, char *buffer, DWORD nLength, DWORD *pRead) {
 	BOOL bRetVal;
 	bRetVal = ReadFile(f->hFile, buffer, nLength, pRead, NULL);
@@ -214,6 +241,56 @@ void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData)
 	FindClose(hFind);
 
 	// printf(")%s\n", pDir);
+}
+
+FileHandle GetStdOutputHandle() {
+	FileHandle f;
+	f.hFile = GetStdHandle(STD_OUTPUT_HANDLE);
+	return f;
+}
+
+bool WriteString(FileHandle *f, const _TCHAR *buffer)
+{
+	size_t nLength = _tcslen(buffer)*sizeof(_TCHAR);
+	BOOL bResult;
+	DWORD nWritten;
+
+#ifdef _UNICODE
+	/* output to console */
+	/* console does not support unicode strings */
+	if(GetFileType(f->hFile) == FILE_TYPE_CHAR) { 
+		size_t length = _tcslen(buffer)+1;
+		char *buffer2 = new char[length];
+		
+		WideCharToMultiByte(
+			CP_THREAD_ACP, 
+			0, 
+			buffer, 
+			-1, 
+			buffer2, 
+			(unsigned int)length, 
+			NULL,
+			NULL);
+		
+		bResult = WriteFile(f->hFile, 
+			buffer2, 
+			(unsigned int)strlen(buffer2), 
+			&nWritten, NULL);
+
+		goto End;
+	}
+#endif
+		
+		
+
+	bResult = WriteFile(
+		f->hFile, 
+		buffer, 
+		(unsigned int)nLength, 
+		&nWritten, 
+		NULL);
+End:
+	return bResult && nWritten == nLength;
 }
 
 #endif /* defined(_WIN32) */
