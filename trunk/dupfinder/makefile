@@ -25,7 +25,7 @@ headers = $(nostdincheaders) stdinc.pch
 
 #all: dbl.exe dblunix.exe dblbl.exe
 
-all: dbl.exe dblunix.exe dblmingw.exe
+all: dbl.exe dblunix.exe dblmingw.exe dblmingw_nouni.exe
 
 dbl.exe:  dbl.obj os_cc_specific.obj 
 	cl $(opt) -Fe"dbl.exe" dbl.obj os_cc_specific.obj $(libs)
@@ -39,7 +39,7 @@ os_cc_specific.obj: os_cc_specific.cpp $(headers)
 stdinc.pch: stdinc.cpp $(nostdincheaders)
 	cl -c $(minopt) -Yc"stdinc.h" stdinc.cpp
 
-dblunix.exe dblmingw: dbl.cpp os_cc_specific.cpp $(headers)
+dblunix.exe dblmingw.exe dblmingw_nouni.exe: dbl.cpp os_cc_specific.cpp $(headers)
 	C:\cygwin\bin\bash --login -i /cygdrive/c/programs/cpp/dbl_cvs/dbl/buildunix.sh
 
 dblbl.exe: dbl.cpp os_cc_specific.cpp $(headers)

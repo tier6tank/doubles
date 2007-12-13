@@ -36,7 +36,7 @@ _TCHAR *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b);
 int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 
 #ifndef _stscanf_s
-#define _stscanf_s _tscanf
+#define _stscanf_s _stscanf
 #endif
 
 #define sscanf_s sscanf
