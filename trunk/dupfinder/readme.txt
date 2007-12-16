@@ -25,7 +25,9 @@ themselves. Up to now, I did'nt fix this problem, but it will probably later be 
 TODO:
 -----
 - Create a nice (os- and make-utitlity-independent?! if possible) makefile
-- Adding license text as header in source files
+- See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile!
+- putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build
++ Adding license text as header in source files. done
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
 - (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose)
@@ -47,7 +49,8 @@ TODO:
   use this!
 - playing a bit with some compiling options (especcially optimization for gcc!)
 - internationalization
-+ replacing the f* c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
++ replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
+- add to statistcs sum of bytes read
 
 THE FAR, FAR, FUTURE:
 -----------
