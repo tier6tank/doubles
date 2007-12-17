@@ -25,7 +25,7 @@ themselves. Up to now, I did'nt fix this problem, but it will probably later be 
 TODO:
 -----
 - Create a nice (os- and make-utitlity-independent?! if possible) makefile
-- See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile!
++ See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
 - putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build
 + Adding license text as header in source files. done
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
@@ -68,77 +68,38 @@ description of the scanning process:
    equal files are stored in other lists, for each size one, which at the end of that process are printed to screen
 
 
-
 COMPILING:
 ----------
-the makefile is propably no use for anybody, so i provide here some instructions to compile
-the program (under different compilers). Nevertheless i will try somewhen to provide a makefile!
-Note that for all command lines the following is true: 
-If you want to compile your program with unicode support, specify the following additional options on 
-the commandline (this is the same with all compilers except to borland): "-D_UNICODE -DUNICODE" (only for 
-borland, you need only to specify -WU). Note that the output of unicode characters on the console is only 
-good with the microsoft compiler, all other compilers that support unicode break output immidiately when 
-they find an unicode character which is not displayable. Hope that the -f option will come soon. )
-With each compiler, there is a note whether unicode is supported or not. 
+Now the compiling is very simple: for each compiler, there is a special makefile. 
 
-1. Microsoft compiler (unicode supported):
-   I've tested with version 12-14, that's the environment under which i 
-   developped the program initially, you have to have the Platform SDK installed, else you will get
-   error messages when linking or already when compiling!:
+For building the program with visual c++ - compiler, just type the following: 
 
-   non-unicode:
-     cl.exe -Yu"stdinc.h" -Yc"stdinc.h" <debugoptions> -W4 -EHsc -Fe"dbl.exe" dbl.cpp os_cc_specific.cpp shlwapi.lib
-   unicode:
-     cl.exe -Yu"stdinc.h" -Yc"stdinc.h" -DUNICODE -D_UNICODE <debugoptions> -W4 -EHsc -Fe"dbl.exe" dbl.cpp os_cc_specific.cpp shlwapi.lib
- 
-   debug build: replace <debugoptions> by -Zi -D_DEBUG -DDEBUG -MTd -GS -RTCs -RTCu -RTCc. 
-   release build: replace <debugoptions> by -Ox -DNDEBUG. 
+	nmake -f makefile.vc [debug=0/1] [unicode=0/1]
+
+The compiled files are stored under vc[_uni]<_debug/_release>. 
 
 
-2. Borland C++ (unicode supported):
-   e.g. the free commandline version 5.5. I'm not very familiar with that compiler, so here only the 
-   minimal commandline (for unicode support specify the option -WU as well):
+For building the program with borland c++, type the following:
 
-   non-unicode:
-     bcc32 -e"dbl.exe"  <debugoptions> dbl.cpp os_cc_specific.cpp PSDK\shlwapi.lib
-   unicode:
-     bcc32 -e"dbl.exe" -WU <debugoptions> dbl.cpp os_cc_specific.cpp PSDK\shlwapi.lib
+	make -f makefile.bcc [-Ddebug=0/1] [-Dunicode=0/1]
 
-   debug build: replace <debugoptions> by -DDEBUG -D_DEBUG
-   release build: replace <debugoptions> by -DNDEBUG -O2
-
-3. Gnu gcc compiler under linux (unicode not supported):
-   That's again only the minimalistic minimal commandline, because i have no idea of what options 
-   there are. 
-
-     g++ -o dbl dbl.cpp os_cc_specific.cpp
-
-4. Cygwin build alternative 1 (unicode not supported):
-   In windows under cygwin, you can build the program nearly as described in 3. Simply call: 
-
-     g++ -o dbl.exe dbl.cpp os_cc_specific.cpp
-
-   Note that compiled thus, the program does NOT support unicode and uses the unix 
-   build-in functions. Every call of an unix function is emulated by cygwin. It is therefore very slow!
+The compiled files are stored under bcc[_uni]<_debug/_release>. 
 
 
-5. Cygwin build alternative 2/MingW build, the preferable way (unicode supported):
-   If you want to have unicode support in your program, you can build the program with mingw 
-   under cygwin, which supports unicode. MingW for sure must be installed. Besides, the executables
-   which are created with that commandline, are native windows and do not need the cygwin1.dll. 
-   They are therefore much more faster than the cygwin-build described before. 
-   Again only a minimalistic commandline: 
+For building the program with mingw, type the following:
 
-   non-unicode:
-     g++ -o dbl.exe -mwin32 -mno-cygwin dbl.cpp os_cc_specific.cpp -lshlwapi
-   unicode:
-     g++ -o dbl.exe -DUNICODE -D_UNICODE -mwin32 -mno-cygwin dbl.cpp os_cc_specific.cpp -lshlwapi
+	mingw32-make -f makefile.gcc [debug=0/1] [unicode=0/1]
 
-   note that unfortunately, the current implementation of mingw does not allow to specify 
-   a unicode commandline, but all the rest of the program is in unicode (there are unfortunately
-   also some display problems, but what shall i do? Perhaps a future version of mingw will solve 
-   these issues).
+The compiled files are stored under gcc[_uni]<_debug/_release>. 
 
+
+For building the program in unix with gcc, type the following:
+
+	make [debug=0/1]
+
+The compiled files are stored under unix<_debug/_release>. 
+
+Other compilers are perhaps also supported, but i did not try other compilers yet. 
 
 
 LICENSE:
