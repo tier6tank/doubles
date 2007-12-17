@@ -111,7 +111,7 @@ DECLARE_MAIN
 	list<fileinfo> files;
 	list<fileinfosize> orderedbysize;
 	findfileinfo ffi;
-	ULARGE_INTEGER nMaxFileSizeIgnore = {0};
+	ULARGE_INTEGER nMaxFileSizeIgnore;
 
 	list<fileinfo>::iterator it, it3;
 	list<fileinfosize>::iterator it2;

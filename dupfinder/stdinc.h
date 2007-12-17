@@ -25,3 +25,7 @@
 #include <cmath>
 #include <list>
 #include "os_cc_specific_includes.h"
+
+#ifdef __BORLANDC__
+#pragma hdrstop
+#endif
