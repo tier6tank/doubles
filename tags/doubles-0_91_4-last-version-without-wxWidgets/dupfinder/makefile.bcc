@@ -1,0 +1,81 @@
+#
+#   dbl - search duplicate files
+#   Copyright (C) 2007-2008 Matthias Böhm
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+!ifndef debug
+debug = 1
+!endif
+!ifndef unicode
+unicode =1
+!endif
+
+outdir = bcc
+dbl = dbl
+
+!if $(unicode)==1
+outdir = $(outdir)_uni
+!endif
+
+!if $(debug)==1
+outdir = $(outdir)_debug
+!else
+outdir = $(outdir)_release
+!endif
+
+
+pchopt = -w -x -He- -H="$(outdir)\stdinc.csm"
+opt = -Hu $(pchopt)
+
+!if $(debug)==1
+dbg = -v -D_DEBUG -DDEBUG
+!else
+dbg = -O2 -DNDEBUG
+!endif
+
+!if $(unicode)==1
+uniopt = -D_UNICODE -DUNICODE -WU
+!else
+uniopt = 
+!endif
+
+opt = $(opt) $(dbg) $(uniopt)
+pchopt = $(pchopt) $(dbg) $(uniopt)
+
+libs = PSDK\shlwapi.lib
+nopchheaders = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
+headers = $(nopchheaders) 
+
+all: $(outdir) $(outdir)\$(dbl).exe
+
+$(outdir): 
+	-@if not exist $(outdir) mkdir $(outdir)
+
+$(outdir)\$(dbl).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\os_cc_specific.obj
+	bcc32 $(opt) -e"$(outdir)\$(dbl).exe" $** $(libs)
+
+$(outdir)\dbl.obj: dbl.cpp $(headers)
+	bcc32 $(opt) -o"$@" -c dbl.cpp
+
+$(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
+	bcc32 $(opt) -c -o"$@" os_cc_specific.cpp
+
+$(outdir)\stdinc.obj: stdinc.cpp $(nopchheaders)
+	bcc32 $(pchopt) -c -o"$@" -H -Hc stdinc.cpp
+
+run:
+	-$(outdir)\$(dbl).exe
