@@ -63,15 +63,15 @@ $(outdir):
 
 $(outdir)\$(dbl).exe: $(outdir)\dbl.o $(outdir)\os_cc_specific.o
 	g++ $(opt) -o "$(outdir)\$(dbl).exe" $(outdir)\dbl.o $(outdir)\os_cc_specific.o $(libs)
+ifneq ($(debug),1)
+	objcopy -S $(outdir)\$(dbl).exe
+endif
 
 $(outdir)\dbl.o: dbl.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)\dbl.o dbl.cpp
 
 $(outdir)\os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)\os_cc_specific.o os_cc_specific.cpp
-
-#$(outdir)\stdinc.o: stdinc.cpp $(headers)
-#	g++ $(pchopt) -c -Yc"stdinc.h" stdinc.cpp
 
 run:
 	-$(outdir)\$(dbl).exe

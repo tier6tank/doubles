@@ -50,6 +50,9 @@ $(outdir):
 
 $(outdir)/$(dbl): $(outdir)/dbl.o $(outdir)/os_cc_specific.o
 	g++ $(opt) -o "$(outdir)/$(dbl)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs)
+ifneq ($(debug),1)
+	objcopy -S $(outdir)/$(dbl)
+endif
 
 $(outdir)/dbl.o: dbl.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
