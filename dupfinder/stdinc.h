@@ -1,3 +1,4 @@
+
 /******************************************************************************
     dbl - search duplicate files
     Copyright (C) 2007-2008 Matthias Böhm
@@ -18,7 +19,10 @@
 
 ******************************************************************************/
 
+#ifndef __STDINC_H_010987
+#define __STDINC_H_010987
 
+#include <wx/wx.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
@@ -29,3 +33,7 @@
 #ifdef __BORLANDC__
 #pragma hdrstop
 #endif
+
+
+#endif
+

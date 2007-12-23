@@ -64,6 +64,17 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
 
 #endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
 
+/*
+#include "dbl.h"
+
+
+void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData)
+{
+	wxDir dir(pDir);
+
+	wxAddToFileList(
+}*/
+
 /****************************************************************/
 
 #if !defined(_WIN32)
@@ -97,7 +108,7 @@ void	InitFileHandle(FileHandle *f) {
 }
 
 
-bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto) {
+bool	SeekFile(const FileHandle *f, const wxULongLong *pto) {
 	int res;
 	/* can't seek with c functions above 4 GB - but this 
 	   is not needed in my program */
@@ -186,9 +197,9 @@ bool ReadFile(const FileHandle *f, char *buffer, DWORD nLength, DWORD *pRead) {
 	return bRetVal == TRUE;
 }
 
-bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto) {
+bool	SeekFile(const FileHandle *f, const wxULongLong *pto) {
 	ULARGE_INTEGER tmp;
-	tmp = *pto;
+	tmp.QuadPart = pto->GetValue();
 	tmp.LowPart = SetFilePointer(f->hFile, (LONG)tmp.LowPart, (PLONG)&tmp.HighPart, FILE_BEGIN);
 	return !(tmp.LowPart == 0xffffffff && GetLastError() != 0);
 }
@@ -208,6 +219,7 @@ bool	IsValidFileHandle(const FileHandle *f) {
 void InitFileHandle(FileHandle *f) {
 	f->hFile = INVALID_HANDLE_VALUE; 
 }
+
 
 void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData) 
 {
@@ -247,8 +259,9 @@ void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData)
 				FindFile ff;
 				_tcscpy_s(ff.cFileName, MAX_PATH, Dir);
 				_tcscat_s(ff.cFileName, MAX_PATH, fd.cFileName);
-				ff.size.LowPart = fd.nFileSizeLow;
-				ff.size.HighPart = fd.nFileSizeHigh;
+				// ff.size.LowPart = fd.nFileSizeLow;
+				// ff.size.HighPart = fd.nFileSizeHigh;
+				ff.size = wxULongLong(fd.nFileSizeHigh, fd.nFileSizeLow);
 				// fprintf(stderr, "%" I64 " %s\n", ff.size, ff.cFileName);
 				function(&ff, pData);
 			}
@@ -262,6 +275,7 @@ void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData)
 
 	// printf(")%s\n", pDir);
 }
+
 
 FileHandle GetStdOutputHandle() {
 	FileHandle f;

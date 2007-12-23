@@ -147,7 +147,7 @@ union FileHandle {
 
 struct FindFile {
 	_TCHAR cFileName[MAX_PATH+1];
-	ULARGE_INTEGER size;
+	wxULongLong size;
  };
 
 typedef void (*for_each_file_func)(const FindFile *, void *);
@@ -159,7 +159,7 @@ bool	WriteString(FileHandle *f, const _TCHAR *buffer);
 bool	CloseFile(FileHandle *f);
 bool	IsValidFileHandle(const FileHandle *f);
 void	InitFileHandle(FileHandle *f);
-bool	SeekFile(const FileHandle *f, const ULARGE_INTEGER *pto);
+bool	SeekFile(const FileHandle *f, const wxULongLong *pto);
 void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData);
 FileHandle GetStdOutputHandle();
 
