@@ -27,16 +27,19 @@
 struct fileinfo
 {
 	_TCHAR name[MAX_PATH];
-	ULARGE_INTEGER size;
-	unsigned int nFirstBytes;
-	unsigned int nMaxFirstBytes;
-	char *firstbytes;
+	// wxString name;
+	wxULongLong size;
+	// ULARGE_INTEGER size;
+	unsigned long nFirstBytes;
+	unsigned long nMaxFirstBytes;
+	char* firstbytes;
+	// wxFile file;
 	FileHandle fh;
 };
 
 struct findfileinfo
 {
-	ULARGE_INTEGER nMaxFileSizeIgnore;
+	wxULongLong nMaxFileSizeIgnore;
 	list<fileinfo> *pFiles;
 };
 
@@ -48,7 +51,7 @@ struct fileinfoequal
 
 struct fileinfosize
 {
-	ULARGE_INTEGER size;
+	wxULongLong size;
 	list<fileinfo> files;
 	list<fileinfoequal> equalfiles;
 };

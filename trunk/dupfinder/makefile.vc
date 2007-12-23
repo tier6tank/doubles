@@ -26,39 +26,40 @@ unicode =1
 
 outdir = vc
 dbl = dbl
+wxdir = C:\wx
+version = 
 
 !if $(unicode)==1
-outdir = $(outdir)_uni
+version = $(version)u
 !endif
 
 !if $(debug)==1
-outdir = $(outdir)_debug
+version = $(version)d
 !else
-outdir = $(outdir)_release
 !endif
 
+outdir = $(outdir)$(version)
 
-pchopt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\"
-opt = -Yu"stdinc.h" $(pchopt)
+opt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
+	-I"$(wxdir)\include" -I"$(wxdir)\include\msvc" /D__WXMSW__ /DWIN32 -Yu"stdinc.h" \
+	-nologo
 
 !if $(debug)==1
-dbg = -Zi -D_DEBUG -DDEBUG -MTd -GS -RTCs -RTCu -RTCc
+dbg = -Zi -D_DEBUG -DDEBUG -GS -RTCs -RTCu -RTCc -Od /D__WXDEBUG__ -MDd
 !else
-dbg = -Ox -DNDEBUG
+dbg = -Ox -DNDEBUG -MD
 !endif
 
 !if $(unicode)==1
-uniopt = -D_UNICODE -DUNICODE
+uniopt = -D_UNICODE -DUNICODE -DwxUSE_UNICODE=1 
 !else
 uniopt = 
 !endif
 
 opt = $(opt) $(dbg) $(uniopt)
-pchopt = $(pchopt) $(dbg) $(uniopt)
 
-libs = shlwapi.lib
-nopchheaders = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
-headers = $(nopchheaders) 
+libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
 all: $(outdir) $(outdir)\$(dbl).exe
 
@@ -66,7 +67,7 @@ $(outdir):
 	-@if not exist $(outdir) mkdir $(outdir)
 
 $(outdir)\$(dbl).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\os_cc_specific.obj
-	cl $(opt) -Fe"$(outdir)\$(dbl).exe" $** $(libs)
+	cl $(opt) -Fe"$(outdir)\$(dbl).exe" $** $(libs) /link /LIBPATH:$(wxdir)\lib\vc_lib
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
 	cl $(opt) -c dbl.cpp
@@ -74,8 +75,8 @@ $(outdir)\dbl.obj: dbl.cpp $(headers)
 $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 	cl $(opt) -c os_cc_specific.cpp
 
-$(outdir)\stdinc.obj: stdinc.cpp $(nopchheaders)
-	cl $(pchopt) -c -Yc"stdinc.h" stdinc.cpp
+$(outdir)\stdinc.obj: stdinc.cpp $(headers)
+	cl $(opt)  -c -Yc"stdinc.h" stdinc.cpp
 
 run:
 	-$(outdir)\$(dbl).exe

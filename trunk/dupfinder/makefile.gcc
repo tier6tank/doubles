@@ -26,34 +26,38 @@ endif
 
 outdir := gcc
 dbl = dbl
+version := 
+wxdir = C:\wx
 
 ifeq ($(unicode),1)
-outdir := $(outdir)_uni
+version := $(version)u
 endif
 
 ifeq ($(debug),1)
-outdir := $(outdir)_debug
-else
-outdir := $(outdir)_release
+version := $(version)d
 endif
 
-opt := -mwin32 -mno-cygwin
+outdir := $(outdir)$(version)
+
+nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads -D__WXMSW__ -DHAVE_W32API_H -W -Wall
+opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
-dbg = -D_DEBUG -DDEBUG -g
+dbg = -D_DEBUG -DDEBUG -g -O0 -D__WXDEBUG__
 else
-dbg = -DNDEBUG
+dbg = -DNDEBUG  
 endif
 
 ifeq ($(unicode),1)
-uniopt = -D_UNICODE -DUNICODE
+uniopt = -D_UNICODE -DUNICODE -DwxUSE_UNICODE=1
 else
 uniopt = 
 endif
 
 opt := $(opt) $(dbg) $(uniopt)
+nopchopt := $(nopchopt) $(dbg) $(uniopt)
 
-libs = -lshlwapi
+libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi -lole32 -luuid
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
 all: $(outdir) $(outdir)\$(dbl).exe
@@ -61,10 +65,10 @@ all: $(outdir) $(outdir)\$(dbl).exe
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
-$(outdir)\$(dbl).exe: $(outdir)\dbl.o $(outdir)\os_cc_specific.o
+$(outdir)\$(dbl).exe: $(outdir)\stdinc.h.gch $(outdir)\dbl.o $(outdir)\os_cc_specific.o
 	g++ $(opt) -o "$(outdir)\$(dbl).exe" $(outdir)\dbl.o $(outdir)\os_cc_specific.o $(libs)
 ifneq ($(debug),1)
-	objcopy -S $(outdir)\$(dbl).exe
+	strip -s $(outdir)\$(dbl).exe
 endif
 
 $(outdir)\dbl.o: dbl.cpp $(headers)
@@ -72,6 +76,9 @@ $(outdir)\dbl.o: dbl.cpp $(headers)
 
 $(outdir)\os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)\os_cc_specific.o os_cc_specific.cpp
+
+$(outdir)\stdinc.h.gch: $(headers)
+	g++ $(nopchopt) -c -x c++ -o $(outdir)\stdinc.h.gch stdinc.h
 
 run:
 	-$(outdir)\$(dbl).exe

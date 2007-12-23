@@ -23,14 +23,17 @@ endif
 
 outdir := unix
 dbl = dbl
+version := 
 
 ifeq ($(debug),1)
-outdir := $(outdir)_debug
+version := $(version)d
 else
-outdir := $(outdir)_release
 endif
 
-opt := 
+outdir := $(outdir)$(version)
+
+nopchopt := `wx-config --cxxflags` 
+opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
 dbg = -D_DEBUG -DDEBUG -g
@@ -38,9 +41,9 @@ else
 dbg = -DNDEBUG
 endif
 
-opt := $(opt) $(dbg) $(uniopt)
+opt := $(opt) $(dbg) 
 
-libs = 
+libs = `wx-config --libs`
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
 all: $(outdir) $(outdir)/$(dbl)
@@ -48,10 +51,10 @@ all: $(outdir) $(outdir)/$(dbl)
 $(outdir): 
 	-@mkdir $(outdir)
 
-$(outdir)/$(dbl): $(outdir)/dbl.o $(outdir)/os_cc_specific.o
-	g++ $(opt) -o "$(outdir)/$(dbl)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs)
+$(outdir)/$(dbl): $(outdir)/stdinc.h.pch $(outdir)/dbl.o $(outdir)/os_cc_specific.o
+	g++ $(opt) -o "$(outdir)/$(dbl)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
 ifneq ($(debug),1)
-	objcopy -S $(outdir)/$(dbl)
+	strip -s $(outdir)/$(dbl)
 endif
 
 $(outdir)/dbl.o: dbl.cpp $(headers)
@@ -59,6 +62,9 @@ $(outdir)/dbl.o: dbl.cpp $(headers)
 
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
+
+$(outdir)/stdinc.h.pch: $(headers)
+	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.pch stdinc.h
 
 run:
 	-$(outdir)/$(dbl)
