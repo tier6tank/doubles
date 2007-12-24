@@ -160,7 +160,7 @@ bool	CloseFile(FileHandle *f);
 bool	IsValidFileHandle(const FileHandle *f);
 void	InitFileHandle(FileHandle *f);
 bool	SeekFile(const FileHandle *f, const wxULongLong *pto);
-void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData);
+// void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData);
 FileHandle GetStdOutputHandle();
 
 

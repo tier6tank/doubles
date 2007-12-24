@@ -122,7 +122,7 @@ DECLARE_MAIN
 	int i;
 	int nOptions;
 	FileHandle fOutput;
-	bool bRecurseIntoSubdirectories;
+	bool bGoIntoSubDirs;
 
 
 	::wxInitialize();
@@ -165,7 +165,7 @@ DECLARE_MAIN
 	_nMaxFileSizeIgnore.QuadPart = 0;
 	fOutput = /*stdout*/GetStdOutputHandle();
 	bReverse = false;
-	bRecurseIntoSubdirectories = true;
+	bGoIntoSubDirs = true;
 
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
 		if(_tcscmp(argv[i], _T("-m")) == 0) {
@@ -201,7 +201,7 @@ DECLARE_MAIN
 			i++;
 		}
 		else if(_tcscmp(argv[i], _T("-n")) == 0) {
-			bRecurseIntoSubdirectories = false;
+			bGoIntoSubDirs = false;
 			nOptions += 1;
 		}
 	}
@@ -228,6 +228,7 @@ DECLARE_MAIN
 
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFiles = &files;
+	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
 
 	FindFiles(ffi, argv+i, argc-nOptions);
 
@@ -293,6 +294,47 @@ DECLARE_MAIN
 	return 0;
 }
 
+
+class AddFileToList : public wxDirTraverser
+{
+public:
+	AddFileToList(findfileinfo * pInfo) : ffi(pInfo) {}
+
+	virtual wxDirTraverseResult OnFile(const wxString & filename)
+	{
+		fileinfo fi;
+		wxULongLong size = wxFileName::GetSize(filename);
+
+		/*const FindFile *ff, void *pData;*/
+
+		/* important: > (no null-length files! ) */
+		if(size > ffi->nMaxFileSizeIgnore) {
+			// printf("adding %s\n", ff->cFileName);
+			_tcscpy_s(fi.name, MAX_PATH, filename);
+			fi.size = size; // ff->size;
+			fi.nFirstBytes = 0;
+			fi.nMaxFirstBytes = 0;
+			fi.firstbytes = NULL;
+			InitFileHandle(&fi.fh);
+			// fi.checksum.QuadPart = 0;
+			// fi.nOffset.QuadPart = 0;
+			ffi->pFiles->push_back(fi); 
+		}
+
+		return wxDIR_CONTINUE;
+	}
+
+	virtual wxDirTraverseResult OnDir(const wxString & WXUNUSED(dirname))
+	{
+		// do nothing
+		return wxDIR_CONTINUE;
+	}
+
+private:
+	findfileinfo *ffi;
+
+};
+
 void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 {
 	int i;
@@ -302,17 +344,43 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 	for (i = 0; i < argc; i++) {
 		size_t nPreviousSize = ffi.pFiles->size();
 		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
-		for_each_file(argv[i], addfile, &ffi);
+		// for_each_file(argv[i], addfile, &ffi);
+		AddFileToList traverser(&ffi);
+		wxString dirname = argv[i];
+		wxDir dir(dirname);
+		dir.Traverse(traverser, wxEmptyString, wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ));
 		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 
-	_ftprintf(stderr, _T("        done. Found %i file(s). \n"), ffi.pFiles->size());
+	_ftprintf(stderr, _T("        done. ???? %i file(s). \n"), ffi.pFiles->size());
 
 	/* DeleteDoubleFiles(files); 
 	// Crucial for this task: function bool SameFile(char *, char *)
 	// Either here or already in addfile, when a file is added
 	*/
 }
+
+/*
+void	addfile(const FindFile *ff, void *pData)
+{
+	findfileinfo *ffi = (findfileinfo *)pData;
+	fileinfo fi;
+
+	\* important: > (no null-length files! ) \*
+	if(ff->size > ffi->nMaxFileSizeIgnore) {
+		// printf("adding %s\n", ff->cFileName);
+		_tcscpy_s(fi.name, MAX_PATH, ff->cFileName);
+		fi.size = ff->size;
+		fi.nFirstBytes = 0;
+		fi.nMaxFirstBytes = 0;
+		fi.firstbytes = NULL;
+		InitFileHandle(&fi.fh);
+		// fi.checksum.QuadPart = 0;
+		// fi.nOffset.QuadPart = 0;
+		ffi->pFiles->push_back(fi); 
+	}
+}*/
+
 
 void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize, bool bReverse)
 {
@@ -636,25 +704,6 @@ void	PrintResults(list<fileinfosize> &orderedbysize, FileHandle *pfOutput)
 
 }
 
-void	addfile(const FindFile *ff, void *pData)
-{
-	findfileinfo *ffi = (findfileinfo *)pData;
-	fileinfo fi;
-
-	/* important: > (no null-length files! ) */
-	if(ff->size > ffi->nMaxFileSizeIgnore) {
-		// printf("adding %s\n", ff->cFileName);
-		_tcscpy_s(fi.name, MAX_PATH, ff->cFileName);
-		fi.size = ff->size;
-		fi.nFirstBytes = 0;
-		fi.nMaxFirstBytes = 0;
-		fi.firstbytes = NULL;
-		InitFileHandle(&fi.fh);
-		// fi.checksum.QuadPart = 0;
-		// fi.nOffset.QuadPart = 0;
-		ffi->pFiles->push_back(fi); 
-	}
-}
 
 void	deleteline(void) {
 	int t;
