@@ -120,6 +120,7 @@ bool	SeekFile(const FileHandle *f, const wxULongLong *pto) {
 	return res == 0;
 }
 
+/*
 void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData)
 {
 	const _TCHAR * array[2] = { pRootDir, NULL };
@@ -150,6 +151,7 @@ void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pD
 
 	fts_close(hFind);
 }
+*/
 
 FileHandle GetStdOutputHandle() {
 	FileHandle f;
@@ -220,7 +222,7 @@ void InitFileHandle(FileHandle *f) {
 	f->hFile = INVALID_HANDLE_VALUE; 
 }
 
-
+/*
 void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData) 
 {
 	WIN32_FIND_DATA fd;
@@ -275,6 +277,7 @@ void for_each_file(const _TCHAR *pDir, for_each_file_func function, void *pData)
 
 	// printf(")%s\n", pDir);
 }
+*/
 
 
 FileHandle GetStdOutputHandle() {

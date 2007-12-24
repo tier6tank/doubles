@@ -23,6 +23,8 @@
 #define __STDINC_H_010987
 
 #include <wx/wx.h>
+#include <wx/dir.h>
+#include <wx/filename.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>

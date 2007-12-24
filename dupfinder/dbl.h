@@ -41,6 +41,7 @@ struct findfileinfo
 {
 	wxULongLong nMaxFileSizeIgnore;
 	list<fileinfo> *pFiles;
+	bool bGoIntoSubDirs;
 };
 
 struct fileinfoequal
