@@ -25,6 +25,7 @@
 #include <wx/wx.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
+#include <wx/file.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
