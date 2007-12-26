@@ -315,7 +315,8 @@ public:
 			fi.nFirstBytes = 0;
 			fi.nMaxFirstBytes = 0;
 			fi.firstbytes = NULL;
-			InitFileHandle(&fi.fh);
+			//- InitFileHandle(&fi.fh);
+			fi.pFile = new wxFile();
 			// fi.checksum.QuadPart = 0;
 			// fi.nOffset.QuadPart = 0;
 			ffi->pFiles->push_back(fi); 
@@ -610,9 +611,12 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 			delete [] (*it).firstbytes;
 			(*it).firstbytes = NULL;
 			(*it).nFirstBytes = (*it).nMaxFirstBytes = 0;
-			if(IsValidFileHandle(&(*it).fh)) {
-				CloseFile(&(*it).fh);
-				InitFileHandle(&(*it).fh);
+			//- if(IsValidFileHandle(&(*it).fh)) {
+			//- 	CloseFile(&(*it).fh);
+			//- 	InitFileHandle(&(*it).fh);
+			//- }
+			if((*it).pFile->IsOpened()) {
+				(*it).pFile->Close();
 			}
 		}
 		(*it2).files.clear();	
@@ -721,9 +725,12 @@ void	deleteline(void) {
 void	erase(fileinfo &fi) {
 	delete [] fi.firstbytes;
 	
-	if(IsValidFileHandle(&fi.fh)) {
-		CloseFile(&fi.fh);
-		InitFileHandle(&fi.fh);
+	//-if(IsValidFileHandle(&fi.fh)) {
+	//-	CloseFile(&fi.fh);
+	//-	InitFileHandle(&fi.fh);
+	//-}
+	if(fi.pFile->IsOpened()) {
+		fi.pFile->Close(); 
 	}
 }
 
@@ -924,16 +931,20 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				n[i] = min(pfi[i]->nFirstBytes - (unsigned long)nOffset[i].GetLo(), (unsigned long)BUFSIZE);
 			}
 			else {
-				if(!IsValidFileHandle(&pfi[i]->fh)) {
+				//- if(!IsValidFileHandle(&pfi[i]->fh)) {
+				if(!pfi[i]->pFile->IsOpened()) {
+					bool bOpenResult;
 					STARTTIME(disk);
 					STARTTIME(fileopen);
-					OpenFile(&pfi[i]->fh, pfi[i]->name);
+					//- OpenFile(&pfi[i]->fh, pfi[i]->name);
+					bOpenResult = pfi[i]->pFile->Open(wxString(pfi[i]->name));
 					STOPTIME(fileopen);
 					STOPTIME(disk);
 #ifdef BENCHMARK
 					__nFilesOpened.QuadPart++;
 #endif /* BENCHMARK */
-					if(!IsValidFileHandle(&pfi[i]->fh)) {
+					//- if(!IsValidFileHandle(&pfi[i]->fh)) {
+					if(!bOpenResult) {				
 						bResult = false;
 						goto End;
 					}
@@ -944,9 +955,12 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				}
 				else if(!seeked[i]) {
 					bool bRes;
+					wxFileOffset pos;
 					STARTTIME(disk);
 					STARTTIME(fileseek);
-					bRes = SeekFile(&pfi[i]->fh, &nOffset[i]);
+					//- bRes = SeekFile(&pfi[i]->fh, &nOffset[i]);
+					pos = pfi[i]->pFile->Seek((wxFileOffset)nOffset[i].GetValue());
+					bRes = pos != wxInvalidOffset;
 					STOPTIME(fileseek);
 					STOPTIME(disk);
 					if(!bRes) {
@@ -970,7 +984,9 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				BOOL bRetVal;
 				STARTTIME(disk);
 				STARTTIME(fileread);
-				bRetVal = ReadFile(&pfi[i]->fh, pbuf[i], BUFSIZE, (LPDWORD)&n[i]);
+				//- bRetVal = ReadFile(&pfi[i]->fh, pbuf[i], BUFSIZE, (LPDWORD)&n[i]);
+				n[i] = pfi[i]->pFile->Read(pbuf[i], BUFSIZE);
+				bRetVal = n[i] != wxInvalidOffset;
 				STOPTIME(fileread);
 				STOPTIME(disk);
 				if(!bRetVal) {

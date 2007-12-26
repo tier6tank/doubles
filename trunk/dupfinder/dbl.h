@@ -34,7 +34,8 @@ struct fileinfo
 	unsigned long nMaxFirstBytes;
 	char* firstbytes;
 	// wxFile file;
-	FileHandle fh;
+	//- FileHandle fh;
+	wxFile *pFile;
 };
 
 struct findfileinfo
