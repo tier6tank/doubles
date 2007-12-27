@@ -26,16 +26,23 @@
 
 struct fileinfo
 {
-	_TCHAR name[MAX_PATH];
-	// wxString name;
+	wxFileName name;
 	wxULongLong size;
-	// ULARGE_INTEGER size;
 	unsigned long nFirstBytes;
 	unsigned long nMaxFirstBytes;
 	char* firstbytes;
-	// wxFile file;
-	//- FileHandle fh;
 	wxFile *pFile;
+};
+
+struct less_filename : public less<wxFileName> {
+	bool operator () (const wxFileName &a, const wxFileName &b) const {
+		// normalization takes now place already in adding routine
+
+		// wxFileName a = _a, b = _b;
+		// a.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE); 
+		// b.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE);
+		return a.GetFullPath() < b.GetFullPath();
+	}
 };
 
 struct findfileinfo
@@ -43,6 +50,7 @@ struct findfileinfo
 	wxULongLong nMaxFileSizeIgnore;
 	list<fileinfo> *pFiles;
 	bool bGoIntoSubDirs;
+	set<wxFileName, less_filename> Dirs;
 };
 
 struct fileinfoequal

@@ -21,8 +21,18 @@ ifndef debug
 debug = 1
 endif
 
+#define cygwin if cygwin is used (adds .exe to program file name)
+
+ifndef cygwin
+cygwin = 0
+endif
+
 outdir := unix
+ifeq ($(cygwin), 0)
 dbl = dbl
+else
+dbl = dbl.exe
+endif
 version := 
 
 ifeq ($(debug),1)
@@ -42,16 +52,18 @@ dbg = -DNDEBUG
 endif
 
 opt := $(opt) $(dbg) 
+nopchopt := $(nopchopt) $(dbg)
 
 libs = `wx-config --libs`
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
 all: $(outdir) $(outdir)/$(dbl)
 
+#change that somewhen (with if exist ......) 
 $(outdir): 
 	-@mkdir $(outdir)
 
-$(outdir)/$(dbl): $(outdir)/stdinc.h.pch $(outdir)/dbl.o $(outdir)/os_cc_specific.o
+$(outdir)/$(dbl): $(outdir)/stdinc.h.gch $(outdir)/dbl.o $(outdir)/os_cc_specific.o
 	g++ $(opt) -o "$(outdir)/$(dbl)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(dbl)
@@ -63,8 +75,8 @@ $(outdir)/dbl.o: dbl.cpp $(headers)
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
 
-$(outdir)/stdinc.h.pch: stdinc.h
-	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.pch stdinc.h
+$(outdir)/stdinc.h.gch: stdinc.h
+	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
 
 run:
 	-$(outdir)/$(dbl)
