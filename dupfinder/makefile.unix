@@ -1,6 +1,6 @@
 #
 #   dbl - search duplicate files
-#   Copyright (C) 2007-2008 Matthias Böhm
+#   Copyright (C) 2007-2008 Matthias Boehm
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -34,15 +34,18 @@ else
 dbl = dbl.exe
 endif
 version := 
+wxconfigopt := --static
 
 ifeq ($(debug),1)
 version := $(version)d
+wxconfigopt := $(wxconfigopt) --debug=yes
 else
+wxconfigopt := $(wxconfigopt) --debug=no
 endif
 
 outdir := $(outdir)$(version)
 
-nopchopt := `wx-config --cxxflags` 
+nopchopt := `wx-config $(wxconfigopt) --cxxflags` 
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
@@ -54,7 +57,7 @@ endif
 opt := $(opt) $(dbg) 
 nopchopt := $(nopchopt) $(dbg)
 
-libs = `wx-config --libs`
+libs = `wx-config $(wxconfigopt) --libs`
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
 all: $(outdir) $(outdir)/$(dbl)

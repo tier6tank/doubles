@@ -11,8 +11,8 @@ INSTALLATION:
 Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if present) 
          for example to C:\windows, so that you can call it from the commandline from every directory
 
-Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory -- this is old information 
-         due to wxWidgets overhead --
+Unix:    copy the executable (dbl) to /usr/local/bin (if that is not in your path, choose /bin), 
+         so that you can call it from every directory
 
 USAGE:
 -------
@@ -71,8 +71,10 @@ description of the scanning process:
 COMPILING:
 ----------
 Now the compiling is very simple: for each compiler, there is a special makefile. 
-Note that you have to have wxWidgets on your system (in directory C:\wx (for windows), if not, 
-edit makefiles (variable wxdir) )
+Note that you have to have wxWidgets on your system. In windows, it must be in path
+C:\wx (otherwise edit the makefiles (change wxdir)), in unix, you have to build 
+wxWidgets with the following configure options: --enable-gtk --disable-shared [--enable-debug], 
+and install wxWidgets via make install. 
 
 For building the program with visual c++ - compiler, just type the following: 
 
@@ -98,7 +100,7 @@ If you don't have mingw but only cygwin, you can build the program that way:
 
 	make cygwin=1 [debug=0/1]
 
-The compiled files are stored under unix[d]>. 
+The compiled files are stored under unix[d]. 
 
 For building the program in unix with gcc, type the following:
 
