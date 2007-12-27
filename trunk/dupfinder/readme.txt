@@ -51,6 +51,8 @@ TODO:
 - internationalization
 + replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
 - add to statistcs sum of bytes read
++ need a faster container than list for testing for double scanning of directories. done (using set). 
+- linux makefile mkdir if
 
 THE FAR, FAR, FUTURE:
 -----------
@@ -71,6 +73,8 @@ description of the scanning process:
 COMPILING:
 ----------
 Now the compiling is very simple: for each compiler, there is a special makefile. 
+Note that you have to have wxWidgets on your system (in directory C:\wx (for windows), if not, 
+edit makefiles (variable wxdir) )
 
 For building the program with visual c++ - compiler, just type the following: 
 

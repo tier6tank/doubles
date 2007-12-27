@@ -19,11 +19,14 @@
 ******************************************************************************/
 
 
-#ifndef _WIN32
+#if !defined(_WIN32) || ( defined(_WIN32) && defined(__GNUC__) && !defined(__MINGW32__) )
 /* unix provides no unicode, at least not like the windows platform does */
 
-#define _TCHAR char
+#ifndef _T
 #define _T(a) a
+#endif
+
+#define _TCHAR char
 #define _tmain main
 #define _ftprintf fprintf
 #define _tcscmp strcmp
@@ -34,6 +37,7 @@
 #define _tfopen fopen
 #define _vstprintf vsprintf
 #define _fputts fputs
+#define _tcslen strlen
 
 #define _stscanf_s sscanf_s
 #define _tcscpy_s strcpy_s
@@ -85,24 +89,6 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
 #endif /* defined(__MINGW32_VERSION) */
 
-// todouble is there, because msc < 1300 do not handle typecast from unsigned __int64 to double
-#if defined(_MSC_VER) && _MSC_VER < 1300
-
-inline double todouble(unsigned __int64 z) {
-	return (double)(signed __int64)z;
-}
-#else
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-inline double todouble(unsigned __int64 z) {
-	return (double)z;
-}
-#else
-inline double todouble(unsigned long long z) {
-	return (double)z;
-}
-#endif /* defined(_MSC_VER) || defined(__BORLANDC__) */
-#endif /* _MSC_VER < 1300 */
-
 #ifndef _WIN32
 
 typedef unsigned long DWORD, BOOL, *LPDWORD;
@@ -130,15 +116,6 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER; 
 
 #endif /* !defined(_WIN32) */
-
-#if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32_VERSION)
-#define I64 _T("I64i")
-#endif
-
-#if defined(__GNUC__) && !defined(__MINGW32_VERSION)
-#define I64 _T("lli")
-#endif
-
 
 union FileHandle {
 	HANDLE hFile;

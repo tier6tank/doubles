@@ -19,7 +19,9 @@
 ******************************************************************************/
 
 /* TODO: do not search files twice or more (for example by the commandline ..\ .\ or .\ .\: such cases, 
-         when a previously searched directory is once again searched */
+         when a previously searched directory is once again searched
+	need a close look to signed/unsigned int32/int64 types!
+	erase not needed any more? */
 
 #include "stdinc.h"
 
@@ -63,9 +65,9 @@ int __MaxFirstBytes;
 char *__b[2] = { NULL, NULL };
 #endif /* defined(BENCHMARKBUFSIZE) */
 
-wxULongLong __nBytesRead = { 0 };
-wxULongLong __nSectorsRead = { 0 };
-wxULongLong __nFilesOpened = { 0 };
+wxULongLong __nBytesRead = 0;
+wxULongLong __nSectorsRead = 0;
+wxULongLong __nFilesOpened = 0;
 
 #else /* if !defined(BENCHMARK) */
 #define comparefiles comparefiles1
@@ -76,7 +78,6 @@ wxULongLong __nFilesOpened = { 0 };
 bool	comparefiles0(fileinfo &, fileinfo &);
 bool	comparefiles1(fileinfo &, fileinfo &);
 wxULongLong roundup(const wxULongLong &, int);
-void	addfile(const FindFile *, void *);
 void	deleteline(void);
 void	erase(fileinfo &);
 
@@ -84,6 +85,7 @@ void	FindFiles(findfileinfo &, _TCHAR *[], int);
 void	SortFilesBySize(list<fileinfo> &, list<fileinfosize> &, bool);
 void	GetEqualFiles(list<fileinfosize> &);
 void	PrintResults(list<fileinfosize> &, FileHandle *);
+void	RemoveDoubleFiles(findfileinfo &);
 
 #ifdef BENCHMARK
 typedef bool (*__comparefunc)(fileinfo &, fileinfo &);
@@ -93,12 +95,12 @@ __comparefunc __functions[] = {comparefiles0, comparefiles1 };
 
 
 #ifdef PROFILE
-wxULongLong all;
-wxULongLong disk;
-wxULongLong comparetime;
-wxULongLong fileseek;
-wxULongLong fileopen;
-wxULongLong fileread;
+LARGE_INTEGER all;
+LARGE_INTEGER disk;
+LARGE_INTEGER comparetime;
+LARGE_INTEGER fileseek;
+LARGE_INTEGER fileopen;
+LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
 // int _tmain(int argc, _TCHAR *argv[]) 
@@ -157,7 +159,7 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
 		_ftprintf(stderr, _T("-f x: Print results to file x (e.g. if the output to stdout is bad \n"));
 		_ftprintf(stderr, _T("      because of unicode characters\n"));
-		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories (not yet implemented)\n"));
+		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories\n"));
 		return 1;
 	}
 
@@ -170,7 +172,7 @@ DECLARE_MAIN
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
 		if(_tcscmp(argv[i], _T("-m")) == 0) {
 			if(argv[i+1]) {
-				if(_stscanf_s(argv[i+1], _T("%") I64, &_nMaxFileSizeIgnore.QuadPart) == 0) {
+				if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxFileSizeIgnore.QuadPart) == 0) {
 					nMaxFileSizeIgnore = _nMaxFileSizeIgnore.QuadPart;
 					_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
 					return 1;
@@ -211,19 +213,6 @@ DECLARE_MAIN
 		return 1;
 	}
 
-	/* if(_tcscmp(argv[1], _T("-m")) == 0) {
-		if(argc <= 3) {
-			_ftprintf(stderr, _T("Error in commandline! \n"));
-			return 1;
-		}
-		if(_stscanf_s(argv[2], _T("%") I64, &nMaxFileSizeIgnore) == 0) {
-			_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
-			return 1;
-		}
-		argv+=2;
-		argc-=2;
-	} */
-
 	/* add reverse option -r (printing files with lowest/highest size first) */
 
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
@@ -231,6 +220,7 @@ DECLARE_MAIN
 	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
 
 	FindFiles(ffi, argv+i, argc-nOptions);
+	// RemoveDoubleFiles(ffi);
 
 	SortFilesBySize(files, orderedbysize, bReverse);
 
@@ -305,29 +295,37 @@ public:
 		fileinfo fi;
 		wxULongLong size = wxFileName::GetSize(filename);
 
-		/*const FindFile *ff, void *pData;*/
-
 		/* important: > (no null-length files! ) */
 		if(size > ffi->nMaxFileSizeIgnore) {
 			// printf("adding %s\n", ff->cFileName);
-			_tcscpy_s(fi.name, MAX_PATH, filename);
+			// _tcscpy_s(fi.name, MAX_PATH, filename);
+			fi.name = filename;
 			fi.size = size; // ff->size;
 			fi.nFirstBytes = 0;
 			fi.nMaxFirstBytes = 0;
 			fi.firstbytes = NULL;
-			//- InitFileHandle(&fi.fh);
 			fi.pFile = new wxFile();
-			// fi.checksum.QuadPart = 0;
-			// fi.nOffset.QuadPart = 0;
 			ffi->pFiles->push_back(fi); 
 		}
 
 		return wxDIR_CONTINUE;
 	}
 
-	virtual wxDirTraverseResult OnDir(const wxString & WXUNUSED(dirname))
+	virtual wxDirTraverseResult OnDir(const wxString &dirname)
 	{
-		// do nothing
+		wxFileName dir = wxFileName::DirName(dirname);
+		dir.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE);
+
+		if(ffi->Dirs.find(dir) != ffi->Dirs.end()) {
+			_ftprintf(stderr, _T("\n        Warning: tried to search in %s more than once! "), dir.GetFullPath().c_str());
+			return wxDIR_IGNORE;
+		}
+
+		pair<set<wxFileName, less_filename>::iterator, bool> result;
+
+		result = ffi->Dirs.insert(dir); 
+		assert(result.second == true);
+
 		return wxDIR_CONTINUE;
 	}
 
@@ -345,7 +343,6 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 	for (i = 0; i < argc; i++) {
 		size_t nPreviousSize = ffi.pFiles->size();
 		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
-		// for_each_file(argv[i], addfile, &ffi);
 		AddFileToList traverser(&ffi);
 		wxString dirname = argv[i];
 		wxDir dir(dirname);
@@ -353,35 +350,56 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 
-	_ftprintf(stderr, _T("        done. ???? %i file(s). \n"), ffi.pFiles->size());
+	// that is not needed any more
+	ffi.Dirs.clear();
 
-	/* DeleteDoubleFiles(files); 
-	// Crucial for this task: function bool SameFile(char *, char *)
-	// Either here or already in addfile, when a file is added
-	*/
+	_ftprintf(stderr, _T("        done. Will examine %i file(s). \n\n"), ffi.pFiles->size());
+
 }
 
 /*
-void	addfile(const FindFile *ff, void *pData)
+void	RemoveDoubleFiles(findfileinfo &ffi) 
 {
-	findfileinfo *ffi = (findfileinfo *)pData;
-	fileinfo fi;
+	// this has to be changed, because wxFileName.operator == is grindingly sluggish
 
-	\* important: > (no null-length files! ) \*
-	if(ff->size > ffi->nMaxFileSizeIgnore) {
-		// printf("adding %s\n", ff->cFileName);
-		_tcscpy_s(fi.name, MAX_PATH, ff->cFileName);
-		fi.size = ff->size;
-		fi.nFirstBytes = 0;
-		fi.nMaxFirstBytes = 0;
-		fi.firstbytes = NULL;
-		InitFileHandle(&fi.fh);
-		// fi.checksum.QuadPart = 0;
-		// fi.nOffset.QuadPart = 0;
-		ffi->pFiles->push_back(fi); 
+	list<fileinfo>::iterator it, it2;
+	// remove files which appear more than once
+	size_t n, nsum;
+
+	_ftprintf(stderr, _T("Step 1b: Deleting files which appear more than once (this takes a while :-( )... "));
+
+	nsum = ffi.pFiles->size();
+
+	for(it = ffi.pFiles->begin(), n = 0; it != ffi.pFiles->end(); it++, n++) {
+		it2 = it;
+		it2++;
+		bool bDeleted;
+		for(it2; it2 != ffi.pFiles->end(); bDeleted ? it2 : it2++) {
+			bDeleted = false;
+			// speed....
+			\* if(it->name.GetExt() == it2->name.GetExt()) {
+				if(it->name.GetName() == it2->name.GetName()) { *\
+					if(it->name == it2->name) {
+						// delete this entry
+						list<fileinfo>::iterator ittmp = it2;
+						ittmp++;
+						ffi.pFiles->erase(it2);
+						bDeleted = true;
+						it2 = ittmp;
+						assert(false);
+					}
+			\*	}
+			}*\
+		}
+		if(n % 10 == 0) {
+			_ftprintf(stderr, _T("%.2f %%\b\b\b\b\b\b\b\b\b\b\b\b\b"), (double)n/nsum*100);
+		}
 	}
-}*/
 
+	
+	_ftprintf(stderr, _T("done. \n         Will examine %i file(s). \n"), ffi.pFiles->size());
+}
+*/
 
 void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize, bool bReverse)
 {
@@ -390,9 +408,10 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	list<fileinfo>::iterator it;
 	list<fileinfosize>::iterator it2;
 	bool bDeleted;
+	wxULongLong nFiles;
 	
 	
-	_ftprintf(stderr, _T("Step 2: Sorting files by size... "));
+	_ftprintf(stderr, _T("Step 2: Sorting files by size (this might take a while)... "));
 
 	for(it = files.begin(); it != files.end(); it++) {
 		bool bResult;
@@ -424,7 +443,7 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	/* now i can delete the first file-list */
 	files.clear();
 
-	_ftprintf(stderr, _T("done. %i different sizes, "), orderedbysize.size());
+	_ftprintf(stderr, _T("done. \n        %i different sizes, "), orderedbysize.size());
 
 	list<fileinfosize>::iterator it2tmp;
 	
@@ -432,10 +451,13 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 
 	// nSizes = 0;
 
+	nFiles = 0;
+
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); bDeleted ? it2 : it2++) {
 		if((*it2).files.size() > 1) {
 			// nSizes++;
 			bDeleted = false;
+			nFiles += (*it2).files.size();
 		}
 		else { 
 			it2tmp = it2;
@@ -445,7 +467,8 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 		}
 	}
 
-	_ftprintf(stderr, _T("%i which matter. \n"), orderedbysize.size());
+	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u files have to be compared. \n\n"), 
+		orderedbysize.size(), nFiles.GetValue());
 
 }
 
@@ -539,7 +562,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				bHeaderDisplayed = true;
 			}
 			deleteline();
-			_ftprintf(stderr, _T("size %i/%i (%i files of size %") I64 _T(")"), 
+			_ftprintf(stderr, _T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)"), 
 				sizeN, nOrderedBySizeLen, (*it2).files.size(), (*it2).size.GetValue());
 			tlast = tnow;
 		}
@@ -643,24 +666,26 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 	if(bHeaderDisplayed) {
 		deleteline();
+		_ftprintf(stderr, _T("        "));
 	}
-	_ftprintf(stderr, _T("done. \n"));
+	_ftprintf(stderr, _T("done. \n\n"));
 
-	_ftprintf(stderr, _T("Found %") I64 _T(" files, of which exist at least one more copy. \n"), nDifferentFiles.GetValue());
-	_ftprintf(stderr, _T("%") I64 _T(" duplicates consume altogether %") I64 _T(" bytes (%") I64 _T(" kb, %") I64 _T(" mb)\n"), 
+	_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), nDifferentFiles.GetValue());
+	_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
 		nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
 
 #ifdef BENCHMARK
 	_ftprintf(stderr, _T("Time/run: %.3f\n"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
-	_ftprintf(stderr, _T("Bytes read:   %10.2f (%10") I64 _T(")\n"), 
-		(double)todouble(__nBytesRead.QuadPart)/TESTCNT, 
-		__nBytesRead.QuadPart/TESTCNT);
-	_ftprintf(stderr, _T("Sectors read: %10.2f (%10") I64 _T(")\n"), 
-		(double)todouble(__nSectorsRead.QuadPart)/TESTCNT, 
-		__nSectorsRead.QuadPart/TESTCNT);
-	_ftprintf(stderr, _T("Files opened: %10.2f (%10") I64 _T(")\n"), 
-		(double)todouble(__nFilesOpened.QuadPart)/TESTCNT, 
-		__nFilesOpened.QuadPart/TESTCNT);
+	_ftprintf(stderr, _T("Bytes read:   %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
+		__nBytesRead.GetDouble()/TESTCNT, 
+		__nBytesRead.GetValue()/TESTCNT);
+	_ftprintf(stderr, _T("Sectors read: %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
+		__nSectorsRead.GetDouble()/TESTCNT, 
+		__nSectorsRead.GetValue()/TESTCNT);
+	_ftprintf(stderr, _T("Files opened: %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
+		__nFilesOpened.GetDouble()/TESTCNT, 
+		__nFilesOpened.GetValue()/TESTCNT);
 #endif /* BENCHMARK */
 
 #ifdef TEST
@@ -671,7 +696,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				for(__it5++; __it5 != (*__it4).files.end(); __it5++) {
 					if(!comparefiles0((*__it), (*__it5))) {
 						_ftprintf(stderr, _T("Error: %s != %s\n"), 
-							(*__it).name, (*__it5).name);
+							(*__it).name.GetFullPath(), (*__it5).name.GetFullPath());
 					}
 				}
 			}
@@ -689,18 +714,17 @@ void	PrintResults(list<fileinfosize> &orderedbysize, FileHandle *pfOutput)
 	const int BUFSIZE = 1000;
 	_TCHAR Buffer[BUFSIZE];
 
-	_ftprintf(stderr, _T("Step 4: printing the results...\n"));
+	_ftprintf(stderr, _T("Step 4: Printing the results...\n"));
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
-			// _ftprintf(fOutput, _T("+ Equal (%i files of size %") I64 _T("): \n"), 
+			// _ftprintf(fOutput, _T("+ Equal (%i files of size %") wxLongLongFmtSpec _T("u): \n"), 
 			// 	(*it4).files.size(), (*it4).files.front().size.QuadPart);
-			_stprintf_s(Buffer, BUFSIZE, _T("+ Equal (%i files of size %") I64 _T("): \r\n"), 
+			_stprintf_s(Buffer, BUFSIZE, _T("+ Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
 				(*it4).files.size(), (*it4).files.front().size.GetValue());
 			WriteString(pfOutput, Buffer);
 			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				// _ftprintf(fOutput, _T("- \"%s\"\n"), (*it).name);
-				_stprintf_s(Buffer, BUFSIZE, _T("- \"%s\"\r\n"), (*it).name);
+				_stprintf_s(Buffer, BUFSIZE, _T("- \"%s\"\r\n"), (*it).name.GetFullPath().c_str());
 				WriteString(pfOutput, Buffer);
 			}
 		}
@@ -746,12 +770,12 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 
 	F1 = NULL;
 	F2 = NULL;
-	_tfopen_s(&F1, f1.name, _T("rb"));
-	_tfopen_s(&F2, f2.name, _T("rb"));
+	_tfopen_s(&F1, f1.name.GetFullPath(), _T("rb"));
+	_tfopen_s(&F2, f2.name.GetFullPath(), _T("rb"));
 
 #ifdef BENCHMARK
-	if(F1) { __nFilesOpened.QuadPart++; }
-	if(F2) { __nFilesOpened.QuadPart++; }
+	if(F1) { __nFilesOpened++; }
+	if(F2) { __nFilesOpened++; }
 #endif
 
 	if(!F1 || !F2)
@@ -764,10 +788,10 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 		n1 = fread(b1, 1, BUFSIZE, F1);
 		n2 = fread(b2, 1, BUFSIZE, F2);
 #ifdef BENCHMARK
-		__nBytesRead.QuadPart += n1;
-		__nBytesRead.QuadPart += n2;
-		__nSectorsRead.QuadPart += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
-		__nSectorsRead.QuadPart += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
+		__nBytesRead += n1;
+		__nBytesRead += n2;
+		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
+		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
 #endif
 
 		if(n1 != n2 || ferror(F1) || ferror(F2)) {
@@ -806,20 +830,20 @@ wxULongLong roundup(const wxULongLong &a, int b)
 
 bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 #if !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK)
-	const unsigned long BUFSIZE = BASEBUFSIZE << 7;
+	const size_t BUFSIZE = BASEBUFSIZE << 7;
 	const unsigned long MAXFIRSTBYTES = BASEBUFSIZE << 7;
 	static char *b[2] = {NULL, NULL };
 	if(b[0] == NULL) { b[0] = new char[BUFSIZE]; }
 	if(b[1] == NULL) { b[1] = new char[BUFSIZE]; }
 #else
-	unsigned int BUFSIZE = __BufSize;
+	size_t BUFSIZE = __BufSize;
 	unsigned int MAXFIRSTBYTES = __MaxFirstBytes;
 	char *b[2] = { __b[0], __b[1] };
 #endif /* !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK) */
 
 	fileinfo *pfi[2] = {&f1, &f2 };
 	char *pbuf[2];
-	unsigned int n[2];
+	ssize_t n[2];
 	wxULongLong nOffset[2];
 	bool usingbuffer[2], writetofirstbytes[2];
 	bool bResult;
@@ -937,11 +961,11 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 					STARTTIME(disk);
 					STARTTIME(fileopen);
 					//- OpenFile(&pfi[i]->fh, pfi[i]->name);
-					bOpenResult = pfi[i]->pFile->Open(wxString(pfi[i]->name));
+					bOpenResult = pfi[i]->pFile->Open(pfi[i]->name.GetFullPath());
 					STOPTIME(fileopen);
 					STOPTIME(disk);
 #ifdef BENCHMARK
-					__nFilesOpened.QuadPart++;
+					__nFilesOpened++;
 #endif /* BENCHMARK */
 					//- if(!IsValidFileHandle(&pfi[i]->fh)) {
 					if(!bOpenResult) {				
@@ -994,8 +1018,8 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 					goto End;
 				} 
 #ifdef BENCHMARK
-				__nBytesRead.QuadPart += n[i];
-				__nSectorsRead.QuadPart += n[i]/BASEBUFSIZE + (n[i] % BASEBUFSIZE != 0 ? 1 : 0);
+				__nBytesRead += n[i];
+				__nSectorsRead += n[i]/BASEBUFSIZE + (n[i] % BASEBUFSIZE != 0 ? 1 : 0);
 #endif /* BENCHMARK */
 				if(writetofirstbytes[i]) {
 					pfi[i]->nFirstBytes += n[i];
@@ -1016,7 +1040,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 			goto End;
 		}
 
-		if(n[0] < BUFSIZE) {
+		if((size_t)n[0] < BUFSIZE) {
 			bResult = true;
 			goto End;
 		}
