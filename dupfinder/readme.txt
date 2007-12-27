@@ -8,7 +8,7 @@ It is a command-line program which searches for duplicate files in the given pat
 INSTALLATION:
 -------------
 
-Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if present) 
+Windows: simply copy the executable (dbl.exe) and the cygwin1.dll or mingwm10.dll file (if present) 
          for example to C:\windows, so that you can call it from the commandline from every directory
 
 Unix:    copy the executable (dbl) to /usr/local/bin (if that is not in your path, choose /bin), 
