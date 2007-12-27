@@ -11,18 +11,16 @@ INSTALLATION:
 Windows: simply copy the executable (dbl.exe) and the cygwin1.dll file (if present) 
          for example to C:\windows, so that you can call it from the commandline from every directory
 
-Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory
+Unix:    copy the executable (dbl) to /bin, so that you can call it from every directory -- this is old information 
+         due to wxWidgets overhead --
 
 USAGE:
 -------
 
 From the commandline, simply type dbl <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
 The output can be redirected to a file. 
-Please avoid such things like "dbl /path1 /path1" or "dbl /path1/path2 /path1". If you specify directly or 
-indirectly directories twice or more on the commandline, the files in these directories are compared with 
-themselves. Up to now, I did'nt fix this problem, but it will probably later be fixed. 
 
-TODO:
+TODO/IDEAS:
 -----
 - Create a nice (os- and make-utitlity-independent?! if possible) makefile
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
@@ -80,28 +78,33 @@ For building the program with visual c++ - compiler, just type the following:
 
 	nmake -f makefile.vc [debug=0/1] [unicode=0/1]
 
-The compiled files are stored under vc[_uni]<_debug/_release>. 
+The compiled files are stored under vc[u][d]. 
 
 
 For building the program with borland c++, type the following:
 
 	make -f makefile.bcc [-Ddebug=0/1] [-Dunicode=0/1]
 
-The compiled files are stored under bcc[_uni]<_debug/_release>. 
+The compiled files are stored under bcc[u][d]. 
 
 
 For building the program with mingw, type the following:
 
 	mingw32-make -f makefile.gcc [debug=0/1] [unicode=0/1]
 
-The compiled files are stored under gcc[_uni]<_debug/_release>. 
+The compiled files are stored under gcc[u][d]. 
 
+If you don't have mingw but only cygwin, you can build the program that way:
+
+	make cygwin=1 [debug=0/1]
+
+The compiled files are stored under unix[d]>. 
 
 For building the program in unix with gcc, type the following:
 
 	make [debug=0/1]
 
-The compiled files are stored under unix<_debug/_release>. 
+The compiled files are stored under unix[d]. 
 
 Other compilers are perhaps also supported, but i did not try other compilers yet. 
 

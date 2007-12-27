@@ -1,6 +1,6 @@
 /******************************************************************************
     dbl - search duplicate files
-    Copyright (C) 2007-2008 Matthias Böhm
+    Copyright (C) 2007-2008 Matthias Bï¿½hm
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -112,11 +112,11 @@ bool	SeekFile(const FileHandle *f, const wxULongLong *pto) {
 	int res;
 	/* can't seek with c functions above 4 GB - but this 
 	   is not needed in my program */
-	assert(pto->HighPart == 0);
-	if(pto->HighPart != 0) { 
+	assert(pto->GetHi() == 0);
+	if(pto->GetHi() != 0) { 
 		return false;
 	}
-	res = fseek(f->f, pto->LowPart, SEEK_SET);
+	res = fseek(f->f, pto->GetLo(), SEEK_SET);
 	return res == 0;
 }
 

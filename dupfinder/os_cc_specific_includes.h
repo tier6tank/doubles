@@ -1,6 +1,6 @@
 /******************************************************************************
     dbl - search duplicate files
-    Copyright (C) 2007-2008 Matthias Böhm
+    Copyright (C) 2007-2008 Matthias Bï¿½hm
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 #ifndef _WIN32
 
 #include <sys/stat.h>
-#include <fts.h>
+// #include <fts.h>
 #include <cerrno>
 #include <stdarg.h>
 
