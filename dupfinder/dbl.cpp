@@ -755,6 +755,7 @@ void	erase(fileinfo &fi) {
 	//-}
 	if(fi.pFile->IsOpened()) {
 		fi.pFile->Close(); 
+		delete fi.pFile;
 	}
 }
 
