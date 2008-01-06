@@ -26,12 +26,14 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/file.h>
+#include <wx/log.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
 #include <cmath>
 #include <list>
 #include <set>
+#include <strstream>
 #include "os_cc_specific_includes.h"
 
 #ifdef __BORLANDC__

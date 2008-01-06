@@ -45,7 +45,7 @@ endif
 
 outdir := $(outdir)$(version)
 
-nopchopt := `wx-config $(wxconfigopt) --cxxflags` 
+nopchopt := `wx-config $(wxconfigopt) --cxxflags` -DwxUSE_STD_IOSTREAM=1
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)

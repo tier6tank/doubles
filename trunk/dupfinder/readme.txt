@@ -22,21 +22,21 @@ The output can be redirected to a file.
 
 TODO/IDEAS:
 -----
-- Create a nice (os- and make-utitlity-independent?! if possible) makefile
++ Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
-- putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build
++ putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build (done)
 + Adding license text as header in source files. done
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
-- (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose)
++ (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
 - adding option -max (max size of files to compare with each other) or -maxbytes (compare max. n bytes of a file)
-- adding IsSameFileFunction
++ adding IsSameFileFunction (done -> wxWidgets)
 - adding error messages (when finding files, comparing files...)
 + supporting files over 4 GB always?! yes, i do hope so. 
 + adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
   unicode output. done
 + adding option which determines if the small sized files or the large sized files are treated and displayed firstd. done
-- adding option for not going in subdirectories
++ adding option for not going in subdirectories (done)
 - adding unicode support for linux/unix
 + removing clock_t from source, replacing it with time_t: that wasn't an error, it was my fault!
 + (correct cygwin-build lf/cr errors) related to "adding option -f <filename> " seems not to be possible
@@ -51,6 +51,8 @@ TODO/IDEAS:
 - add to statistcs sum of bytes read
 + need a faster container than list for testing for double scanning of directories. done (using set). 
 - linux makefile mkdir if
+- removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
+  perhaps using wxLogNull and my own error reporting routines?
 
 THE FAR, FAR, FUTURE:
 -----------
@@ -73,8 +75,19 @@ COMPILING:
 Now the compiling is very simple: for each compiler, there is a special makefile. 
 Note that you have to have wxWidgets on your system. In windows, it must be in path
 C:\wx (otherwise edit the makefiles (change wxdir)), in unix, you have to build 
-wxWidgets with the following configure options: --enable-gtk --disable-shared [--enable-debug], 
-and install wxWidgets via make install. 
+wxWidgets with the following configure options: 
+--with-gtk|--with-motif|--with-x11 --disable-shared --enable-std_iostreams [--enable-debug], 
+where | means either of the options shall be choosed; then build and install wxWidgets via 
+make && make install. 
+In Windows, you have as well to edit all the lib/*_lib/msw*/setup.h files and also 
+the file wx/include/setup_inc.h of wxWidgets before you compile the wxWidgets library: 
+Change in all files the line
+#define wxUSE_STD_IOSTREAM 0
+to 
+#define wxUSE_STD_IOSTREAM 1.
+Then recompile wxWidgets. 
+
+
 
 For building the program with visual c++ - compiler, just type the following: 
 
