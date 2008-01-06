@@ -21,7 +21,7 @@ From the commandline, simply type dbl <path1> <path2> <...> to search the dirtec
 The output can be redirected to a file. 
 
 TODO/IDEAS:
------
+-----------
 + Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
 + putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build (done)
@@ -53,6 +53,10 @@ TODO/IDEAS:
 - linux makefile mkdir if
 - removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
   perhaps using wxLogNull and my own error reporting routines?
+- suppress logging completely
+- delete unneccessary unix includes
+- perhaps setting error flag if any error on that file is encountered
+- add progress display for sorting files by size
 
 THE FAR, FAR, FUTURE:
 -----------
@@ -72,21 +76,57 @@ description of the scanning process:
 
 COMPILING:
 ----------
-Now the compiling is very simple: for each compiler, there is a special makefile. 
-Note that you have to have wxWidgets on your system. In windows, it must be in path
-C:\wx (otherwise edit the makefiles (change wxdir)), in unix, you have to build 
-wxWidgets with the following configure options: 
---with-gtk|--with-motif|--with-x11 --disable-shared --enable-std_iostreams [--enable-debug], 
-where | means either of the options shall be choosed; then build and install wxWidgets via 
-make && make install. 
-In Windows, you have as well to edit all the lib/*_lib/msw*/setup.h files and also 
-the file wx/include/setup_inc.h of wxWidgets before you compile the wxWidgets library: 
-Change in all files the line
-#define wxUSE_STD_IOSTREAM 0
-to 
-#define wxUSE_STD_IOSTREAM 1.
-Then recompile wxWidgets. 
 
+1) At first you have to compile the wxWidgets library:
+
+a) Unix:
+
+Follow the following instructions: 
+download wxWidgets, then run the configure shell script in an newly created directory
+(e.g. buildgtk-dbl or buildmotif-dbl) with the following options: 
+--with-gtk|--with-motif --disable-shared --enable-std_iostreams [--enable-debug]
+here is an example of how to do this:
+
+# this is the path where you unpacked wxWidgets
+cd <wx-library-path>
+# change this to buildgtkd-dbl for debug, replace gtk by motif etc. 
+# if you want to use a different graphical interface
+mkdir buildgtk-dbl
+# use either --with-gtk or --with-motif as you want, if you want to create a debug
+# library, use --enable-debug
+../configure --with-gtk|--with-motif --disable-shared --enable-std_iostreams [--enable-debug]
+make
+su <enter root password>
+make install
+exit
+
+b) Windows: 
+
+In windows follow the following steps:
+
+If you haven't build wxWidgets with your preferred options yet, run 
+the make-utility of your compiler, so that the setup.h gets copied to
+the lib/*_lib/msw*/ directory (define UNICODE=0|1 and BUILD=release|debug 
+as you want). Then you can stop the beginning compilation via Strg+C. 
+This step if only necessary if the setup.h file does not yet exist. 
+
+Then you have to edit all the lib/*_lib/msw*/setup.h files and also 
+the file wx/include/setup_inc.h before you compile the wxWidgets library. 
+Change in all files the line
+
+#define wxUSE_STD_IOSTREAM 0
+
+to 
+
+#define wxUSE_STD_IOSTREAM 1
+
+Then (re)compile wxWidgets. 
+
+
+
+2) The rest is pretty simple: 
+
+For each compiler, there is a special makefile. 
 
 
 For building the program with visual c++ - compiler, just type the following: 
@@ -114,6 +154,7 @@ If you don't have mingw but only cygwin, you can build the program that way:
 	make cygwin=1 [debug=0/1]
 
 The compiled files are stored under unix[d]. 
+
 
 For building the program in unix with gcc, type the following:
 

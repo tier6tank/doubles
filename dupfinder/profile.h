@@ -31,7 +31,7 @@ LARGE_INTEGER __frequency;
 
 #define STOPTIME(a) QueryPerformanceCounter(&__b2);  (a).QuadPart += __b2.QuadPart - __b1.QuadPart; }
 
-#define SECONDS(a)  (todouble((a).QuadPart)/__frequency.QuadPart)
+#define SECONDS(a)  (wxULongLong((a).QuadPart).GetValue() /__frequency.QuadPart)
 
 
 #else /* defined(_WIN32) && defined(PROFILE) */

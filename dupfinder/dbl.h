@@ -32,6 +32,7 @@ struct fileinfo
 	unsigned long nMaxFirstBytes;
 	char* firstbytes;
 	wxFile *pFile;
+	bool error;
 };
 
 struct less_filename : public less<wxFileName> {
