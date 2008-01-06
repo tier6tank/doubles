@@ -128,6 +128,8 @@ DECLARE_MAIN
 
 
 	::wxInitialize();
+	// timestamps are ugly
+	wxLog::GetActiveTarget()->SetTimestamp(NULL);
 
 
 #ifdef BENCHMARK
@@ -219,18 +221,51 @@ DECLARE_MAIN
 	ffi.pFiles = &files;
 	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
 
+	// BEGINLOG, ENDLOG -> log errors temporarily to string-stream
+
+#define BEGINLOG { \
+		/* for error output */\
+		ostrstream log; \
+		wxLogStream logstr(&log); \
+		wxLog * poldlog = wxLog::SetActiveTarget(&logstr); \
+		logstr.SetTimestamp(NULL); \
+
+#define ENDLOG /* print errors */ \
+		if(log.pcount() != 0) { \
+			_ftprintf(stderr, _T("\n        The following errors occured: \n")); \
+			fwrite(log.str(), log.pcount(), 1, stderr); \
+			_ftprintf(stderr, _T("\n")); \
+		} \
+		 \
+		wxLog::SetActiveTarget(poldlog); \
+	} \
+
+
+	BEGINLOG
+
 	FindFiles(ffi, argv+i, argc-nOptions);
 	// RemoveDoubleFiles(ffi);
 
+	ENDLOG
+
+
+	// no wxWidgets errors possible here
 	SortFilesBySize(files, orderedbysize, bReverse);
 
 	// for error testing (e.g. delete files before GetEqualFiles)
-	int i;
-	scanf("%i", &i);
+	// int i;
+	// scanf("%i", &i);
 
+	BEGINLOG
+	
 	GetEqualFiles(orderedbysize);
 
+	ENDLOG
+
+	
+	// no wxWidgets errors possible here
 	PrintResults(orderedbysize, &fOutput);
+
 
 	CloseFile(&fOutput);
 
@@ -283,6 +318,10 @@ DECLARE_MAIN
 	_ftprintf(stderr, _T("     fileread: %.3f (%.3f %%)\n"), SECONDS(fileread), SECONDS(fileread)/SECONDS(disk)*100);
 #endif
 
+#ifdef TEST
+	_ftprintf(stderr, _T("all test ok! \n"));
+#endif
+
 	::wxUninitialize();
 	
 	return 0;
@@ -298,18 +337,21 @@ public:
 	{
 		fileinfo fi;
 		wxULongLong size = wxFileName::GetSize(filename);
-
-		/* important: > (no null-length files! ) */
-		if(size > ffi->nMaxFileSizeIgnore) {
-			// printf("adding %s\n", ff->cFileName);
-			// _tcscpy_s(fi.name, MAX_PATH, filename);
-			fi.name = filename;
-			fi.size = size; // ff->size;
-			fi.nFirstBytes = 0;
-			fi.nMaxFirstBytes = 0;
-			fi.firstbytes = NULL;
-			fi.pFile = new wxFile();
-			ffi->pFiles->push_back(fi); 
+		
+		if(size != wxInvalidSize) {
+			/* important: > (no null-length files! ) */
+			if(size > ffi->nMaxFileSizeIgnore) {
+				// printf("adding %s\n", ff->cFileName);
+				// _tcscpy_s(fi.name, MAX_PATH, filename);
+				fi.name = filename;
+				fi.size = size; // ff->size;
+				fi.nFirstBytes = 0;
+				fi.nMaxFirstBytes = 0;
+				fi.firstbytes = NULL;
+				fi.pFile = new wxFile();
+				fi.error = false;
+				ffi->pFiles->push_back(fi); 
+			}
 		}
 
 		return wxDIR_CONTINUE;
@@ -638,10 +680,6 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 			delete [] (*it).firstbytes;
 			(*it).firstbytes = NULL;
 			(*it).nFirstBytes = (*it).nMaxFirstBytes = 0;
-			//- if(IsValidFileHandle(&(*it).fh)) {
-			//- 	CloseFile(&(*it).fh);
-			//- 	InitFileHandle(&(*it).fh);
-			//- }
 			if((*it).pFile->IsOpened()) {
 				(*it).pFile->Close();
 			}
@@ -700,7 +738,8 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				for(__it5++; __it5 != (*__it4).files.end(); __it5++) {
 					if(!comparefiles0((*__it), (*__it5))) {
 						_ftprintf(stderr, _T("Error: %s != %s\n"), 
-							(*__it).name.GetFullPath(), (*__it5).name.GetFullPath());
+							(*__it).name.GetFullPath().c_str(), 
+							(*__it5).name.GetFullPath().c_str());
 					}
 				}
 			}
@@ -753,10 +792,6 @@ void	deleteline(void) {
 void	erase(fileinfo &fi) {
 	delete [] fi.firstbytes;
 	
-	//-if(IsValidFileHandle(&fi.fh)) {
-	//-	CloseFile(&fi.fh);
-	//-	InitFileHandle(&fi.fh);
-	//-}
 	if(fi.pFile->IsOpened()) {
 		fi.pFile->Close(); 
 		delete fi.pFile;
@@ -768,7 +803,7 @@ void	erase(fileinfo &fi) {
 bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 	FILE *F1, *F2;
 	bool bResult;
-	const int BUFSIZE = BASEBUFSIZE << 5;
+	const size_t BUFSIZE = BASEBUFSIZE << 5;
 	char b1[BUFSIZE], b2[BUFSIZE];
 	size_t n1, n2;
 	size_t i;
@@ -776,18 +811,32 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 	F1 = NULL;
 	F2 = NULL;
 	_tfopen_s(&F1, f1.name.GetFullPath(), _T("rb"));
-	_tfopen_s(&F2, f2.name.GetFullPath(), _T("rb"));
+
+	if(F1) {
 
 #ifdef BENCHMARK
-	if(F1) { __nFilesOpened++; }
-	if(F2) { __nFilesOpened++; }
+		__nFilesOpened++;
 #endif
 
-	if(!F1 || !F2)
-	{
+		_tfopen_s(&F2, f2.name.GetFullPath(), _T("rb"));
+		
+		if(!F2) {
+			f2.error = true;
+			bResult = false;
+			goto End;
+		}
+#ifdef BENCHMARK
+		else {
+			__nFilesOpened++;
+		}
+#endif
+	}
+	else {
+		f1.error = true;
 		bResult = false;
 		goto End;
 	}
+
 
 	while(1) {
 		n1 = fread(b1, 1, BUFSIZE, F1);
@@ -854,10 +903,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	bool bResult;
 	int i;
 	bool seeked[2];
-	ostrstream log;
-	wxLogStream logstr(&log);
-	wxLog * poldlog = wxLog::SetActiveTarget(&logstr);
-
+	
 	assert(MAXFIRSTBYTES % BUFSIZE == 0);
 
 	/* 
@@ -942,6 +988,15 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	}
 	*/
 
+	// do not try to open files unneccessarily often
+	// assume that if a file could once not be opened, 
+	// it will never be opened (makes the results also 
+	// more reliable)
+	if(pfi[0]->error || pfi[1]->error) {
+		bResult = false;
+		goto End;
+	}
+
 	// _ftprintf(stderr, _T("%s <-> %s\n"), pfi[0]->name, pfi[1]->name);
 	
 	for(i = 0; i < 2; i++) {
@@ -963,20 +1018,18 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				n[i] = min(pfi[i]->nFirstBytes - (unsigned long)nOffset[i].GetLo(), (unsigned long)BUFSIZE);
 			}
 			else {
-				//- if(!IsValidFileHandle(&pfi[i]->fh)) {
 				if(!pfi[i]->pFile->IsOpened()) {
 					bool bOpenResult;
 					STARTTIME(disk);
 					STARTTIME(fileopen);
-					//- OpenFile(&pfi[i]->fh, pfi[i]->name);
 					bOpenResult = pfi[i]->pFile->Open(pfi[i]->name.GetFullPath());
 					STOPTIME(fileopen);
 					STOPTIME(disk);
 #ifdef BENCHMARK
 					__nFilesOpened++;
 #endif /* BENCHMARK */
-					//- if(!IsValidFileHandle(&pfi[i]->fh)) {
-					if(!bOpenResult) {				
+					if(!bOpenResult) {
+						pfi[i]->error = true;
 						bResult = false;
 						goto End;
 					}
@@ -986,16 +1039,14 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 					pfi[i]->nFirstBytes = 0;
 				}
 				else if(!seeked[i]) {
-					bool bRes;
 					wxFileOffset pos;
 					STARTTIME(disk);
 					STARTTIME(fileseek);
-					//- bRes = SeekFile(&pfi[i]->fh, &nOffset[i]);
 					pos = pfi[i]->pFile->Seek((wxFileOffset)nOffset[i].GetValue());
-					bRes = pos != wxInvalidOffset;
 					STOPTIME(fileseek);
 					STOPTIME(disk);
-					if(!bRes) {
+					if(pos == wxInvalidOffset) {
+						pfi[i]->error = true;
 						bResult = false;
 						goto End;
 					}
@@ -1013,15 +1064,13 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				}
 
 				assert(pbuf[i]);
-				BOOL bRetVal;
 				STARTTIME(disk);
 				STARTTIME(fileread);
-				//- bRetVal = ReadFile(&pfi[i]->fh, pbuf[i], BUFSIZE, (LPDWORD)&n[i]);
 				n[i] = pfi[i]->pFile->Read(pbuf[i], BUFSIZE);
-				bRetVal = n[i] != wxInvalidOffset;
 				STOPTIME(fileread);
 				STOPTIME(disk);
-				if(!bRetVal) {
+				if(n[i] == wxInvalidOffset) {
+					pfi[i]->error = true;
 					bResult = false;
 					goto End;
 				} 
@@ -1056,15 +1105,6 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	}
 
 End:
-	if(log.pcount() != 0) {
-		// log << endl;
-		// _ftprintf(stderr, _T("\nerrors occured: \n%S\n"), log.str());
-		_ftprintf(stderr, _T("\nerrors occured: \n"));
-		fwrite(log.str(), log.pcount(), 1, stderr);
-	}
-
-	wxLog::SetActiveTarget(poldlog);
-
 	return bResult;
 }
 
