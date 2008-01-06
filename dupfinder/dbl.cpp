@@ -224,6 +224,10 @@ DECLARE_MAIN
 
 	SortFilesBySize(files, orderedbysize, bReverse);
 
+	// for error testing (e.g. delete files before GetEqualFiles)
+	int i;
+	scanf("%i", &i);
+
 	GetEqualFiles(orderedbysize);
 
 	PrintResults(orderedbysize, &fOutput);
@@ -850,6 +854,9 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	bool bResult;
 	int i;
 	bool seeked[2];
+	ostrstream log;
+	wxLogStream logstr(&log);
+	wxLog * poldlog = wxLog::SetActiveTarget(&logstr);
 
 	assert(MAXFIRSTBYTES % BUFSIZE == 0);
 
@@ -1049,6 +1056,15 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	}
 
 End:
+	if(log.pcount() != 0) {
+		// log << endl;
+		// _ftprintf(stderr, _T("\nerrors occured: \n%S\n"), log.str());
+		_ftprintf(stderr, _T("\nerrors occured: \n"));
+		fwrite(log.str(), log.pcount(), 1, stderr);
+	}
+
+	wxLog::SetActiveTarget(poldlog);
+
 	return bResult;
 }
 
