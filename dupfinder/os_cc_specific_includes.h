@@ -34,9 +34,9 @@
 /* perhaps better if !defined(_WIN32) && defined(__GNUC__) ???? */
 #ifndef _WIN32
 
-#include <sys/stat.h>
+// #include <sys/stat.h>
 // #include <fts.h>
-#include <cerrno>
+// #include <cerrno>
 #include <stdarg.h>
 
 #endif /* !defined(_WIN32) */
