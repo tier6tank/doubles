@@ -1,0 +1,85 @@
+#
+#   dbl - search duplicate files
+#   Copyright (C) 2007-2008 Matthias Boehm
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+ifndef debug
+debug = 1
+endif
+
+#define cygwin if cygwin is used (adds .exe to program file name)
+
+ifndef cygwin
+cygwin = 0
+endif
+
+outdir := unix
+ifeq ($(cygwin), 0)
+dbl = dbl
+else
+dbl = dbl.exe
+endif
+version := 
+wxconfigopt := --static
+
+ifeq ($(debug),1)
+version := $(version)d
+wxconfigopt := $(wxconfigopt) --debug=yes
+else
+wxconfigopt := $(wxconfigopt) --debug=no
+endif
+
+outdir := $(outdir)$(version)
+
+nopchopt := `wx-config $(wxconfigopt) --cxxflags` -DwxUSE_STD_IOSTREAM=1
+opt := $(nopchopt) -include ./$(outdir)/stdinc.h
+
+ifeq ($(debug),1)
+dbg = -D_DEBUG -DDEBUG -g
+else
+dbg = -DNDEBUG
+endif
+
+opt := $(opt) $(dbg) 
+nopchopt := $(nopchopt) $(dbg)
+
+libs = `wx-config $(wxconfigopt) --libs`
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
+
+all: $(outdir) $(outdir)/$(dbl)
+
+#change that somewhen (with if exist ......) 
+$(outdir): 
+	-@mkdir $(outdir)
+
+$(outdir)/$(dbl): $(outdir)/stdinc.h.gch $(outdir)/dbl.o $(outdir)/os_cc_specific.o
+	g++ $(opt) -o "$(outdir)/$(dbl)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
+ifneq ($(debug),1)
+	strip -s $(outdir)/$(dbl)
+endif
+
+$(outdir)/dbl.o: dbl.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
+
+$(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
+
+$(outdir)/stdinc.h.gch: stdinc.h
+	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
+
+run:
+	-$(outdir)/$(dbl)
