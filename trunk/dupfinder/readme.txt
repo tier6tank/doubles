@@ -57,6 +57,7 @@ TODO/IDEAS:
 - delete unneccessary unix includes
 - perhaps setting error flag if any error on that file is encountered
 - add progress display for sorting files by size
+- display speed in kbytes/second
 
 THE FAR, FAR, FUTURE:
 -----------
@@ -102,16 +103,15 @@ exit
 
 b) Windows: 
 
-In windows follow the following steps:
+In windows follow the following steps (see also technical note 0021):
 
-If you haven't build wxWidgets with your preferred options yet, run 
-the make-utility of your compiler, so that the setup.h gets copied to
-the lib/*_lib/msw*/ directory (define UNICODE=0|1 and BUILD=release|debug 
-as you want). Then you can stop the beginning compilation via Strg+C. 
-This step if only necessary if the setup.h file does not yet exist. 
+Edit your setup.h file (in lib/*_lib/msw*/wx); if it does not exist, 
+you have to run make once, but you need not wait until the compilation 
+exits, because the setup.h file is created at the beginning (press Ctrl+c).
+Choose the right options (UNICODE=[0/1], BUILD=[release|debug]). 
 
-Then you have to edit all the lib/*_lib/msw*/setup.h files and also 
-the file wx/include/setup_inc.h before you compile the wxWidgets library. 
+Then you have to edit all the lib/*_lib/msw*/setup.h files before you 
+compile the wxWidgets library (again): 
 Change in all files the line
 
 #define wxUSE_STD_IOSTREAM 0
@@ -120,8 +120,8 @@ to
 
 #define wxUSE_STD_IOSTREAM 1
 
-Then (re)compile wxWidgets. 
-
+Then (re)compile wxWidgets (for some reasons be sure to use the 
+option -A with nmake if you use visual c++). 
 
 
 2) The rest is pretty simple: 
@@ -149,7 +149,10 @@ For building the program with mingw, type the following:
 
 The compiled files are stored under gcc[u][d]. 
 
-If you don't have mingw but only cygwin, you can build the program that way:
+
+If you don't have mingw but only cygwin, you can build the program that way
+(note that you have to follow the steps for unix in 1a first using --with-msw instead
+of --with-gtk or --with-motif):
 
 	make cygwin=1 [debug=0/1]
 

@@ -39,7 +39,8 @@ endif
 
 outdir := $(outdir)$(version)
 
-nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads -D__WXMSW__ -DHAVE_W32API_H -W -Wall
+nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads \
+	-D__WXMSW__ -DHAVE_W32API_H -W -Wall -Wextra
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
