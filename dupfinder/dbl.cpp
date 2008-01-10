@@ -19,7 +19,7 @@
 ******************************************************************************/
 
 /* TODO: do not search files twice or more (for example by the commandline ..\ .\ or .\ .\: such cases, 
-         when a previously searched directory is once again searched
+         when a previously searched directory is once again searched (done)
 	need a close look to signed/unsigned int32/int64 types!
 	erase not needed any more? */
 
@@ -160,7 +160,7 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("-m x: Take care only of files with size greater than x (in bytes)\n"));
 		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
 		_ftprintf(stderr, _T("-f x: Print results to file x (e.g. if the output to stdout is bad \n"));
-		_ftprintf(stderr, _T("      because of unicode characters\n"));
+		_ftprintf(stderr, _T("      because of unicode characters) \n"));
 		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories\n"));
 		return 1;
 	}
@@ -763,11 +763,11 @@ void	PrintResults(list<fileinfosize> &orderedbysize, FileHandle *pfOutput)
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
 			// _ftprintf(fOutput, _T("+ Equal (%i files of size %") wxLongLongFmtSpec _T("u): \n"), 
 			// 	(*it4).files.size(), (*it4).files.front().size.QuadPart);
-			_stprintf_s(Buffer, BUFSIZE, _T("+ Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
+			_stprintf_s(Buffer, BUFSIZE, _T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
 				(*it4).files.size(), (*it4).files.front().size.GetValue());
 			WriteString(pfOutput, Buffer);
 			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				_stprintf_s(Buffer, BUFSIZE, _T("- \"%s\"\r\n"), (*it).name.GetFullPath().c_str());
+				_stprintf_s(Buffer, BUFSIZE, _T("  \"%s\"\r\n"), (*it).name.GetFullPath().c_str());
 				WriteString(pfOutput, Buffer);
 			}
 		}
