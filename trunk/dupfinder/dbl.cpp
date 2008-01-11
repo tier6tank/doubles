@@ -18,11 +18,6 @@
 
 ******************************************************************************/
 
-/* TODO: do not search files twice or more (for example by the commandline ..\ .\ or .\ .\: such cases, 
-         when a previously searched directory is once again searched (done)
-	need a close look to signed/unsigned int32/int64 types!
-	erase not needed any more? */
-
 #include "stdinc.h"
 
 using namespace std;
@@ -84,7 +79,7 @@ void	erase(fileinfo &);
 void	FindFiles(findfileinfo &, _TCHAR *[], int);
 void	SortFilesBySize(list<fileinfo> &, list<fileinfosize> &, bool);
 void	GetEqualFiles(list<fileinfosize> &);
-void	PrintResults(list<fileinfosize> &, FileHandle *);
+void	PrintResults(list<fileinfosize> &, wxFile &);
 void	RemoveDoubleFiles(findfileinfo &);
 
 #ifdef BENCHMARK
@@ -123,7 +118,7 @@ DECLARE_MAIN
 	bool bReverse;
 	int i;
 	int nOptions;
-	FileHandle fOutput;
+	wxFile fOutput;
 	bool bGoIntoSubDirs;
 
 
@@ -165,9 +160,10 @@ DECLARE_MAIN
 		return 1;
 	}
 
+	// defaults
 	nOptions = 0;
 	_nMaxFileSizeIgnore.QuadPart = 0;
-	fOutput = /*stdout*/GetStdOutputHandle();
+	fOutput.Attach(wxFile::fd_stdout);
 	bReverse = false;
 	bGoIntoSubDirs = true;
 
@@ -191,13 +187,13 @@ DECLARE_MAIN
 			nOptions += 1;
 		}
 		else if(_tcscmp(argv[i], _T("-f")) == 0) {
+			bool bResult;
 			if(!argv[i+1]) {
 				_ftprintf(stderr, _T("Error: Filename expected! \n"));
 				return 1;
 			}
-			// _tfopen_s(&fOutput, argv[i+1], _T("w"));
-			CreateFile(&fOutput, argv[i+1]);
-			if(!IsValidFileHandle(&fOutput)) {
+			bResult = fOutput.Create(argv[i+1], true);
+			if(!bResult) {
 				_ftprintf(stderr, _T("Error: Cannot open %s! \n"), argv[i+1]);
 				return 1;
 			}
@@ -214,8 +210,6 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("Error in commandline: arguments expected! \n"));
 		return 1;
 	}
-
-	/* add reverse option -r (printing files with lowest/highest size first) */
 
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFiles = &files;
@@ -263,11 +257,10 @@ DECLARE_MAIN
 	ENDLOG
 
 	
-	// no wxWidgets errors possible here
-	PrintResults(orderedbysize, &fOutput);
+	PrintResults(orderedbysize, fOutput);
 
 
-	CloseFile(&fOutput);
+	fOutput.Close();
 
 
 	tend = clock();
@@ -342,7 +335,6 @@ public:
 			/* important: > (no null-length files! ) */
 			if(size > ffi->nMaxFileSizeIgnore) {
 				// printf("adding %s\n", ff->cFileName);
-				// _tcscpy_s(fi.name, MAX_PATH, filename);
 				fi.name = filename;
 				fi.size = size; // ff->size;
 				fi.nFirstBytes = 0;
@@ -396,7 +388,7 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 
-	// that is not needed any more
+	// that data is not needed any more
 	ffi.Dirs.clear();
 
 	_ftprintf(stderr, _T("        done. Will examine %i file(s). \n\n"), ffi.pFiles->size());
@@ -469,7 +461,7 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 			else {
 				bResult = (*it2).size <= (*it).size;
 			}
-			if(/*(*it2).size >= (*it).size*/bResult) {
+			if(bResult) {
 				bSizeFound = (*it2).size == (*it).size;
 				break;
 			}
@@ -495,13 +487,10 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	
 	// _ftprintf(stderr, _T("Step 3: Delete unimportant sizes... "));
 
-	// nSizes = 0;
-
 	nFiles = 0;
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); bDeleted ? it2 : it2++) {
 		if((*it2).files.size() > 1) {
-			// nSizes++;
 			bDeleted = false;
 			nFiles += (*it2).files.size();
 		}
@@ -680,13 +669,6 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 		}
 		/* delete all temporary firstbytes-arrays */
 		for(it = (*it2).files.begin(); it != (*it2).files.end(); it++) {
-			/* delete [] (*it).firstbytes;
-			(*it).firstbytes = NULL;
-			(*it).nFirstBytes = (*it).nMaxFirstBytes = 0;
-			if((*it).pFile->IsOpened()) {
-				(*it).pFile->Close();
-			}
-			*/
 			erase(*it);
 		}
 		(*it2).files.clear();	
@@ -717,9 +699,10 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 	}
 	_ftprintf(stderr, _T("done. \n\n"));
 
-	_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), nDifferentFiles.GetValue());
-	_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
-		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
+	_ftprintf(stderr, _T("        Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), 
+		nDifferentFiles.GetValue());
+	_ftprintf(stderr, _T("        %") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n\n"), 
 		nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
 
 #ifdef BENCHMARK
@@ -754,28 +737,51 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 }
 
-void	PrintResults(list<fileinfosize> &orderedbysize, FileHandle *pfOutput)
+void	PrintResults(list<fileinfosize> &orderedbysize, wxFile & fOutput)
 {
 	list<fileinfo>::iterator it, it3;
 	list<fileinfosize>::iterator it2;
 	list<fileinfoequal>::iterator it4;
-	const int BUFSIZE = 1000;
-	_TCHAR Buffer[BUFSIZE];
+	wxString Buffer;
+	// bConOut because output to console does NOT support unicode in windows (but it does in unix! )
+	wxPlatformInfo platform;
+	bool bConOut = (fOutput.GetKind() == wxFILE_KIND_TERMINAL) && 
+		(platform.GetOperatingSystemId() & wxOS_WINDOWS);
+	bool bDisplayWarning = false;
 
-	_ftprintf(stderr, _T("Step 4: Printing the results...\n"));
+	_ftprintf(stderr, _T("Step 4: Printing the results...\n\n"));
 
 	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
 		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
-			// _ftprintf(fOutput, _T("+ Equal (%i files of size %") wxLongLongFmtSpec _T("u): \n"), 
-			// 	(*it4).files.size(), (*it4).files.front().size.QuadPart);
-			_stprintf_s(Buffer, BUFSIZE, _T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
+			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
 				(*it4).files.size(), (*it4).files.front().size.GetValue());
-			WriteString(pfOutput, Buffer);
+			if(bConOut) {
+				fOutput.Write(Buffer.ToAscii(), Buffer.Length());
+				if(!Buffer.IsAscii()) {
+					bDisplayWarning = true;
+				}
+			}
+			else {
+				fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8 : (wxMBConv &)wxConvUTF8);
+			}
 			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				_stprintf_s(Buffer, BUFSIZE, _T("  \"%s\"\r\n"), (*it).name.GetFullPath().c_str());
-				WriteString(pfOutput, Buffer);
+				Buffer.Printf(_T("  \"%s\"\r\n"), (*it).name.GetFullPath().c_str());
+				if(bConOut) {
+					fOutput.Write(Buffer.ToAscii(), Buffer.Length());
+					if(!Buffer.IsAscii()) {
+						bDisplayWarning = true;
+					}
+				}
+				else {
+					fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8: (wxMBConv &)wxConvUTF8);
+				}
 			}
 		}
+	}
+
+	if(bDisplayWarning) {
+		_ftprintf(stderr, _T("\nWARNING: The output contains unicode characters which aren't correctly \ndisplayed ")
+			_T("on the console! \nUse -f option if you want to get the correct filenames! \n\n"));
 	}
 
 }
