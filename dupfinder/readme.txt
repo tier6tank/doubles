@@ -58,6 +58,7 @@ TODO/IDEAS:
 - perhaps setting error flag if any error on that file is encountered
 - add progress display for sorting files by size
 - display speed in kbytes/second
+- somehow reduce memory consumption
 
 THE FAR, FAR, FUTURE:
 -----------
