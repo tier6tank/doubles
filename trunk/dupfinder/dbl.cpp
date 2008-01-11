@@ -508,6 +508,8 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 		else { 
 			it2tmp = it2;
 			it2++;
+
+			erase(it2tmp->files.front());
 			orderedbysize.erase(it2tmp);
 			bDeleted = true;
 		}
@@ -608,8 +610,9 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 				bHeaderDisplayed = true;
 			}
 			deleteline();
-			_ftprintf(stderr, _T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)"), 
-				sizeN, nOrderedBySizeLen, (*it2).files.size(), (*it2).size.GetValue());
+			_ftprintf(stderr, _T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
+				/*" %i kb/s" */, 
+				sizeN, nOrderedBySizeLen, (*it2).files.size(), (*it2).size.GetValue() /*, 0*/);
 			tlast = tnow;
 		}
 		assert((*it2).files.size() > 1);
@@ -642,7 +645,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 						nDoubleFiles++;
 						sumsize += (*it3).size;
-							
+						
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
@@ -677,12 +680,14 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 		}
 		/* delete all temporary firstbytes-arrays */
 		for(it = (*it2).files.begin(); it != (*it2).files.end(); it++) {
-			delete [] (*it).firstbytes;
+			/* delete [] (*it).firstbytes;
 			(*it).firstbytes = NULL;
 			(*it).nFirstBytes = (*it).nMaxFirstBytes = 0;
 			if((*it).pFile->IsOpened()) {
 				(*it).pFile->Close();
 			}
+			*/
+			erase(*it);
 		}
 		(*it2).files.clear();	
 	}
@@ -791,11 +796,13 @@ void	deleteline(void) {
 
 void	erase(fileinfo &fi) {
 	delete [] fi.firstbytes;
-	
+	fi.firstbytes = NULL;
+	fi.nFirstBytes = fi.nMaxFirstBytes = 0;
+		
 	if(fi.pFile->IsOpened()) {
 		fi.pFile->Close(); 
-		delete fi.pFile;
 	}
+	delete fi.pFile;
 }
 
 #if defined(BENCHMARK) || defined(TEST)
