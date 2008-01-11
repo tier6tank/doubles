@@ -31,7 +31,7 @@ TODO/IDEAS:
 + (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
 - adding option -max (max size of files to compare with each other) or -maxbytes (compare max. n bytes of a file)
 + adding IsSameFileFunction (done -> wxWidgets)
-- adding error messages (when finding files, comparing files...)
++ adding error messages (when finding files, comparing files...) (done via wxWidgets)
 + supporting files over 4 GB always?! yes, i do hope so. 
 + adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
   unicode output. done
@@ -51,14 +51,17 @@ TODO/IDEAS:
 - add to statistcs sum of bytes read
 + need a faster container than list for testing for double scanning of directories. done (using set). 
 - linux makefile mkdir if
-- removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
-  perhaps using wxLogNull and my own error reporting routines?
-- suppress logging completely
-- delete unneccessary unix includes
++ removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
+  perhaps using wxLogNull and my own error reporting routines? (done via wxLogStream)
++ suppress logging completely (done via wxLogStream)
+- delete unneccessary (unix) includes
 - perhaps setting error flag if any error on that file is encountered
 - add progress display for sorting files by size
 - display speed in kbytes/second
 - somehow reduce memory consumption
+- display option: -o ordered by directory
+- need a close look to signed/unsigned int32/int64 types
+
 
 THE FAR, FAR, FUTURE:
 -----------

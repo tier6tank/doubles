@@ -117,36 +117,6 @@ typedef union _LARGE_INTEGER {
 
 #endif /* !defined(_WIN32) */
 
-union FileHandle {
-	HANDLE hFile;
-	FILE *f;
-}; 
-
-struct FindFile {
-	_TCHAR cFileName[MAX_PATH+1];
-	wxULongLong size;
- };
-
-typedef void (*for_each_file_func)(const FindFile *, void *);
-
-bool	OpenFile(FileHandle *f, const _TCHAR *name);
-bool	CreateFile(FileHandle *f, const _TCHAR *name);
-bool 	ReadFile(const FileHandle *f, char * buffer, DWORD nLength, DWORD *pRead);
-bool	WriteString(FileHandle *f, const _TCHAR *buffer);
-bool	CloseFile(FileHandle *f);
-bool	IsValidFileHandle(const FileHandle *f);
-void	InitFileHandle(FileHandle *f);
-bool	SeekFile(const FileHandle *f, const wxULongLong *pto);
-// void	for_each_file(const _TCHAR *pRootDir, for_each_file_func function, void *pData);
-FileHandle GetStdOutputHandle();
-
-
-
-
-
-
-
-
 
 
 
