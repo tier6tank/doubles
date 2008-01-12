@@ -61,7 +61,8 @@ TODO/IDEAS:
 - somehow reduce memory consumption
 - display option: -o ordered by directory
 - need a close look to signed/unsigned int32/int64 types
-
+- time display under linux does not work properly
++ add option -h for hidden files? done. 
 
 THE FAR, FAR, FUTURE:
 -----------
