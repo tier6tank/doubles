@@ -8,16 +8,18 @@ It is a command-line program which searches for duplicate files in the given pat
 INSTALLATION:
 -------------
 
-Windows: simply copy the executable (dbl.exe) and the cygwin1.dll or mingwm10.dll file (if present) 
-         for example to C:\windows, so that you can call it from the commandline from every directory
+Windows: simply copy the executable (dupf.exe) and the cygwin1.dll or mingwm10.dll file (if present) 
+         for example to C:\windows or somewhere else in your path, so that you can call it from the 
+         commandline from every directory. Alternatively, you can leave out that step and call the program
+         from the commandline in only the directory in which you extracted the files. 
 
-Unix:    copy the executable (dbl) to /usr/local/bin (if that is not in your path, choose /bin), 
+Unix:    copy the executable (dupf) to /usr/local/bin (if that is not in your path, choose /bin), 
          so that you can call it from every directory
 
 USAGE:
 -------
 
-From the commandline, simply type dbl <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
+From the commandline, simply type dupf <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
 The output can be redirected to a file. 
 
 TODO/IDEAS:
