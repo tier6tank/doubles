@@ -120,6 +120,7 @@ DECLARE_MAIN
 	int nOptions;
 	wxFile fOutput;
 	bool bGoIntoSubDirs;
+	bool bSearchHidden;
 
 
 	::wxInitialize();
@@ -157,6 +158,7 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("-f x: Print results to file x (e.g. if the output to stdout is bad \n"));
 		_ftprintf(stderr, _T("      because of unicode characters) \n"));
 		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories\n"));
+		_ftprintf(stderr, _T("-h  : include hidden files in search (default: off)\n"));
 		return 1;
 	}
 
@@ -166,6 +168,7 @@ DECLARE_MAIN
 	fOutput.Attach(wxFile::fd_stdout);
 	bReverse = false;
 	bGoIntoSubDirs = true;
+	bSearchHidden = false;
 
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
 		if(_tcscmp(argv[i], _T("-m")) == 0) {
@@ -204,6 +207,10 @@ DECLARE_MAIN
 			bGoIntoSubDirs = false;
 			nOptions += 1;
 		}
+		else if(_tcscmp(argv[i], _T("-h")) == 0) {
+			bSearchHidden = true;
+			nOptions += 1;
+		}
 	}
 
 	if(argc-nOptions <= 0) {
@@ -214,6 +221,7 @@ DECLARE_MAIN
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFiles = &files;
 	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
+	ffi.bSearchHidden = bSearchHidden;
 
 	// BEGINLOG, ENDLOG -> log errors temporarily to string-stream
 
@@ -384,7 +392,9 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 		AddFileToList traverser(&ffi);
 		wxString dirname = argv[i];
 		wxDir dir(dirname);
-		dir.Traverse(traverser, wxEmptyString, wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ));
+		dir.Traverse(traverser, wxEmptyString, 
+			wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
+			(ffi.bSearchHidden ? wxDIR_HIDDEN : 0));
 		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
 	}
 

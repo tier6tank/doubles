@@ -51,6 +51,7 @@ struct findfileinfo
 	wxULongLong nMaxFileSizeIgnore;
 	list<fileinfo> *pFiles;
 	bool bGoIntoSubDirs;
+	bool bSearchHidden;
 	set<wxFileName, less_filename> Dirs;
 };
 
