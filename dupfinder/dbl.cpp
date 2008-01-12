@@ -1,5 +1,5 @@
 /******************************************************************************
-    dbl - search duplicate files
+    dupfinder - search for duplicate files
     Copyright (C) 2007-2008 Matthias Boehm
 
     This program is free software; you can redistribute it and/or modify
@@ -150,8 +150,8 @@ DECLARE_MAIN
 	argc--;
 
 	if(argc == 0) {
-		_ftprintf(stderr, _T("dbl: Finds duplicates\n\n"));
-		_ftprintf(stderr, _T("dbl [OPTIONS] Path1 [Path2] [Path3] ...\n\n"));
+		_ftprintf(stderr, _T("dupf: Finds duplicate files\n\n"));
+		_ftprintf(stderr, _T("dupf [OPTIONS] Path1 [Path2] [Path3] ...\n\n"));
 		_ftprintf(stderr, _T("Options: \n"));
 		_ftprintf(stderr, _T("-m x: Take care only of files with size greater than x (in bytes)\n"));
 		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
@@ -790,8 +790,8 @@ void	PrintResults(list<fileinfosize> &orderedbysize, wxFile & fOutput)
 	}
 
 	if(bDisplayWarning) {
-		_ftprintf(stderr, _T("\nWARNING: The output contains unicode characters which aren't correctly \ndisplayed ")
-			_T("on the console! \nUse -f option if you want to get the correct filenames! \n\n"));
+		_ftprintf(stderr, _T("\n--- WARNING --- \nThe output contains unicode characters which cannot be displayed correctly \n")
+			_T("on the console screen! \nIf you want to get the correct filenames, use the -f option! \n\n"));
 	}
 
 }
