@@ -70,6 +70,10 @@ wxULongLong __nFilesOpened = 0;
 
 #define REFRESH_INTERVAL 1 /* in seconds */
 
+typedef multiset<fileinfosize *, less_fileinfosize> multiset_fileinfosize;
+typedef multiset<fileinfosize *, less_fileinfosize>::iterator multiset_fileinfosize_it;
+typedef multiset<fileinfosize *, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
+
 bool	comparefiles0(fileinfo &, fileinfo &);
 bool	comparefiles1(fileinfo &, fileinfo &);
 wxULongLong roundup(const wxULongLong &, int);
@@ -77,9 +81,9 @@ void	deleteline(void);
 void	erase(fileinfo &);
 
 void	FindFiles(findfileinfo &, _TCHAR *[], int);
-void	SortFilesBySize(list<fileinfo> &, list<fileinfosize> &, bool);
-void	GetEqualFiles(list<fileinfosize> &);
-void	PrintResults(list<fileinfosize> &, wxFile &);
+void	SortFilesBySize(list<fileinfo> &, multiset_fileinfosize &);
+void	GetEqualFiles(multiset_fileinfosize &);
+void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
 void	RemoveDoubleFiles(findfileinfo &);
 
 #ifdef BENCHMARK
@@ -105,13 +109,13 @@ LARGE_INTEGER fileread;
 // does not support wmain, but still unicode
 DECLARE_MAIN
 	list<fileinfo> files;
-	list<fileinfosize> orderedbysize;
+	multiset_fileinfosize sortedbysize;
 	findfileinfo ffi;
 	ULARGE_INTEGER _nMaxFileSizeIgnore;
 	wxULongLong nMaxFileSizeIgnore;
 
 	list<fileinfo>::iterator it, it3;
-	list<fileinfosize>::iterator it2;
+	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
 
 	clock_t tstart, tend;
@@ -121,7 +125,6 @@ DECLARE_MAIN
 	wxFile fOutput;
 	bool bGoIntoSubDirs;
 	bool bSearchHidden;
-
 
 	::wxInitialize();
 	// timestamps are ugly
@@ -252,7 +255,7 @@ DECLARE_MAIN
 
 
 	// no wxWidgets errors possible here
-	SortFilesBySize(files, orderedbysize, bReverse);
+	SortFilesBySize(files, sortedbysize);
 
 	// for error testing (e.g. delete files before GetEqualFiles)
 	// int i;
@@ -260,16 +263,15 @@ DECLARE_MAIN
 
 	BEGINLOG
 	
-	GetEqualFiles(orderedbysize);
+	GetEqualFiles(sortedbysize);
 
 	ENDLOG
 
 	
-	PrintResults(orderedbysize, fOutput);
+	PrintResults(sortedbysize, fOutput, bReverse);
 
 
 	fOutput.Close();
-
 
 	tend = clock();
 
@@ -449,12 +451,12 @@ void	RemoveDoubleFiles(findfileinfo &ffi)
 }
 */
 
-void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize, bool bReverse)
+void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysize)
 {
-	bool bSizeFound;
 	fileinfosize fis;
+	fileinfosize *pfis;
 	list<fileinfo>::iterator it;
-	list<fileinfosize>::iterator it2;
+	multiset_fileinfosize_it it2;
 	bool bDeleted;
 	wxULongLong nFiles;
 	
@@ -462,71 +464,58 @@ void	SortFilesBySize(list<fileinfo> & files, list<fileinfosize> & orderedbysize,
 	_ftprintf(stderr, _T("Step 2: Sorting files by size (this might take a while)... "));
 
 	for(it = files.begin(); it != files.end(); it++) {
-		bool bResult;
-		bSizeFound = false;
-		for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
-			if(bReverse) {
-				bResult = (*it2).size >= (*it).size; 
-			}
-			else {
-				bResult = (*it2).size <= (*it).size;
-			}
-			if(bResult) {
-				bSizeFound = (*it2).size == (*it).size;
-				break;
-			}
-		} 
-
-		if(bSizeFound) {
-			(*it2).files.push_back(*it);
+		fis.size = it->size;
+		it2 = sortedbysize.find(&fis);
+		if(it2 != sortedbysize.end()) {
+			(*it2)->files.push_back(*it);
 		}
 		else {
-			fis.size = (*it).size;
-			fis.files.clear();
-			fis.files.push_back(*it);
-			orderedbysize.insert(it2, fis);
+			pfis = new fileinfosize;
+			pfis->size = (*it).size;
+			pfis->files.push_back(*it);
+			sortedbysize.insert(pfis);
 		}
 	} 
 
 	/* now i can delete the first file-list */
 	files.clear();
 
-	_ftprintf(stderr, _T("done. \n        %i different sizes, "), orderedbysize.size());
+	_ftprintf(stderr, _T("done. \n        %i different sizes, "), sortedbysize.size());
 
-	list<fileinfosize>::iterator it2tmp;
+	multiset_fileinfosize_it it2tmp;
 	
 	// _ftprintf(stderr, _T("Step 3: Delete unimportant sizes... "));
 
 	nFiles = 0;
 
-	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); bDeleted ? it2 : it2++) {
-		if((*it2).files.size() > 1) {
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
+		if((*it2)->files.size() > 1) {
 			bDeleted = false;
-			nFiles += (*it2).files.size();
+			nFiles += (*it2)->files.size();
 		}
 		else { 
 			it2tmp = it2;
 			it2++;
 
-			erase(it2tmp->files.front());
-			orderedbysize.erase(it2tmp);
+			erase((*it2tmp)->files.front());
+			sortedbysize.erase(it2tmp);
 			bDeleted = true;
 		}
 	}
 
 	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u files have to be compared. \n\n"), 
-		orderedbysize.size(), nFiles.GetValue());
+		sortedbysize.size(), nFiles.GetValue());
 
 }
 
-void	GetEqualFiles(list<fileinfosize> & orderedbysize)
+void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 {
 	list<fileinfo>::iterator it, it3;
-	list<fileinfosize>::iterator it2;
+	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
 	int sizeN;
 	bool bHeaderDisplayed = false;
-	size_t nOrderedBySizeLen;
+	size_t nSortedBySizeLen;
 	time_t tlast, tnow;
 	wxULongLong sumsize;
 	wxULongLong nDoubleFiles;
@@ -541,7 +530,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 #ifdef TEST
 	list<fileinfo>::iterator __it3;
 	list<fileinfo>::iterator __it5, __it;
-	list<fileinfosize>::iterator __it2;
+	multiset_fileinfosize_it __it2;
 	list<fileinfoequal>::iterator __it4;
 #endif /*defined(TEST) */
 	
@@ -561,7 +550,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 #ifdef BENCHMARK
 
-	list<fileinfosize> __oldlist = orderedbysize;
+	list<fileinfosize> __oldlist = sortedbytsize;
 
 #ifdef BENCHMARKBUFSIZE
 	FILE *__fLog;
@@ -592,13 +581,13 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 	for(__i = 0; __i < TESTCNT; __i++) {
 
-	orderedbysize = __oldlist;
+	sortedbysize = __oldlist;
 
 #endif /* BENCHMARK*/
 
-	nOrderedBySizeLen = orderedbysize.size();
+	nSortedBySizeLen = sortedbysize.size();
 	
-	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
 		// printf("size %" I64 ": %i file(s) \n", (*it2).size.QuadPart, (*it2).files.size());
 		sizeN++;
 		tnow = time(NULL);
@@ -611,20 +600,20 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 			deleteline();
 			_ftprintf(stderr, _T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
 				/*" %i kb/s" */, 
-				sizeN, nOrderedBySizeLen, (*it2).files.size(), (*it2).size.GetValue() /*, 0*/);
+				sizeN, nSortedBySizeLen, (*it2)->files.size(), (*it2)->size.GetValue() /*, 0*/);
 			tlast = tnow;
 		}
-		assert((*it2).files.size() > 1);
-		if((*it2).files.size() > 1) { /* in fact, this isn't neccesarry any more */
+		assert((*it2)->files.size() > 1);
+		if((*it2)->files.size() > 1) { /* in fact, this isn't neccesarry any more */
 			bool bDeleted3;
 			bool bFirstDouble;
 			fileinfoequal fiq;
 			list<fileinfo>::iterator ittmp;
 			bool bEqual;
-			for(it = (*it2).files.begin(); it != (*it2).files.end(); /*it++*/) {
+			for(it = (*it2)->files.begin(); it != (*it2)->files.end(); /*it++*/) {
 				bFirstDouble = true;
 				it3 = it;
-				for(it3++; it3 != (*it2).files.end(); bDeleted3 ? it3 : it3++) {
+				for(it3++; it3 != (*it2)->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
 					bEqual = comparefiles(*it, *it3);
 #ifdef TEST
@@ -636,10 +625,10 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 							fiq.files.clear();
 							fiq.files.push_back(*it);
 							fiq.files.push_back(*it3);
-							(*it2).equalfiles.push_back(fiq);
+							(*it2)->equalfiles.push_back(fiq);
 						}
 						else {
-							(*it2).equalfiles.back().files.push_back(*it3);
+							(*it2)->equalfiles.back().files.push_back(*it3);
 						}
 
 						nDoubleFiles++;
@@ -649,7 +638,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 						ittmp = it3;
 						it3++;
 						erase(*ittmp);
-						(*it2).files.erase(ittmp);
+						(*it2)->files.erase(ittmp);
 					}
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
 				}
@@ -672,16 +661,16 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				erase((*it2).files.front());
-				(*it2).files.pop_front();
-				it = (*it2).files.begin();
+				erase((*it2)->files.front());
+				(*it2)->files.pop_front();
+				it = (*it2)->files.begin();
 			}
 		}
 		/* delete all temporary firstbytes-arrays */
-		for(it = (*it2).files.begin(); it != (*it2).files.end(); it++) {
+		for(it = (*it2)->files.begin(); it != (*it2)->files.end(); it++) {
 			erase(*it);
 		}
-		(*it2).files.clear();	
+		(*it2)->files.clear();	
 	}
 
 #ifdef BENCHMARK
@@ -729,7 +718,7 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 #endif /* BENCHMARK */
 
 #ifdef TEST
-	for(__it2 = orderedbysize.begin(); __it2 != orderedbysize.end(); __it2++) {
+	for(__it2 = sortedbysize.begin(); __it2 != sortedbysize.end(); __it2++) {
 		for(__it4 = (*__it2).equalfiles.begin(); __it4 != (*__it2).equalfiles.end(); __it4++) {
 			for(__it = (*__it4).files.begin(); __it != (*__it4).files.end(); __it++) {
 				__it5 = __it;
@@ -747,10 +736,11 @@ void	GetEqualFiles(list<fileinfosize> & orderedbysize)
 
 }
 
-void	PrintResults(list<fileinfosize> &orderedbysize, wxFile & fOutput)
+void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
 {
 	list<fileinfo>::iterator it, it3;
-	list<fileinfosize>::iterator it2;
+	multiset_fileinfosize_it it2;
+	multiset_fileinfosize_rit rit2;
 	list<fileinfoequal>::iterator it4;
 	wxString Buffer;
 	// bConOut because output to console does NOT support unicode in windows (but it does in unix! )
@@ -761,8 +751,16 @@ void	PrintResults(list<fileinfosize> &orderedbysize, wxFile & fOutput)
 
 	_ftprintf(stderr, _T("Step 4: Printing the results...\n\n"));
 
-	for(it2 = orderedbysize.begin(); it2 != orderedbysize.end(); it2++) {
-		for(it4 = (*it2).equalfiles.begin(); it4 != (*it2).equalfiles.end(); it4++) {
+	for(
+		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();
+		bReverse ? rit2 != sortedbysize.rend() : it2 != sortedbysize.end();
+		rit2++, it2++) {
+
+
+		for(
+			bReverse ? it4 = (*rit2)->equalfiles.begin() : it4 = (*it2)->equalfiles.begin();
+			bReverse ? it4 != (*rit2)->equalfiles.end() : it4 != (*it2)->equalfiles.end(); 
+			it4++) {
 			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
 				(*it4).files.size(), (*it4).files.front().size.GetValue());
 			if(bConOut) {
@@ -794,6 +792,12 @@ void	PrintResults(list<fileinfosize> &orderedbysize, wxFile & fOutput)
 			_T("on the console screen! \nIf you want to get the correct filenames, use the -f option! \n\n"));
 	}
 
+	// clean release memory
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
+		delete *it2;
+	}
+	
+	sortedbysize.clear();
 }
 
 
