@@ -68,5 +68,19 @@ struct fileinfosize
 	list<fileinfoequal> equalfiles;
 };
 
+struct less_fileinfosize : public less<fileinfosize> {
+	bool operator () (const fileinfosize *a, const fileinfosize *b) const {
+		// the commented code does not work because i don't get bReverse from somewhere, 
+		// so now bReverse is used in PrintResults
+
+		//if (bReverse) {
+		//	return a.size < b.size;
+		// else {
+		return a->size > b->size;
+		// }
+	}
+};
+
+
 #endif /* defined(__DBL_H_123) */
 
