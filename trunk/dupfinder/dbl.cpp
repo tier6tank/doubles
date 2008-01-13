@@ -459,6 +459,7 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 	multiset_fileinfosize_it it2;
 	bool bDeleted;
 	wxULongLong nFiles;
+	wxULongLong nDroppedFiles;
 	
 	
 	_ftprintf(stderr, _T("Step 2: Sorting files by size (this might take a while)... "));
@@ -470,7 +471,7 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 			(*it2)->files.push_back(*it);
 		}
 		else {
-			pfis = new fileinfosize;
+			pfis = new fileinfosize; // <- 
 			pfis->size = (*it).size;
 			pfis->files.push_back(*it);
 			sortedbysize.insert(pfis);
@@ -487,6 +488,7 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 	// _ftprintf(stderr, _T("Step 3: Delete unimportant sizes... "));
 
 	nFiles = 0;
+	nDroppedFiles = 0;
 
 	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
 		if((*it2)->files.size() > 1) {
@@ -498,13 +500,17 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 			it2++;
 
 			erase((*it2tmp)->files.front());
+			delete *it2tmp;
 			sortedbysize.erase(it2tmp);
 			bDeleted = true;
+
+			nDroppedFiles++;
 		}
 	}
 
-	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u files have to be compared. \n\n"), 
-		sortedbysize.size(), nFiles.GetValue());
+	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u files have to be compared. ")
+		_T("%") wxLongLongFmtSpec _T("u files dropped. \n\n"), 
+		sortedbysize.size(), nFiles.GetValue(), nDroppedFiles.GetValue());
 
 }
 
