@@ -70,9 +70,6 @@ wxULongLong __nFilesOpened = 0;
 
 #define REFRESH_INTERVAL 1 /* in seconds */
 
-typedef multiset<fileinfosize *, less_fileinfosize> multiset_fileinfosize;
-typedef multiset<fileinfosize *, less_fileinfosize>::iterator multiset_fileinfosize_it;
-typedef multiset<fileinfosize *, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
 
 bool	comparefiles0(fileinfo &, fileinfo &);
 bool	comparefiles1(fileinfo &, fileinfo &);
@@ -81,7 +78,6 @@ void	deleteline(void);
 void	erase(fileinfo &);
 
 void	FindFiles(findfileinfo &, _TCHAR *[], int);
-void	SortFilesBySize(list<fileinfo> &, multiset_fileinfosize &);
 void	GetEqualFiles(multiset_fileinfosize &);
 void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
 void	RemoveDoubleFiles(findfileinfo &);
@@ -108,7 +104,6 @@ LARGE_INTEGER fileread;
 // that's because of mingw32 build which
 // does not support wmain, but still unicode
 DECLARE_MAIN
-	list<fileinfo> files;
 	multiset_fileinfosize sortedbysize;
 	findfileinfo ffi;
 	ULARGE_INTEGER _nMaxFileSizeIgnore;
@@ -222,7 +217,7 @@ DECLARE_MAIN
 	}
 
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
-	ffi.pFiles = &files;
+	ffi.pFilesBySize = &sortedbysize;
 	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
 	ffi.bSearchHidden = bSearchHidden;
 
@@ -255,7 +250,7 @@ DECLARE_MAIN
 
 
 	// no wxWidgets errors possible here
-	SortFilesBySize(files, sortedbysize);
+	// SortFilesBySize(files, sortedbysize);
 
 	// for error testing (e.g. delete files before GetEqualFiles)
 	// int i;
@@ -339,20 +334,32 @@ public:
 	virtual wxDirTraverseResult OnFile(const wxString & filename)
 	{
 		fileinfo fi;
+		fileinfosize fis;
+		fileinfosize *pfis;
+		multiset_fileinfosize_it it2;
 		wxULongLong size = wxFileName::GetSize(filename);
 		
-		if(size != wxInvalidSize) {
-			/* important: > (no null-length files! ) */
-			if(size > ffi->nMaxFileSizeIgnore) {
-				// printf("adding %s\n", ff->cFileName);
-				fi.name = filename;
-				fi.size = size; // ff->size;
-				fi.nFirstBytes = 0;
-				fi.nMaxFirstBytes = 0;
-				fi.firstbytes = NULL;
-				fi.pFile = new wxFile();
-				fi.error = false;
-				ffi->pFiles->push_back(fi); 
+		if(size != wxInvalidSize && size > ffi->nMaxFileSizeIgnore) {
+			fis.size = size;
+			it2 = ffi->pFilesBySize->find(&fis);
+
+			// init structure
+			fi.name = filename;
+			fi.size = size;
+			fi.nFirstBytes = 0;
+			fi.nMaxFirstBytes = 0;
+			fi.firstbytes = NULL;
+			fi.pFile = new wxFile();
+			fi.error = false;
+
+			if(it2 != ffi->pFilesBySize->end()) {
+				(*it2)->files.push_back(fi);
+			}
+			else {
+				pfis = new fileinfosize; 
+				pfis->size = fi.size;
+				pfis->files.push_back(fi);
+				ffi->pFilesBySize->insert(pfis);
 			}
 		}
 
@@ -385,11 +392,17 @@ private:
 void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 {
 	int i;
+	fileinfosize fis;
+	list<fileinfo>::iterator it;
+	multiset_fileinfosize_it it2;
+	bool bDeleted;
+	wxULongLong nFiles;
+	wxULongLong nDroppedFiles;
 
 	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
 
 	for (i = 0; i < argc; i++) {
-		size_t nPreviousSize = ffi.pFiles->size();
+		// size_t nPreviousSize = ffi.pFiles->size();
 		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
 		AddFileToList traverser(&ffi);
 		wxString dirname = argv[i];
@@ -397,91 +410,14 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 		dir.Traverse(traverser, wxEmptyString, 
 			wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
 			(ffi.bSearchHidden ? wxDIR_HIDDEN : 0));
-		_ftprintf(stderr, _T("%i files\n"), ffi.pFiles->size() - nPreviousSize);
+		_ftprintf(stderr, _T("\n"));
 	}
 
+	// perhaps better using DeleteDuplFiles algorithm
 	// that data is not needed any more
 	ffi.Dirs.clear();
 
-	_ftprintf(stderr, _T("        done. Will examine %i file(s). \n\n"), ffi.pFiles->size());
-
-}
-
-/*
-void	RemoveDoubleFiles(findfileinfo &ffi) 
-{
-	// this has to be changed, because wxFileName.operator == is grindingly sluggish
-
-	list<fileinfo>::iterator it, it2;
-	// remove files which appear more than once
-	size_t n, nsum;
-
-	_ftprintf(stderr, _T("Step 1b: Deleting files which appear more than once (this takes a while :-( )... "));
-
-	nsum = ffi.pFiles->size();
-
-	for(it = ffi.pFiles->begin(), n = 0; it != ffi.pFiles->end(); it++, n++) {
-		it2 = it;
-		it2++;
-		bool bDeleted;
-		for(it2; it2 != ffi.pFiles->end(); bDeleted ? it2 : it2++) {
-			bDeleted = false;
-			// speed....
-			\* if(it->name.GetExt() == it2->name.GetExt()) {
-				if(it->name.GetName() == it2->name.GetName()) { *\
-					if(it->name == it2->name) {
-						// delete this entry
-						list<fileinfo>::iterator ittmp = it2;
-						ittmp++;
-						ffi.pFiles->erase(it2);
-						bDeleted = true;
-						it2 = ittmp;
-						assert(false);
-					}
-			\*	}
-			}*\
-		}
-		if(n % 10 == 0) {
-			_ftprintf(stderr, _T("%.2f %%\b\b\b\b\b\b\b\b\b\b\b\b\b"), (double)n/nsum*100);
-		}
-	}
-
-	
-	_ftprintf(stderr, _T("done. \n         Will examine %i file(s). \n"), ffi.pFiles->size());
-}
-*/
-
-void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysize)
-{
-	fileinfosize fis;
-	fileinfosize *pfis;
-	list<fileinfo>::iterator it;
-	multiset_fileinfosize_it it2;
-	bool bDeleted;
-	wxULongLong nFiles;
-	wxULongLong nDroppedFiles;
-	
-	
-	_ftprintf(stderr, _T("Step 2: Sorting files by size (this might take a while)... "));
-
-	for(it = files.begin(); it != files.end(); it++) {
-		fis.size = it->size;
-		it2 = sortedbysize.find(&fis);
-		if(it2 != sortedbysize.end()) {
-			(*it2)->files.push_back(*it);
-		}
-		else {
-			pfis = new fileinfosize; // <- 
-			pfis->size = (*it).size;
-			pfis->files.push_back(*it);
-			sortedbysize.insert(pfis);
-		}
-	} 
-
-	/* now i can delete the first file-list */
-	files.clear();
-
-	_ftprintf(stderr, _T("done. \n        %i different sizes, "), sortedbysize.size());
+	_ftprintf(stderr, _T("        %i different sizes, "), ffi.pFilesBySize->size());
 
 	multiset_fileinfosize_it it2tmp;
 	
@@ -490,7 +426,7 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 	nFiles = 0;
 	nDroppedFiles = 0;
 
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
+	for(it2 = ffi.pFilesBySize->begin(); it2 != ffi.pFilesBySize->end(); bDeleted ? it2 : it2++) {
 		if((*it2)->files.size() > 1) {
 			bDeleted = false;
 			nFiles += (*it2)->files.size();
@@ -501,16 +437,17 @@ void	SortFilesBySize(list<fileinfo> & files, multiset_fileinfosize & sortedbysiz
 
 			erase((*it2tmp)->files.front());
 			delete *it2tmp;
-			sortedbysize.erase(it2tmp);
+			ffi.pFilesBySize->erase(it2tmp);
 			bDeleted = true;
 
 			nDroppedFiles++;
 		}
 	}
 
-	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u files have to be compared. ")
-		_T("%") wxLongLongFmtSpec _T("u files dropped. \n\n"), 
-		sortedbysize.size(), nFiles.GetValue(), nDroppedFiles.GetValue());
+	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u/%") wxLongLongFmtSpec _T("u files have to be compared ")
+		_T("(%") wxLongLongFmtSpec _T("u files dropped). \n\n"), 
+		ffi.pFilesBySize->size(), nFiles.GetValue(), (nFiles+nDroppedFiles).GetValue(), nDroppedFiles.GetValue());
+
 
 }
 
@@ -542,7 +479,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 	
 
 	
-	_ftprintf(stderr, _T("Step 3: Comparing files with same size for equality... "));
+	_ftprintf(stderr, _T("Step 2: Comparing files with same size for equality... "));
 
 	tlast = time(NULL);
 
@@ -704,9 +641,9 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 	}
 	_ftprintf(stderr, _T("done. \n\n"));
 
-	_ftprintf(stderr, _T("        Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), 
+	_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), 
 		nDifferentFiles.GetValue());
-	_ftprintf(stderr, _T("        %") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+	_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
 		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n\n"), 
 		nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
 
@@ -755,7 +692,7 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 		(platform.GetOperatingSystemId() & wxOS_WINDOWS);
 	bool bDisplayWarning = false;
 
-	_ftprintf(stderr, _T("Step 4: Printing the results...\n\n"));
+	_ftprintf(stderr, _T("Printing the results...\n\n"));
 
 	for(
 		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();
