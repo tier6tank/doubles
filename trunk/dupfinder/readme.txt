@@ -39,10 +39,10 @@ TODO/IDEAS:
   unicode output. done
 + adding option which determines if the small sized files or the large sized files are treated and displayed firstd. done
 + adding option for not going in subdirectories (done)
-- adding unicode support for linux/unix
++ adding unicode support for linux/unix not necessary
 + removing clock_t from source, replacing it with time_t: that wasn't an error, it was my fault!
 + (correct cygwin-build lf/cr errors) related to "adding option -f <filename> " seems not to be possible
-- merging searching files and sorting files by size algorithms ?
++ merging searching files and sorting files by size algorithms ? done, now that sortfilesbysize is that fast
 + somehow fixing the problem with the sprintf_s routines, which are currently supported only by microsoft v14 (or deleting
   them?? but they are to nice to delete them, so something other, but what!?!?, has to be done...) done! with v-printf-routines. 
   Nevertheless a call to sscaf_s (if occuring) with an "%s" format argument would very propably leed into trouble, so i must not
@@ -50,7 +50,7 @@ TODO/IDEAS:
 - playing a bit with some compiling options (especcially optimization for gcc!)
 - internationalization
 + replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
-- add to statistcs sum of bytes read
+- add to statistcs sum of bytes read, average speed
 + need a faster container than list for testing for double scanning of directories. done (using set). 
 - linux makefile mkdir if
 + removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
@@ -65,6 +65,9 @@ TODO/IDEAS:
 - need a close look to signed/unsigned int32/int64 types
 - time display under linux does not work properly
 + add option -h for hidden files? done. 
++ instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
+- status info at the end of the output, not at the beginning, where it cannot be read easily most often
+- do a lot of cleanup (e.g. those old BENCHMARK and TEST things)
 
 THE FAR, FAR, FUTURE:
 -----------

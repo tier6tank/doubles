@@ -46,14 +46,6 @@ struct less_filename : public less<wxFileName> {
 	}
 };
 
-struct findfileinfo
-{
-	wxULongLong nMaxFileSizeIgnore;
-	list<fileinfo> *pFiles;
-	bool bGoIntoSubDirs;
-	bool bSearchHidden;
-	set<wxFileName, less_filename> Dirs;
-};
 
 struct fileinfoequal
 {
@@ -68,6 +60,7 @@ struct fileinfosize
 	list<fileinfoequal> equalfiles;
 };
 
+
 struct less_fileinfosize : public less<fileinfosize> {
 	bool operator () (const fileinfosize *a, const fileinfosize *b) const {
 		// the commented code does not work because i don't get bReverse from somewhere, 
@@ -80,6 +73,23 @@ struct less_fileinfosize : public less<fileinfosize> {
 		// }
 	}
 };
+	
+typedef multiset<fileinfosize *, less_fileinfosize> multiset_fileinfosize;
+typedef multiset<fileinfosize *, less_fileinfosize>::iterator multiset_fileinfosize_it;
+typedef multiset<fileinfosize *, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
+
+
+struct findfileinfo
+{
+	wxULongLong nMaxFileSizeIgnore;
+	// list<fileinfo> *pFiles;
+	multiset_fileinfosize *pFilesBySize;
+	bool bGoIntoSubDirs;
+	bool bSearchHidden;
+	set<wxFileName, less_filename> Dirs;
+};
+
+
 
 
 #endif /* defined(__DBL_H_123) */
