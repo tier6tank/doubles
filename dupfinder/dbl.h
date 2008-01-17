@@ -24,15 +24,19 @@
 
 #define BASEBUFSIZE 512
 
-struct fileinfo
+struct filedata
 {
-	wxString name;
-	wxULongLong size;
 	unsigned long nFirstBytes;
 	unsigned long nMaxFirstBytes;
 	char* firstbytes;
 	wxFile *pFile;
 	bool error;
+};
+
+struct fileinfo
+{
+	wxString name;
+	filedata *data;
 };
 
 struct less_filename : public less<wxFileName> {

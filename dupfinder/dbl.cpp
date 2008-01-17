@@ -341,12 +341,7 @@ public:
 		if(size != wxInvalidSize && size > ffi->nMaxFileSizeIgnore) {
 			// init structure
 			fi.name = filename;
-			fi.size = size;
-			fi.nFirstBytes = 0;
-			fi.nMaxFirstBytes = 0;
-			fi.firstbytes = NULL;
-			fi.pFile = new wxFile();
-			fi.error = false;
+			fi.data = NULL;
 
 			fis.size = size;
 			it2 = ffi->pFilesBySize->find(&fis);
@@ -357,7 +352,7 @@ public:
 			}
 			else {
 				pfis = new fileinfosize; 
-				pfis->size = fi.size;
+				pfis->size = size;
 				pfis->files.push_back(fi);
 				ffi->pFilesBySize->insert(pfis);
 			}
@@ -577,7 +572,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 						}
 
 						nDoubleFiles++;
-						sumsize += (*it3).size;
+						sumsize += (*it2)->size;
 						
 						bDeleted3 = true;
 						ittmp = it3;
@@ -704,7 +699,8 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 			bReverse ? it4 != (*rit2)->equalfiles.end() : it4 != (*it2)->equalfiles.end(); 
 			it4++) {
 			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
-				(*it4).files.size(), (*it4).files.front().size.GetValue());
+				(*it4).files.size(), 
+				bReverse ? (*rit2)->size.GetValue() : (*it2)->size.GetValue());
 			if(bConOut) {
 				fOutput.Write(Buffer.ToAscii(), Buffer.Length());
 				if(!Buffer.IsAscii()) {
@@ -757,14 +753,17 @@ void	deleteline(int n) {
 }
 
 void	erase(fileinfo &fi) {
-	delete [] fi.firstbytes;
-	fi.firstbytes = NULL;
-	fi.nFirstBytes = fi.nMaxFirstBytes = 0;
+	if(fi.data) {
+		delete [] fi.data->firstbytes;
+		fi.data->firstbytes = NULL;
+		fi.data->nFirstBytes = fi.data->nMaxFirstBytes = 0;
 		
-	if(fi.pFile->IsOpened()) {
-		fi.pFile->Close(); 
+		if(fi.data->pFile->IsOpened()) {
+			fi.data->pFile->Close(); 
+		}
+		delete fi.data->pFile;
 	}
-	delete fi.pFile;
+	delete fi.data;
 }
 
 #if defined(BENCHMARK) || defined(TEST)
@@ -960,11 +959,24 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	}
 	*/
 
+	for(i = 0; i < 2; i++) {
+		if(!pfi[i]->data) {
+			pfi[i]->data = new filedata;
+			// pfi[i]->data->size = size;
+			pfi[i]->data->nFirstBytes = 0;
+			pfi[i]->data->nMaxFirstBytes = 0;
+			pfi[i]->data->firstbytes = NULL;
+			pfi[i]->data->pFile = new wxFile();
+			pfi[i]->data->error = false;
+		}
+	}
+
+
 	// do not try to open files unneccessarily often
 	// assume that if a file could once not be opened, 
 	// it will never be opened (makes the results also 
 	// more reliable)
-	if(pfi[0]->error || pfi[1]->error) {
+	if(pfi[0]->data->error || pfi[1]->data->error) {
 		bResult = false;
 		goto End;
 	}
@@ -981,57 +993,57 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 	while(true) {
 		for(i = 0; i < 2; i++) {
 			usingbuffer[i] = 
-				pfi[i]->firstbytes && nOffset[i] < pfi[i]->nFirstBytes;
+				pfi[i]->data->firstbytes && nOffset[i] < pfi[i]->data->nFirstBytes;
 
 			if(usingbuffer[i]) {
 				assert(!nOffset[i].GetHi());
-				pbuf[i] = pfi[i]->firstbytes + nOffset[i].GetLo();
-				/* (int)nOffset[i].QuadPart works, because nOffset[i].QuadPart < pfi[i]->nFirstBytes 
+				pbuf[i] = pfi[i]->data->firstbytes + nOffset[i].GetLo();
+				/* (int)nOffset[i].QuadPart works, because nOffset[i].QuadPart < pfi[i]->data->nFirstBytes 
 				   look up, but nevertheless not very nice, perhaps convert all integers 
 				   to ULARGE_INTEGER (better also with big files)? */
-				n[i] = min(pfi[i]->nFirstBytes - (unsigned long)nOffset[i].GetLo(), (unsigned long)BUFSIZE);
+				n[i] = min(pfi[i]->data->nFirstBytes - (unsigned long)nOffset[i].GetLo(), (unsigned long)BUFSIZE);
 			}
 			else {
-				if(!pfi[i]->pFile->IsOpened()) {
+				if(!pfi[i]->data->pFile->IsOpened()) {
 					bool bOpenResult;
 					STARTTIME(disk);
 					STARTTIME(fileopen);
-					bOpenResult = pfi[i]->pFile->Open(pfi[i]->name);
+					bOpenResult = pfi[i]->data->pFile->Open(pfi[i]->name);
 					STOPTIME(fileopen);
 					STOPTIME(disk);
 #ifdef BENCHMARK
 					__nFilesOpened++;
 #endif /* BENCHMARK */
 					if(!bOpenResult) {
-						pfi[i]->error = true;
+						pfi[i]->data->error = true;
 						bResult = false;
 						goto End;
 					}
-					pfi[i]->nMaxFirstBytes = (unsigned long)min(wxULongLong(MAXFIRSTBYTES).GetValue(), 
-						roundup(pfi[i]->size, BUFSIZE).GetValue());
-					pfi[i]->firstbytes = new char[pfi[i]->nMaxFirstBytes];
-					pfi[i]->nFirstBytes = 0;
+					pfi[i]->data->nMaxFirstBytes = (unsigned long)min(wxULongLong(MAXFIRSTBYTES).GetValue(), 
+						roundup(pfi[i]->data->pFile->Length(), BUFSIZE).GetValue());
+					pfi[i]->data->firstbytes = new char[pfi[i]->data->nMaxFirstBytes];
+					pfi[i]->data->nFirstBytes = 0;
 				}
 				else if(!seeked[i]) {
 					wxFileOffset pos;
 					STARTTIME(disk);
 					STARTTIME(fileseek);
-					pos = pfi[i]->pFile->Seek((wxFileOffset)nOffset[i].GetValue());
+					pos = pfi[i]->data->pFile->Seek((wxFileOffset)nOffset[i].GetValue());
 					STOPTIME(fileseek);
 					STOPTIME(disk);
 					if(pos == wxInvalidOffset) {
-						pfi[i]->error = true;
+						pfi[i]->data->error = true;
 						bResult = false;
 						goto End;
 					}
 					seeked[i] = true;
 				}
 
-				writetofirstbytes[i] = nOffset[i] < pfi[i]->nMaxFirstBytes;
+				writetofirstbytes[i] = nOffset[i] < pfi[i]->data->nMaxFirstBytes;
 
 				if(writetofirstbytes[i]) {
 					assert(!nOffset[i].GetHi());
-					pbuf[i] = pfi[i]->firstbytes+nOffset[i].GetLo();
+					pbuf[i] = pfi[i]->data->firstbytes+nOffset[i].GetLo();
 				}
 				else {
 					pbuf[i] = b[i];
@@ -1040,11 +1052,11 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				assert(pbuf[i]);
 				STARTTIME(disk);
 				STARTTIME(fileread);
-				n[i] = pfi[i]->pFile->Read(pbuf[i], BUFSIZE);
+				n[i] = pfi[i]->data->pFile->Read(pbuf[i], BUFSIZE);
 				STOPTIME(fileread);
 				STOPTIME(disk);
 				if(n[i] == wxInvalidOffset) {
-					pfi[i]->error = true;
+					pfi[i]->data->error = true;
 					bResult = false;
 					goto End;
 				} 
@@ -1054,7 +1066,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 				__nSectorsRead += n[i]/BASEBUFSIZE + (n[i] % BASEBUFSIZE != 0 ? 1 : 0);
 #endif /* BENCHMARK */
 				if(writetofirstbytes[i]) {
-					pfi[i]->nFirstBytes += n[i];
+					pfi[i]->data->nFirstBytes += n[i];
 				}
 			}
 

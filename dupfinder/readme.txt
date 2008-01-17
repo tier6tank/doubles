@@ -72,6 +72,10 @@ TODO/IDEAS:
 - reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
 - increase speed of comparefiles1
 - does time(NULL) reduce speed? 
+- size n/n display at once and at first
+- option (break on (fatal) errors or not)
+- accelerating search algorithm
+
 
 THE FAR, FAR, FUTURE:
 -----------
