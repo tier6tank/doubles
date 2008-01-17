@@ -57,8 +57,8 @@ TODO/IDEAS:
   perhaps using wxLogNull and my own error reporting routines? (done via wxLogStream)
 + suppress logging completely (done via wxLogStream)
 - delete unneccessary (unix) includes
-- perhaps setting error flag if any error on that file is encountered
-- add progress display for sorting files by size
++ perhaps setting error flag if any error on that file is encountered 
++ add progress display for sorting files by size (not necessary any more)
 - display speed in kbytes/second
 - somehow reduce memory consumption
 - display option: -o ordered by directory
@@ -68,6 +68,10 @@ TODO/IDEAS:
 + instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
 - status info at the end of the output, not at the beginning, where it cannot be read easily most often
 - do a lot of cleanup (e.g. those old BENCHMARK and TEST things)
+- warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters)
+- reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
+- increase speed of comparefiles1
+- does time(NULL) reduce speed? 
 
 THE FAR, FAR, FUTURE:
 -----------

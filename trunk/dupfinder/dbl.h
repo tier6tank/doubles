@@ -26,7 +26,7 @@
 
 struct fileinfo
 {
-	wxFileName name;
+	wxString name;
 	wxULongLong size;
 	unsigned long nFirstBytes;
 	unsigned long nMaxFirstBytes;
