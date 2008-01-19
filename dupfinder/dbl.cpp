@@ -215,6 +215,45 @@ DECLARE_MAIN
 		return 1;
 	}
 
+	list<wxString> dirs;
+	for(int j = i; j < argc-nOptions; j++) {
+		if(!wxFileName::DirExists(argv[j])) {
+			_ftprintf(stderr, _T("Error: \"%s\" does not exist! \n"), argv[j]);
+			return 1;
+		}
+
+
+		wxFileName dir = wxFileName::DirName(argv[j]);
+		dir.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE); 
+
+		dirs.push_back(dir.GetFullPath());
+	}
+
+	list<wxString>::iterator it;
+	bool bDisplayedHeader = false;
+	for(it = dirs.begin(); it != dirs.end(); it++) {
+		list<wxString>::iterator it2;
+		it2 = it;
+		for(it2++; it2 != dirs.end(); it2++) {
+			// C:\dir1\dir2 C:\dir\dir3 is correct
+			// C:\dir1  C:\dir1\dir2 not
+
+			if(it->StartsWith(*it2) || it2->StartsWith(*it)) {
+				bool bCase = it->StartsWith(*it2);
+				if(!bDisplayedHeader) {
+					_ftprintf(stderr, _T("\nWARNING: \n---------\n"));
+					bDisplayedHeader = true;
+				}
+				_ftprintf(stderr, _T("The Path \"%s\" is contained in \"%s\"! \n"), 
+					bCase ? it->c_str() : it2->c_str(), bCase ? it2->c_str() : it->c_str() );
+			}			
+		}
+	}
+
+	if(bDisplayedHeader) {
+		_ftprintf(stderr, _T("Correct the command line for avoiding trivial duplicates. \n\n\n"));
+	}
+
 	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFilesBySize = &sortedbysize;
 	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
@@ -328,15 +367,28 @@ DECLARE_MAIN
 class AddFileToList : public wxDirTraverser
 {
 public:
-	AddFileToList(findfileinfo * pInfo) : ffi(pInfo) {}
+	AddFileToList(findfileinfo * pInfo) : ffi(pInfo) {
+#ifdef PROFILE
+	__OnFile.QuadPart = 0;
+	__OnDir.QuadPart = 0;
+	__findsize.QuadPart = 0;
+	__normalize.QuadPart = 0;
+	__finddir.QuadPart = 0;
+#endif
+	}
 
 	virtual wxDirTraverseResult OnFile(const wxString & filename)
 	{
+		STARTTIME(__OnFile);
 		fileinfo fi;
 		fileinfosize fis;
 		fileinfosize *pfis;
 		multiset_fileinfosize_it it2;
-		wxULongLong size = wxFileName::GetSize(filename);
+		wxULongLong size;
+		STARTTIME(__findsize);
+		// slow
+		/*wxULongLong */size = wxFileName::GetSize(filename);
+		STOPTIME(__findsize);
 		
 		if(size != wxInvalidSize && size > ffi->nMaxFileSizeIgnore) {
 			// init structure
@@ -357,30 +409,27 @@ public:
 				ffi->pFilesBySize->insert(pfis);
 			}
 		}
+		STOPTIME(__OnFile);
 
 		return wxDIR_CONTINUE;
 	}
 
 	virtual wxDirTraverseResult OnDir(const wxString &dirname)
 	{
-		wxFileName dir = wxFileName::DirName(dirname);
-		dir.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE);
-
-		if(ffi->Dirs.find(dir) != ffi->Dirs.end()) {
-			_ftprintf(stderr, _T("\n        Warning: tried to search in %s more than once! "), dir.GetFullPath().c_str());
-			return wxDIR_IGNORE;
-		}
-
-		pair<set<wxFileName, less_filename>::iterator, bool> result;
-
-		result = ffi->Dirs.insert(dir); 
-		assert(result.second == true);
-
 		return wxDIR_CONTINUE;
 	}
 
 private:
 	findfileinfo *ffi;
+
+#ifdef PROFILE
+public:
+	LARGE_INTEGER __OnFile;
+	LARGE_INTEGER __OnDir;
+	LARGE_INTEGER __findsize;
+	LARGE_INTEGER __normalize;
+	LARGE_INTEGER __finddir;
+#endif
 
 };
 
@@ -394,18 +443,43 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 	wxULongLong nFiles;
 	wxULongLong nDroppedFiles;
 
+#ifdef PROFILE
+	LARGE_INTEGER __all = {0, 0};
+#endif
+
+
 	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
 
 	for (i = 0; i < argc; i++) {
 		// size_t nPreviousSize = ffi.pFiles->size();
 		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
+		
 		AddFileToList traverser(&ffi);
 		wxString dirname = argv[i];
 		wxDir dir(dirname);
+		STARTTIME(__all);
 		dir.Traverse(traverser, wxEmptyString, 
 			wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
 			(ffi.bSearchHidden ? wxDIR_HIDDEN : 0));
+		STOPTIME(__all);
 		_ftprintf(stderr, _T("\n"));
+
+		
+	#ifdef PROFILE
+		_ftprintf(stderr, _T("all:      % 8.3f\n"), SECONDS(__all));
+		_ftprintf(stderr, _T("OnFile:   % 8.3f (%.3f %%) \n"), SECONDS(traverser.__OnFile), 
+			SECONDS(traverser.__OnFile)/SECONDS(__all)*100.0);
+		_ftprintf(stderr, _T("OnDir:    % 8.3f (%.3f %%) \n"), SECONDS(traverser.__OnDir), 
+			SECONDS(traverser.__OnDir)/SECONDS(__all)*100.0);
+		_ftprintf(stderr, _T("Rest:     % 8.3f (%.3f %%) \n\n"), SECONDS(__all)-SECONDS(traverser.__OnFile)-SECONDS(traverser.__OnDir), 
+			(SECONDS(__all)-SECONDS(traverser.__OnFile)-SECONDS(traverser.__OnDir))/SECONDS(__all)*100.0);
+		_ftprintf(stderr, _T("findsize: % 8.3f (%.3f %%) \n\n"), SECONDS(traverser.__findsize), 
+			SECONDS(traverser.__findsize)/SECONDS(traverser.__OnFile)*100.0);
+		_ftprintf(stderr, _T("normalize:% 8.3f (%.3f %%) \n"), SECONDS(traverser.__normalize), 
+			SECONDS(traverser.__normalize)/SECONDS(traverser.__OnDir)*100.0);
+		_ftprintf(stderr, _T("finddir:  % 8.3f (%.3f %%) \n"), SECONDS(traverser.__finddir), 
+			SECONDS(traverser.__finddir)/SECONDS(traverser.__OnDir)*100.0);
+	#endif
 	}
 
 	// perhaps better using DeleteDuplFiles algorithm
