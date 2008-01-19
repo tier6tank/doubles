@@ -18,7 +18,6 @@
 
 ******************************************************************************/
 
-
 #if !defined(_WIN32) || ( defined(_WIN32) && defined(__GNUC__) && !defined(__MINGW32__) )
 /* unix provides no unicode, at least not like the windows platform does */
 
@@ -88,6 +87,8 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 #else
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
 #endif /* defined(__MINGW32_VERSION) */
+
+bool IsSymLink(const wxString &);
 
 #ifndef _WIN32
 

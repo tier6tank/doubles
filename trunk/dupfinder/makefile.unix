@@ -77,7 +77,7 @@ $(outdir)/dbl.o: dbl.cpp $(headers)
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
 
-$(outdir)/stdinc.h.gch: stdinc.h
+$(outdir)/stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
 
 run:

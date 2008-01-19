@@ -75,7 +75,7 @@ $(outdir)\dbl.obj: dbl.cpp $(headers)
 $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 	cl $(opt) -c os_cc_specific.cpp
 
-$(outdir)\stdinc.obj: stdinc.cpp stdinc.h
+$(outdir)\stdinc.obj: stdinc.cpp stdinc.h os_cc_specific_includes.h
 	cl $(opt)  -c -Yc"stdinc.h" stdinc.cpp
 
 run:

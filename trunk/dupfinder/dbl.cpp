@@ -416,6 +416,10 @@ public:
 
 	virtual wxDirTraverseResult OnDir(const wxString &dirname)
 	{
+		// do NOT follow links! 
+		if(IsSymLink(dirname)) {
+			return wxDIR_IGNORE;
+		}
 		return wxDIR_CONTINUE;
 	}
 
