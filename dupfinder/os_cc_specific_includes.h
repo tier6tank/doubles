@@ -35,6 +35,8 @@
 #ifndef _WIN32
 
 #include <stdarg.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #endif /* !defined(_WIN32) */
 

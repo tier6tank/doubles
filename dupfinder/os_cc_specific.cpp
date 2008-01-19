@@ -63,3 +63,29 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
 
 
 #endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
+
+#ifdef _WIN32
+
+bool IsSymLink(const wxString &) {
+	// windows has no symlinks
+	return false;
+}
+
+#endif
+
+
+#ifdef __UNIX__
+
+bool IsSymLink(const wxString &filename) {
+	struct stat st;
+
+	if(lstat(filename, &st) == 0) {
+		return S_ISLNK(st.st_mode) ? true : false;
+	}
+	else {
+		return false;
+	}
+}
+
+#endif
+

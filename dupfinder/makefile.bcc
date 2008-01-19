@@ -76,7 +76,7 @@ $(outdir)\dbl.obj: dbl.cpp $(headers)
 $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 	bcc32 $(opt) -c -o"$@" os_cc_specific.cpp
 
-$(outdir)\stdinc.obj: stdinc.cpp stdinc.h
+$(outdir)\stdinc.obj: stdinc.cpp stdinc.h os_cc_specific_includes.h
 	bcc32 $(opt) -c -o"$@" -H -Hc stdinc.cpp
 
 run:

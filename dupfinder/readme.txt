@@ -60,7 +60,7 @@ TODO/IDEAS:
 + perhaps setting error flag if any error on that file is encountered 
 + add progress display for sorting files by size (not necessary any more)
 - display speed in kbytes/second
-- somehow reduce memory consumption
++ somehow reduce memory consumption done via filedata
 - display option: -o ordered by directory
 - need a close look to signed/unsigned int32/int64 types
 - time display under linux does not work properly
@@ -74,8 +74,11 @@ TODO/IDEAS:
 - does time(NULL) reduce speed? 
 - size n/n display at once and at first
 - option (break on (fatal) errors or not)
-- accelerating search algorithm (partially done by removing double-dir-algorithms)
++ accelerating search algorithm (partially done by removing double-dir-algorithms)
 + displaying error BEFORE start of program if dir does not exist (done)
++ detecting links in unix important! done.
+- exchange if !__WIN32 by if __UNIX__
+
 
 
 THE FAR, FAR, FUTURE:
