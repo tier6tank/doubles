@@ -70,11 +70,12 @@ TODO/IDEAS:
 - do a lot of cleanup (e.g. those old BENCHMARK and TEST things)
 - warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters)
 - reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
-- increase speed of comparefiles1
+- increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk)
 - does time(NULL) reduce speed? 
 - size n/n display at once and at first
 - option (break on (fatal) errors or not)
-- accelerating search algorithm
+- accelerating search algorithm (partially done by removing double-dir-algorithms)
++ displaying error BEFORE start of program if dir does not exist (done)
 
 
 THE FAR, FAR, FUTURE:
