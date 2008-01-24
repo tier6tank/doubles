@@ -39,18 +39,6 @@ struct fileinfo
 	filedata *data;
 };
 
-struct less_filename : public less<wxFileName> {
-	bool operator () (const wxFileName &a, const wxFileName &b) const {
-		// normalization takes now place already in adding routine
-
-		// wxFileName a = _a, b = _b;
-		// a.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE); 
-		// b.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE);
-		return a.GetFullPath() < b.GetFullPath();
-	}
-};
-
-
 struct fileinfoequal
 {
 	list<fileinfo> files;
@@ -73,6 +61,7 @@ struct less_fileinfosize : public less<fileinfosize> {
 		//if (bReverse) {
 		//	return a.size < b.size;
 		// else {
+		// bigger because i want to have BIG files first by default!
 		return a->size > b->size;
 		// }
 	}
@@ -82,15 +71,20 @@ typedef multiset<fileinfosize *, less_fileinfosize> multiset_fileinfosize;
 typedef multiset<fileinfosize *, less_fileinfosize>::iterator multiset_fileinfosize_it;
 typedef multiset<fileinfosize *, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
 
+struct pathinfo
+{
+	wxString path;
+	wxULongLong nMaxFileSizeIgnore;
+	bool bGoIntoSubDirs;
+	bool bSearchHidden;
+	wxString Mask;
+};
+
 
 struct findfileinfo
 {
-	wxULongLong nMaxFileSizeIgnore;
-	// list<fileinfo> *pFiles;
 	multiset_fileinfosize *pFilesBySize;
-	bool bGoIntoSubDirs;
-	bool bSearchHidden;
-	set<wxFileName, less_filename> Dirs;
+	list<pathinfo> paths;
 };
 
 
