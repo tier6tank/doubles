@@ -98,6 +98,13 @@ LARGE_INTEGER fileopen;
 LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
+// !!!!
+// that is temporarily for 
+// including dbl.cpp in 
+// dupfgui.cpp
+// !!!!
+#ifndef DUPFINDER_GUI
+
 // int _tmain(int argc, _TCHAR *argv[]) 
 // {
 // a little bit ugly, this DECLARE_MAIN
@@ -147,7 +154,8 @@ DECLARE_MAIN
 	argc--;
 
 	if(argc == 0) {
-		_ftprintf(stderr, _T("dupf: Finds duplicate files\n\n"));
+		_ftprintf(stderr, _T("dupf: Finds duplicate files\n"));
+		_ftprintf(stderr, _T("Copyright (c) Matthias Boehm 2007-2008\n\n"));
 		_ftprintf(stderr, _T("dupf [OPTIONS] Path1 [Path2] [Path3] ...\n\n"));
 		_ftprintf(stderr, _T("Options: \n"));
 		_ftprintf(stderr, _T("-m x: Take care only of files with size greater than x (in bytes)\n"));
@@ -362,6 +370,8 @@ DECLARE_MAIN
 	
 	return 0;
 }
+
+#endif /* !def(DUPFINDER_GUI) */
 
 
 class AddFileToList : public wxDirTraverser

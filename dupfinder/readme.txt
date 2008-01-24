@@ -78,6 +78,7 @@ TODO/IDEAS:
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
 - exchange if !__WIN32 by if __UNIX__
+- make install for unix
 
 
 
