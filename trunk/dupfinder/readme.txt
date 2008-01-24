@@ -22,71 +22,11 @@ USAGE:
 From the commandline, simply type dupf <path1> <path2> <...> to search the dirtectories and subdirectories for duplicates. 
 The output can be redirected to a file. 
 
-TODO/IDEAS:
------------
-+ Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
-+ See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
-+ putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build (done)
-+ Adding license text as header in source files. done
-+ converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
-+ unicode support for windows... done!
-+ (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
-- adding option -max (max size of files to compare with each other) or -maxbytes (compare max. n bytes of a file)
-+ adding IsSameFileFunction (done -> wxWidgets)
-+ adding error messages (when finding files, comparing files...) (done via wxWidgets)
-+ supporting files over 4 GB always?! yes, i do hope so. 
-+ adding option -f <filename> for output to file? (because unicode chars aren't displayed in windows consoles)
-  unicode output. done
-+ adding option which determines if the small sized files or the large sized files are treated and displayed firstd. done
-+ adding option for not going in subdirectories (done)
-+ adding unicode support for linux/unix not necessary
-+ removing clock_t from source, replacing it with time_t: that wasn't an error, it was my fault!
-+ (correct cygwin-build lf/cr errors) related to "adding option -f <filename> " seems not to be possible
-+ merging searching files and sorting files by size algorithms ? done, now that sortfilesbysize is that fast
-+ somehow fixing the problem with the sprintf_s routines, which are currently supported only by microsoft v14 (or deleting
-  them?? but they are to nice to delete them, so something other, but what!?!?, has to be done...) done! with v-printf-routines. 
-  Nevertheless a call to sscaf_s (if occuring) with an "%s" format argument would very propably leed into trouble, so i must not
-  use this!
-- playing a bit with some compiling options (especcially optimization for gcc!)
-- internationalization
-+ replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
-- add to statistcs sum of bytes read, average speed
-+ need a faster container than list for testing for double scanning of directories. done (using set). 
-- linux makefile mkdir if
-+ removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
-  perhaps using wxLogNull and my own error reporting routines? (done via wxLogStream)
-+ suppress logging completely (done via wxLogStream)
-- delete unneccessary (unix) includes
-+ perhaps setting error flag if any error on that file is encountered 
-+ add progress display for sorting files by size (not necessary any more)
-- display speed in kbytes/second
-+ somehow reduce memory consumption done via filedata
-- display option: -o ordered by directory
-- need a close look to signed/unsigned int32/int64 types
-- time display under linux does not work properly
-+ add option -h for hidden files? done. 
-+ instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
-- status info at the end of the output, not at the beginning, where it cannot be read easily most often
-- do a lot of cleanup (e.g. those old BENCHMARK and TEST things)
-- warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters)
-- reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
-- increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk)
-- does time(NULL) reduce speed? 
-- size n/n display at once and at first
-- option (break on (fatal) errors or not)
-+ accelerating search algorithm (partially done by removing double-dir-algorithms)
-+ displaying error BEFORE start of program if dir does not exist (done)
-+ detecting links in unix important! done.
-- exchange if !__WIN32 by if __UNIX__
-- make install for unix
-- for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)!
-- it should be easy to implement a "do not add double files" algorithm (list->set!)
-
-
 
 THE FAR, FAR, FUTURE:
------------
+---------------------
 - instead of a command line version program implementing (via other libraries) an easy to use graphical user inferface
+
 
 DESCRIPTION:
 ------------
