@@ -79,6 +79,8 @@ TODO/IDEAS:
 + detecting links in unix important! done.
 - exchange if !__WIN32 by if __UNIX__
 - make install for unix
+- for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)!
+- it should be easy to implement a "do not add double files" algorithm (list->set!)
 
 
 

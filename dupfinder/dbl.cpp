@@ -77,7 +77,7 @@ wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
 void	erase(fileinfo &);
 
-void	FindFiles(findfileinfo &, _TCHAR *[], int);
+void	FindFiles(findfileinfo &);
 void	GetEqualFiles(multiset_fileinfosize &);
 void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
 void	RemoveDoubleFiles(findfileinfo &);
@@ -113,20 +113,17 @@ LARGE_INTEGER fileread;
 DECLARE_MAIN
 	multiset_fileinfosize sortedbysize;
 	findfileinfo ffi;
-	ULARGE_INTEGER _nMaxFileSizeIgnore;
-	wxULongLong nMaxFileSizeIgnore;
 
 	list<fileinfo>::iterator it, it3;
 	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
+	list<pathinfo>::iterator it5;
 
 	clock_t tstart, tend;
 	bool bReverse;
 	int i;
 	int nOptions;
 	wxFile fOutput;
-	bool bGoIntoSubDirs;
-	bool bSearchHidden;
 
 	::wxInitialize();
 	// timestamps are ugly
@@ -156,45 +153,31 @@ DECLARE_MAIN
 	if(argc == 0) {
 		_ftprintf(stderr, _T("dupf: Finds duplicate files\n"));
 		_ftprintf(stderr, _T("Copyright (c) Matthias Boehm 2007-2008\n\n"));
-		_ftprintf(stderr, _T("dupf [OPTIONS] Path1 [Path2] [Path3] ...\n\n"));
-		_ftprintf(stderr, _T("Options: \n"));
-		_ftprintf(stderr, _T("-m x: Take care only of files with size greater than x (in bytes)\n"));
+		_ftprintf(stderr, _T("dupf [GENERAL OPTIONS] Path1 [PATH-OPTIONS] [Path2 [PATH-OPTIONS]] ...\n\n"));
+		_ftprintf(stderr, _T("General options: \n\n"));
 		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
-		_ftprintf(stderr, _T("-f x: Print results to file x (e.g. if the output to stdout is bad \n"));
+		_ftprintf(stderr, _T("-o x: Print results to file x (e.g. if the output to stdout is useless \n"));
 		_ftprintf(stderr, _T("      because of unicode characters) \n"));
+		_ftprintf(stderr, _T("\nOptions for each path: \n\n"));
+		_ftprintf(stderr, _T("-i x: Ignore files with size lower or equal to x (in bytes)\n"));
 		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories\n"));
 		_ftprintf(stderr, _T("-h  : include hidden files in search (default: off)\n"));
+		_ftprintf(stderr, _T("-m x: limit your search to those files which match the file mask\n"));
 		return 1;
 	}
 
 	// defaults
 	nOptions = 0;
-	_nMaxFileSizeIgnore.QuadPart = 0;
 	fOutput.Attach(wxFile::fd_stdout);
 	bReverse = false;
-	bGoIntoSubDirs = true;
-	bSearchHidden = false;
 
+	// get general options
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
-		if(_tcscmp(argv[i], _T("-m")) == 0) {
-			if(argv[i+1]) {
-				if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxFileSizeIgnore.QuadPart) == 0) {
-					nMaxFileSizeIgnore = _nMaxFileSizeIgnore.QuadPart;
-					_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
-					return 1;
-				}
-			} else {
-				_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
-				return 1;
-			}
-			i++;
-			nOptions += 2;
-		}
-		else if(_tcscmp(argv[i], _T("-r")) == 0) {
+		if(_tcscmp(argv[i], _T("-r")) == 0) {
 			bReverse = true;
 			nOptions += 1;
 		}
-		else if(_tcscmp(argv[i], _T("-f")) == 0) {
+		else if(_tcscmp(argv[i], _T("-o")) == 0) {
 			bool bResult;
 			if(!argv[i+1]) {
 				_ftprintf(stderr, _T("Error: Filename expected! \n"));
@@ -207,15 +190,10 @@ DECLARE_MAIN
 			}
 			nOptions += 2;
 			i++;
-		}
-		else if(_tcscmp(argv[i], _T("-n")) == 0) {
-			bGoIntoSubDirs = false;
-			nOptions += 1;
-		}
-		else if(_tcscmp(argv[i], _T("-h")) == 0) {
-			bSearchHidden = true;
-			nOptions += 1;
-		}
+		} else {
+			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
+			return 1;
+		}			
 	}
 
 	if(argc-nOptions <= 0) {
@@ -223,15 +201,60 @@ DECLARE_MAIN
 		return 1;
 	}
 
+	for(/*i*/; i < argc; ) {
+		pathinfo pi;
+		pi.path = argv[i];
+		pi.nMaxFileSizeIgnore = 0;
+		pi.bGoIntoSubDirs = true;
+		pi.bSearchHidden = false;
+		pi.Mask = wxEmptyString;
+
+		for(i++; i < argc && argv[i][0] == '-'; i++) {
+			if(_tcscmp(argv[i], _T("-i")) == 0) {
+				if(argv[i+1]) {
+					ULARGE_INTEGER _nMaxFileSizeIgnore;
+					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxFileSizeIgnore.QuadPart) == 0) {
+						_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+						return 1;
+					}
+					pi.nMaxFileSizeIgnore = _nMaxFileSizeIgnore.QuadPart;
+				} else {
+					_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+					return 1;
+				}
+				i++;
+			}
+			else if(_tcscmp(argv[i], _T("-n")) == 0) {
+				pi.bGoIntoSubDirs = false;
+			}
+			else if(_tcscmp(argv[i], _T("-h")) == 0) {
+				pi.bSearchHidden = true;
+			}
+			else if(_tcscmp(argv[i], _T("-m")) == 0) {
+				if(!argv[i+1]) {
+					_ftprintf(stderr, _T("Error: expression expected! \n"));
+					return 1;
+				}
+				pi.Mask = argv[i+1];
+				i ++;
+			}
+			else {
+				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
+				return 1;
+			}
+		}
+		ffi.paths.push_back(pi);
+	}
+
 	list<wxString> dirs;
-	for(int j = i; j < argc-nOptions; j++) {
-		if(!wxFileName::DirExists(argv[j])) {
-			_ftprintf(stderr, _T("Error: \"%s\" does not exist! \n"), argv[j]);
+	for(it5 = ffi.paths.begin(); it5 != ffi.paths.end(); it5++) {
+		if(!wxFileName::DirExists(it5->path)) {
+			_ftprintf(stderr, _T("Error: \"%s\" does not exist! \n"), it5->path.c_str());
 			return 1;
 		}
 
 
-		wxFileName dir = wxFileName::DirName(argv[j]);
+		wxFileName dir = wxFileName::DirName(it5->path.c_str());
 		dir.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE); 
 
 		dirs.push_back(dir.GetFullPath());
@@ -262,10 +285,7 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("Correct the command line for avoiding trivial duplicates. \n\n\n"));
 	}
 
-	ffi.nMaxFileSizeIgnore = nMaxFileSizeIgnore;
 	ffi.pFilesBySize = &sortedbysize;
-	ffi.bGoIntoSubDirs = bGoIntoSubDirs;
-	ffi.bSearchHidden = bSearchHidden;
 
 	// BEGINLOG, ENDLOG -> log errors temporarily to string-stream
 
@@ -289,8 +309,8 @@ DECLARE_MAIN
 
 	BEGINLOG
 
-	FindFiles(ffi, argv+i, argc-nOptions);
-	// RemoveDoubleFiles(ffi);
+	FindFiles(ffi);
+	// RemoveDoubleFiles(ffi); // perhaps this IS necessary some time
 
 	ENDLOG
 
@@ -377,7 +397,7 @@ DECLARE_MAIN
 class AddFileToList : public wxDirTraverser
 {
 public:
-	AddFileToList(findfileinfo * pInfo) : ffi(pInfo) {
+	AddFileToList(findfileinfo * pInfo, pathinfo *ppi) : ffi(pInfo), pi(ppi) {
 #ifdef PROFILE
 	__OnFile.QuadPart = 0;
 	__OnDir.QuadPart = 0;
@@ -400,7 +420,7 @@ public:
 		/*wxULongLong */size = wxFileName::GetSize(filename);
 		STOPTIME(__findsize);
 		
-		if(size != wxInvalidSize && size > ffi->nMaxFileSizeIgnore) {
+		if(size != wxInvalidSize && size > pi->nMaxFileSizeIgnore) {
 			// init structure
 			fi.name = filename;
 			fi.data = NULL;
@@ -435,6 +455,7 @@ public:
 
 private:
 	findfileinfo *ffi;
+	pathinfo *pi;
 
 #ifdef PROFILE
 public:
@@ -447,15 +468,16 @@ public:
 
 };
 
-void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
+void	FindFiles(findfileinfo &ffi)
 {
-	int i;
 	fileinfosize fis;
 	list<fileinfo>::iterator it;
 	multiset_fileinfosize_it it2;
 	bool bDeleted;
 	wxULongLong nFiles;
 	wxULongLong nDroppedFiles;
+	list<pathinfo> &paths = ffi.paths;
+	list<pathinfo>::iterator it3;
 
 #ifdef PROFILE
 	LARGE_INTEGER __all = {0, 0};
@@ -464,17 +486,16 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 
 	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
 
-	for (i = 0; i < argc; i++) {
-		// size_t nPreviousSize = ffi.pFiles->size();
-		_ftprintf(stderr, _T("        ... in \"%s\" ... "), argv[i]);
+	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
+		_ftprintf(stderr, _T("        ... in \"%s\" ... "), it3->path.c_str());
 		
-		AddFileToList traverser(&ffi);
-		wxString dirname = argv[i];
+		AddFileToList traverser(&ffi, &*it3);
+		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
-		dir.Traverse(traverser, wxEmptyString, 
-			wxDIR_FILES | (ffi.bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
-			(ffi.bSearchHidden ? wxDIR_HIDDEN : 0));
+		dir.Traverse(traverser, it3->Mask, 
+			wxDIR_FILES | (it3->bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
+			(it3->bSearchHidden ? wxDIR_HIDDEN : 0));
 		STOPTIME(__all);
 		_ftprintf(stderr, _T("\n"));
 
@@ -496,16 +517,10 @@ void	FindFiles(findfileinfo &ffi, _TCHAR * argv[], int argc)
 	#endif
 	}
 
-	// perhaps better using DeleteDuplFiles algorithm
-	// that data is not needed any more
-	ffi.Dirs.clear();
-
 	_ftprintf(stderr, _T("        %i different sizes, "), ffi.pFilesBySize->size());
 
 	multiset_fileinfosize_it it2tmp;
 	
-	// _ftprintf(stderr, _T("Step 3: Delete unimportant sizes... "));
-
 	nFiles = 0;
 	nDroppedFiles = 0;
 
@@ -815,7 +830,7 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 
 	if(bDisplayWarning) {
 		_ftprintf(stderr, _T("\n--- WARNING --- \nThe output contains unicode characters which cannot be displayed correctly \n")
-			_T("on the console screen! \nIf you want to get the correct filenames, use the -f option! \n\n"));
+			_T("on the console screen! \nIf you want to get the correct filenames, use the -o option! \n\n"));
 	}
 
 	// clean release memory
