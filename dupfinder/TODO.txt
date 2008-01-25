@@ -58,3 +58,5 @@ TODO/IDEAS:
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
 - it should be easy to implement a "do not add double files" algorithm (list->set!)
 - fix div by zero errors 
+- adding MAXimal size of files option? but what for...
+- think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size

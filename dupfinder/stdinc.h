@@ -27,6 +27,7 @@
 #include <wx/filename.h>
 #include <wx/file.h>
 #include <wx/log.h>
+#include <wx/listctrl.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
