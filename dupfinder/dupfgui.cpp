@@ -11,7 +11,7 @@ public:
 	virtual int OnExit();
 
 };
-#ifdef _______
+
 class DupFinderDlg : public wxDialog {
 public:
 	DupFinderDlg(wxWindow *, const wxString &, const wxPoint &, const wxSize &);
@@ -86,17 +86,13 @@ END_EVENT_TABLE()
 
 
 IMPLEMENT_APP(DupFinderApp)
-#endif
+
 
 bool DupFinderApp::OnInit() {
-
-	#ifdef ____
 	DupFinderDlg *maindlg = new DupFinderDlg (NULL, _T("DupFinder"), wxDefaultPosition, wxDefaultSize);
 
 	maindlg->Show(true);
 	SetTopWindow(maindlg);
-
-	#endif
 
 	return true;
 }
@@ -105,7 +101,7 @@ int DupFinderApp::OnExit() {
 	return 0;
 }
 
-#ifdef ___________
+
 
 DupFinderDlg::DupFinderDlg(wxWindow * parent, const wxString &title, const wxPoint &pos, const wxSize &size) 
 	: wxDialog(parent, -1, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
@@ -424,7 +420,7 @@ void DupFinderDlg::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 		wDirName->SetValue(dirch.GetPath());
 	}
 }
-#endif
+
 
 
 
