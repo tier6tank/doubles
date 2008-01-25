@@ -26,6 +26,7 @@ endif
 
 outdir := gcc
 name = dupf
+namegui = dupfgui
 version := 
 dbgv := 
 wxdir = C:\wx

@@ -60,3 +60,4 @@ TODO/IDEAS:
 - fix div by zero errors 
 - adding MAXimal size of files option? but what for...
 - think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size
+- create manifest file
