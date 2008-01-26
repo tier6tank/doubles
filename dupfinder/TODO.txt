@@ -50,7 +50,7 @@ TODO/IDEAS:
 - does time(NULL) reduce speed? 
 - size n/n display at once and at first
 - option (break on (fatal) errors or not)
-+ accelerating search algorithm (partially done by removing double-dir-algorithms)
+- accelerating search algorithm (partially done by removing double-dir-algorithms)
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
 - exchange if !__WIN32 by if __UNIX__
@@ -61,3 +61,6 @@ TODO/IDEAS:
 - adding MAXimal size of files option? but what for...
 - think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size
 - create manifest file
+- create configure/automake/autoconf system for unix
+- installer for windows
+- removing this *** wxUSE_STD_IOSTREAM again

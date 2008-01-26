@@ -71,17 +71,6 @@ wxULongLong __nFilesOpened = 0;
 #define REFRESH_INTERVAL 1 /* in seconds */
 
 
-bool	comparefiles0(fileinfo &, fileinfo &);
-bool	comparefiles1(fileinfo &, fileinfo &);
-wxULongLong roundup(const wxULongLong &, int);
-void	deleteline(int);
-void	erase(fileinfo &);
-
-void	FindFiles(findfileinfo &);
-void	GetEqualFiles(multiset_fileinfosize &);
-void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
-void	RemoveDoubleFiles(findfileinfo &);
-
 #ifdef BENCHMARK
 typedef bool (*__comparefunc)(fileinfo &, fileinfo &);
 __comparefunc __functions[] = {comparefiles0, comparefiles1 };
@@ -289,7 +278,7 @@ DECLARE_MAIN
 
 	// BEGINLOG, ENDLOG -> log errors temporarily to string-stream
 
-#define BEGINLOG { \
+#define BEGINLOG { xxx\
 		/* for error output */\
 		ostrstream log; \
 		wxLogStream logstr(&log); \
@@ -297,7 +286,7 @@ DECLARE_MAIN
 		logstr.SetTimestamp(NULL); \
 
 #define ENDLOG /* print errors */ \
-		if(log.pcount() != 0) { \
+		if(log.pcount() != 0) { xxx\
 			_ftprintf(stderr, _T("\n        The following errors occured: \n")); \
 			fwrite(log.str(), log.pcount(), 1, stderr); \
 			_ftprintf(stderr, _T("\n")); \
@@ -307,12 +296,12 @@ DECLARE_MAIN
 	} \
 
 
-	BEGINLOG
+	// BEGINLOG
 
 	FindFiles(ffi);
 	// RemoveDoubleFiles(ffi); // perhaps this IS necessary some time
 
-	ENDLOG
+	// ENDLOG
 
 
 	// no wxWidgets errors possible here
@@ -322,11 +311,11 @@ DECLARE_MAIN
 	// int i;
 	// scanf("%i", &i);
 
-	BEGINLOG
+	// BEGINLOG
 	
 	GetEqualFiles(sortedbysize);
 
-	ENDLOG
+	// ENDLOG
 
 	
 	PrintResults(sortedbysize, fOutput, bReverse);
@@ -397,14 +386,17 @@ DECLARE_MAIN
 class AddFileToList : public wxDirTraverser
 {
 public:
-	AddFileToList(findfileinfo * pInfo, pathinfo *ppi) : ffi(pInfo), pi(ppi) {
+	AddFileToList(findfileinfo * pInfo, pathinfo *ppi, 
+		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), bDirChanged(true) {
 #ifdef PROFILE
-	__OnFile.QuadPart = 0;
-	__OnDir.QuadPart = 0;
-	__findsize.QuadPart = 0;
-	__normalize.QuadPart = 0;
-	__finddir.QuadPart = 0;
+		__OnFile.QuadPart = 0;
+		__OnDir.QuadPart = 0;
+		__findsize.QuadPart = 0;
+		__normalize.QuadPart = 0;
+		__finddir.QuadPart = 0;
+		__insert.QuadPart = 0;
 #endif
+		tlast = time(NULL);
 	}
 
 	virtual wxDirTraverseResult OnFile(const wxString & filename)
@@ -417,11 +409,12 @@ public:
 		wxULongLong size;
 		STARTTIME(__findsize);
 		// slow
-		/*wxULongLong */size = wxFileName::GetSize(filename);
+		size = wxFileName::GetSize(filename);
 		STOPTIME(__findsize);
 		
 		if(size != wxInvalidSize && size > pi->nMaxFileSizeIgnore) {
 			// init structure
+			STARTTIME(__insert);
 			fi.name = filename;
 			fi.data = NULL;
 
@@ -438,10 +431,11 @@ public:
 				pfis->files.push_back(fi);
 				ffi->pFilesBySize->insert(pfis);
 			}
+			STOPTIME(__insert);
 		}
 		STOPTIME(__OnFile);
 
-		return wxDIR_CONTINUE;
+		return UpdateInfo(NULL);
 	}
 
 	virtual wxDirTraverseResult OnDir(const wxString &dirname)
@@ -450,12 +444,50 @@ public:
 		if(IsSymLink(dirname)) {
 			return wxDIR_IGNORE;
 		}
+		
+		return UpdateInfo(&dirname);
+	}
+
+	wxDirTraverseResult UpdateInfo(const wxString *dirname) 
+	{
+		if(guii) { 
+			guii->theApp->Yield();
+			if(!guii->bContinue) {
+				return wxDIR_STOP;
+			}
+
+			if(dirname) {
+				bDirChanged = true;
+				curdir = *dirname;
+			}
+
+			time_t tcur;
+			tcur = time(NULL);
+				
+			if(tcur - tlast >= REFRESH_INTERVAL ) {
+				if(bDirChanged) {
+					guii->out->SetValue(curdir);
+				}
+				wxString tmp;
+				tmp.Printf(_T("%i file(s)"), ffi->pFilesBySize->size());
+				guii->nfiles->SetLabel(tmp);
+			}
+
+			tlast = tcur;
+		}
 		return wxDIR_CONTINUE;
 	}
 
 private:
 	findfileinfo *ffi;
 	pathinfo *pi;
+	time_t tlast;
+	
+	guiinfo *guii;
+
+	// for status display
+	wxString curdir;
+	bool bDirChanged;
 
 #ifdef PROFILE
 public:
@@ -464,11 +496,12 @@ public:
 	LARGE_INTEGER __findsize;
 	LARGE_INTEGER __normalize;
 	LARGE_INTEGER __finddir;
+	LARGE_INTEGER __insert;
 #endif
 
 };
 
-void	FindFiles(findfileinfo &ffi)
+void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 {
 	fileinfosize fis;
 	list<fileinfo>::iterator it;
@@ -484,12 +517,12 @@ void	FindFiles(findfileinfo &ffi)
 #endif
 
 
-	_ftprintf(stderr, _T("Step 1: Searching files... \n"));
+	wxLogMessage(_T("Step 1: Searching files... "));
 
 	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
-		_ftprintf(stderr, _T("        ... in \"%s\" ... "), it3->path.c_str());
+		wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
 		
-		AddFileToList traverser(&ffi, &*it3);
+		AddFileToList traverser(&ffi, &*it3, guii);
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
@@ -497,7 +530,13 @@ void	FindFiles(findfileinfo &ffi)
 			wxDIR_FILES | (it3->bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
 			(it3->bSearchHidden ? wxDIR_HIDDEN : 0));
 		STOPTIME(__all);
-		_ftprintf(stderr, _T("\n"));
+		// _ftprintf(stderr, _T("\n"));
+		if(guii) {
+			if(!guii->bContinue) {
+				wxLogMessage(_T("Aborting. "));
+				return;
+			}
+		}
 
 		
 	#ifdef PROFILE
@@ -510,14 +549,15 @@ void	FindFiles(findfileinfo &ffi)
 			(SECONDS(__all)-SECONDS(traverser.__OnFile)-SECONDS(traverser.__OnDir))/SECONDS(__all)*100.0);
 		_ftprintf(stderr, _T("findsize: % 8.3f (%.3f %%) \n\n"), SECONDS(traverser.__findsize), 
 			SECONDS(traverser.__findsize)/SECONDS(traverser.__OnFile)*100.0);
+		_ftprintf(stderr, _T("insert:   % 8.3f (%.3f %%) \n"), SECONDS(traverser.__insert), 
+			SECONDS(traverser.__insert)/SECONDS(traverser.__OnFile)*100.0);
 		_ftprintf(stderr, _T("normalize:% 8.3f (%.3f %%) \n"), SECONDS(traverser.__normalize), 
 			SECONDS(traverser.__normalize)/SECONDS(traverser.__OnDir)*100.0);
 		_ftprintf(stderr, _T("finddir:  % 8.3f (%.3f %%) \n"), SECONDS(traverser.__finddir), 
 			SECONDS(traverser.__finddir)/SECONDS(traverser.__OnDir)*100.0);
+
 	#endif
 	}
-
-	_ftprintf(stderr, _T("        %i different sizes, "), ffi.pFilesBySize->size());
 
 	multiset_fileinfosize_it it2tmp;
 	
@@ -542,12 +582,14 @@ void	FindFiles(findfileinfo &ffi)
 		}
 	}
 
-	_ftprintf(stderr, _T("%i which matter. \n        %") wxLongLongFmtSpec _T("u/%") wxLongLongFmtSpec _T("u (%.1f %%) files have to be compared ")
-		_T("(%") wxLongLongFmtSpec _T("u files dropped). \n\n"), 
-		ffi.pFilesBySize->size(), nFiles.GetValue(), 
-		(nFiles+nDroppedFiles).GetValue(), 
-		(double)nFiles.GetValue()/(nFiles+nDroppedFiles).GetValue()*100.0, 
-		nDroppedFiles.GetValue());
+	wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
+		nFiles.GetValue());
+
+	if(guii) {
+		wxString tmp;
+		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s)"), nFiles.GetValue());
+		guii->cfiles->SetLabel(tmp);
+	}
 
 
 }
@@ -581,7 +623,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 	
 
 	
-	_ftprintf(stderr, _T("Step 2: Comparing files with same size for equality... \n"));
+	wxLogMessage(_T("Step 2: Comparing files with same size for equality... "));
 
 	tlast = time(NULL);
 
@@ -736,12 +778,12 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 	STOPTIME(comparetime);
 
 	deleteline(output.Length());
-	_ftprintf(stderr, _T("        done. \n\n"));
+	wxLogMessage(_T("        done. \n"));
 
-	_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. \n"), 
+	wxLogMessage(_T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
 		nDifferentFiles.GetValue());
-	_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
-		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n\n"), 
+	wxLogMessage(_T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
 		nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
 
 #ifdef BENCHMARK
