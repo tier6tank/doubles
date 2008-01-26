@@ -71,7 +71,8 @@ $(outdir):
 $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\os_cc_specific.obj
 	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:$(wxdir)\lib\vc_lib
 
-$(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj
+$(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
+	$(outdir)\dialog1.obj $(outdir)\dialog2.obj
 	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:$(wxdir)\lib\vc_lib
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
@@ -83,8 +84,14 @@ $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 $(outdir)\stdinc.obj: stdinc.cpp stdinc.h os_cc_specific_includes.h
 	cl $(opt)  -c -Yc"stdinc.h" stdinc.cpp
 
-$(outdir)\dupfgui.obj: dupfgui.cpp $(headers)
+$(outdir)\dupfgui.obj: dupfgui.cpp $(headers) dbl.cpp
 	cl $(opt) -c  dupfgui.cpp
+
+$(outdir)\dialog1.obj: dialog1.cpp $(headers)
+	cl $(opt) -c dialog1.cpp
+
+$(outdir)\dialog2.obj: dialog2.cpp $(headers)
+	cl $(opt) -c dialog2.cpp
 
 run:
 	-$(outdir)\$(name).exe

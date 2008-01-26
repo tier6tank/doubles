@@ -88,6 +88,29 @@ struct findfileinfo
 };
 
 
+struct guiinfo {
+	wxTextCtrl *out;
+	wxStaticText *nfiles;
+	bool bContinue;
+	wxApp * theApp;
+	wxStaticText *cfiles;
+};
+
+
+/// prototypes
+
+
+bool	comparefiles0(fileinfo &, fileinfo &);
+bool	comparefiles1(fileinfo &, fileinfo &);
+wxULongLong roundup(const wxULongLong &, int);
+void	deleteline(int);
+void	erase(fileinfo &);
+
+void	FindFiles(findfileinfo &, guiinfo * = NULL);
+void	GetEqualFiles(multiset_fileinfosize &);
+void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
+void	RemoveDoubleFiles(findfileinfo &);
+
 
 
 #endif /* defined(__DBL_H_123) */

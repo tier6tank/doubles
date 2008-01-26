@@ -18,9 +18,52 @@
  *
  */
 
+#ifndef __DIALOG_2__H
+#define __DIALOG_2__H
 
-#ifndef DUPF_GUI_H
-#define DUPF_GUI_H
+#include "dbl.h"
+
+class DupFinderDlg2 : public wxDialog 
+{
+public:
+	DupFinderDlg2(findfileinfo, wxWindow *);
+	~DupFinderDlg2();
+	
+	void OnClose(wxCloseEvent &);
+	void OnSize(wxSizeEvent &);
+
+	void CreateControls();
+
+	void OnInitDialog(wxInitDialogEvent &);
+
+	void OnIdle(wxIdleEvent &);
+	void OnCancel(wxCommandEvent &);
+
+	void OnShowMessages(wxCommandEvent &);
+	
+private:
+
+	findfileinfo ffi;
+	multiset_fileinfosize sortedbysize;
+
+	bool bStarted;
+
+	wxTextCtrl * wDirName;
+	wxStaticText *wnFiles;
+	wxStaticText *wcFiles;
+
+	guiinfo guii;
+
+	DECLARE_EVENT_TABLE()
+
+};
+
+enum {
+	ID_SEARCHDIRNAME = 1, 
+	ID_NFILES, 
+	ID_SHOWMESSAGES, 
+	ID_CFILES
+};
+
 
 #endif
-
