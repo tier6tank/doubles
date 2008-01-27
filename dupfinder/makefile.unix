@@ -29,6 +29,7 @@ endif
 
 outdir := unix
 name := dupf
+namegui := dupfgui
 ifeq ($(cygwin), 1)
 name := $(name).exe
 endif
@@ -59,7 +60,7 @@ nopchopt := $(nopchopt) $(dbg)
 libs = `wx-config $(wxconfigopt) --libs`
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
 
-all: $(outdir) $(outdir)/$(name)
+all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
 #change that somewhen (with if exist ......) 
 $(outdir): 
@@ -71,6 +72,14 @@ ifneq ($(debug),1)
 	strip -s $(outdir)/$(name)
 endif
 
+$(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
+	$(outdir)/dialog1.o $(outdir)/dialog2.o
+	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
+		$(outdir)/dialog1.o $(outdir)/dialog2.o $(libs)
+ifneq ($(debug),1)
+	strip -s $(outdir)/$(namegui)
+endif
+
 $(outdir)/dbl.o: dbl.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
 
@@ -79,6 +88,16 @@ $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 
 $(outdir)/stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
+
+$(outdir)/dupfgui.o: dupfgui.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dupfgui.o dupfgui.cpp
+
+$(outdir)/dialog1.o: dialog1.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dialog1.o dialog1.cpp
+
+$(outdir)/dialog2.o: dialog2.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dialog2.o dialog2.cpp
+
 
 run:
 	-$(outdir)/$(name)

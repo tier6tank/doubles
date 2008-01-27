@@ -64,3 +64,4 @@ TODO/IDEAS:
 - create configure/automake/autoconf system for unix
 - installer for windows
 - removing this *** wxUSE_STD_IOSTREAM again
+- create clear <dirlist> button

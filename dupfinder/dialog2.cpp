@@ -187,6 +187,9 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	// and then the dialog box is closed again
 
 	if(!bStarted) {
+		// change this and LEAVE THIS AT THE BEGINNING
+		bStarted = true;
+
 		// do not pass messages to old (gui) log target!
 		wxLogWindow *logw = new wxLogWindow(NULL, _T("Messages"), true, false);
 		wxLog::SetActiveTarget(logw);
@@ -199,7 +202,6 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 
 		ffi.pFilesBySize = &sortedbysize;
 		FindFiles(ffi, &guii);
-		bStarted = true;
 
 		// test if aborted
 		if(!guii.bContinue) {
