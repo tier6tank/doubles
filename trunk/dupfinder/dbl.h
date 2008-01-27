@@ -89,11 +89,16 @@ struct findfileinfo
 
 
 struct guiinfo {
+	// vars for step 1
 	wxTextCtrl *out;
 	wxStaticText *nfiles;
 	bool bContinue;
 	wxApp * theApp;
 	wxStaticText *cfiles;
+
+	// vars for step 2
+	wxStaticText *wSpeed;
+	wxStaticText *wProgress;
 };
 
 
@@ -101,13 +106,13 @@ struct guiinfo {
 
 
 bool	comparefiles0(fileinfo &, fileinfo &);
-bool	comparefiles1(fileinfo &, fileinfo &);
+bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
 wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
 void	erase(fileinfo &);
 
 void	FindFiles(findfileinfo &, guiinfo * = NULL);
-void	GetEqualFiles(multiset_fileinfosize &);
+void	GetEqualFiles(multiset_fileinfosize &, guiinfo * = NULL);
 void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
 void	RemoveDoubleFiles(findfileinfo &);
 

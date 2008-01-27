@@ -48,7 +48,7 @@ TODO/IDEAS:
 - reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
 - increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk)
 - does time(NULL) reduce speed? 
-- size n/n display at once and at first
++ size n/n display at once and at first done.
 - option (break on (fatal) errors or not)
 - accelerating search algorithm (partially done by removing double-dir-algorithms)
 + displaying error BEFORE start of program if dir does not exist (done)
@@ -65,3 +65,4 @@ TODO/IDEAS:
 - installer for windows
 - removing this *** wxUSE_STD_IOSTREAM again
 - create clear <dirlist> button
+- considered ??? files
