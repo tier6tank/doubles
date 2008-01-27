@@ -64,6 +64,8 @@ void DupFinderDlg2::CreateControls()
 	wxStaticBoxSizer *progresssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Progress"));
 	wxBoxSizer *nfilessizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *cfilessizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *progress2sizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *progress2sizer_2 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controls = new wxBoxSizer(wxHORIZONTAL);
 
 	const int wxTOPLEFT = wxLEFT | wxTOP;
@@ -77,14 +79,14 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progresssizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Searching files in directory: ")), 
+		new wxStaticText(this, wxID_STATIC, _T("1) Searching files in directory: ")), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	progresssizer->Add(
 		wDirName = new wxTextCtrl(this, ID_SEARCHDIRNAME, _T("----"), 
-			wxDefaultPosition, wxDefaultSize, wxTE_READONLY), 
+			wxDefaultPosition, wxSize(250, wxDefaultSize.GetHeight()), wxTE_READONLY), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -113,6 +115,32 @@ void DupFinderDlg2::CreateControls()
 		wxTOPLEFT, 
 		10);
 
+	progress2sizer->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Progress: ")), 
+		0, 
+		wxTOPLEFT, 
+		10);
+
+	progress2sizer->Add(
+		wProgress = new wxStaticText(this, ID_PROGRESS, _T("")), 
+		1, 
+		wxTOPLEFT, 
+		10);	
+
+	progress2sizer_2->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Speed: ")), 
+		0, 
+		wxTOPLEFT, 
+		10);
+
+	progress2sizer_2->Add(
+		wSpeed = new wxStaticText(this, ID_SPEED, _T("")), 
+		1,
+		wxTOPLEFTRIGHT, 
+		10);
+		
+
+
 	progresssizer->Add(
 		nfilessizer, 
 		0, 
@@ -122,8 +150,34 @@ void DupFinderDlg2::CreateControls()
 	progresssizer->Add(
 		cfilessizer, 
 		0, 
-		wxLEFT | wxRIGHT | wxBOTTOM, 
+		wxLEFT | wxRIGHT, 
 		10);
+
+	progresssizer->Add(
+		new wxStaticBox(this, wxID_STATIC, _T(""), wxDefaultPosition, 
+			wxSize(10, 10)), 
+		0, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
+		10);
+
+	progresssizer->Add(
+		new wxStaticText(this, wxID_STATIC, _T("2) Compare files: ")), 
+		0, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
+		10);
+
+	progresssizer->Add(
+		progress2sizer, 
+		0, 
+		wxEXPAND, 
+		10);
+
+	progresssizer->Add(
+		progress2sizer_2, 
+		0, 
+		wxEXPAND | wxBOTTOM, 
+		10);
+
 
 	topsizer->Add(
 		progresssizer, 
@@ -200,12 +254,23 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		guii.theApp = wxTheApp;
 		guii.cfiles = wcFiles;
 
+		guii.wSpeed = wSpeed;
+		guii.wProgress = wProgress;
+
 		ffi.pFilesBySize = &sortedbysize;
 		FindFiles(ffi, &guii);
 
 		// test if aborted
 		if(!guii.bContinue) {
 			EndModal(1);
+			return;
+		}
+
+		GetEqualFiles(sortedbysize, &guii);
+
+		if(!guii.bContinue) {
+			EndModal(1);
+			return;
 		}
 
 		EndModal(0);

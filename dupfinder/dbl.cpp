@@ -386,8 +386,9 @@ DECLARE_MAIN
 class AddFileToList : public wxDirTraverser
 {
 public:
-	AddFileToList(findfileinfo * pInfo, pathinfo *ppi, 
-		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), bDirChanged(true) {
+	AddFileToList(findfileinfo * pInfo, pathinfo *ppi, wxULongLong &_nFiles, 
+		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), 
+		nFiles(_nFiles), bDirChanged(true) {
 #ifdef PROFILE
 		__OnFile.QuadPart = 0;
 		__OnDir.QuadPart = 0;
@@ -435,6 +436,8 @@ public:
 		}
 		STOPTIME(__OnFile);
 
+		nFiles++;
+
 		return UpdateInfo(NULL);
 	}
 
@@ -469,7 +472,9 @@ public:
 					guii->out->SetValue(curdir);
 				}
 				wxString tmp;
-				tmp.Printf(_T("%i file(s)"), ffi->pFilesBySize->size());
+				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
+					nFiles.GetValue(), 
+					ffi->pFilesBySize->size());
 				guii->nfiles->SetLabel(tmp);
 			}
 
@@ -488,6 +493,7 @@ private:
 	// for status display
 	wxString curdir;
 	bool bDirChanged;
+	wxULongLong &nFiles;
 
 #ifdef PROFILE
 public:
@@ -519,10 +525,12 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 
 	wxLogMessage(_T("Step 1: Searching files... "));
 
+	nFiles = 0;
+
 	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
 		wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
 		
-		AddFileToList traverser(&ffi, &*it3, guii);
+		AddFileToList traverser(&ffi, &*it3, nFiles, guii);
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
@@ -587,14 +595,15 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 
 	if(guii) {
 		wxString tmp;
-		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s)"), nFiles.GetValue());
+		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %u sizes"), 
+			nFiles.GetValue(), ffi.pFilesBySize->size());
 		guii->cfiles->SetLabel(tmp);
 	}
 
 
 }
 
-void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
+void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 {
 	list<fileinfo>::iterator it, it3;
 	multiset_fileinfosize_it it2;
@@ -606,6 +615,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 	wxULongLong nDoubleFiles;
 	wxULongLong nDifferentFiles;
 	wxString output;
+	bool bStart = true;
 
 #ifdef BENCHMARK 
 	clock_t __tstart = 0, __tend = 0;
@@ -678,14 +688,22 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 		// printf("size %" I64 ": %i file(s) \n", (*it2).size.QuadPart, (*it2).files.size());
 		sizeN++;
 		tnow = time(NULL);
-		if(tnow - tlast >= REFRESH_INTERVAL) {
-		// if((sizeN -1) % 100 == 0) {
-			deleteline(output.Length());
-			output.Printf(_T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
-				/*" %i kb/s" */, 
-				sizeN, nSortedBySizeLen, (*it2)->files.size(), (*it2)->size.GetValue() /*, 0*/);
+		if(tnow - tlast >= REFRESH_INTERVAL || bStart == true) {
+			bStart = false; // at the beginning information should also be displayed!
+			if(guii) {
+				output.Printf(_T("size %i/%i (%") wxLongLongFmtSpec _T("u bytes)"), 
+					sizeN, nSortedBySizeLen, (*it2)->size.GetValue() );
+				guii->wProgress->SetLabel(output);
+				guii->wSpeed->SetLabel(_T("--"));
+			}
+			else {
+				deleteline(output.Length());
+				output.Printf(_T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
+					/*" %i kb/s" */, 
+					sizeN, nSortedBySizeLen, (*it2)->files.size(), (*it2)->size.GetValue() /*, 0*/);
 
-			_ftprintf(stderr, _T("%s"), output.c_str());
+				_ftprintf(stderr, _T("%s"), output.c_str());
+			}
 			tlast = tnow;	
 		}
 		assert((*it2)->files.size() > 1);
@@ -700,7 +718,13 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize)
 				it3 = it;
 				for(it3++; it3 != (*it2)->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
-					bEqual = comparefiles(*it, *it3);
+					bEqual = comparefiles(*it, *it3, guii);
+#ifdef DUPFINDER_GUI
+					if(!guii->bContinue) {
+						return;
+					}
+#endif
+
 #ifdef TEST
 					if(bEqual != comparefiles0(*it, *it3)) { assert(0 == 1); abort(); }
 #endif
@@ -995,7 +1019,7 @@ wxULongLong roundup(const wxULongLong &a, int b)
 	return c;
 }
 
-bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
+bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 #if !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK)
 	const size_t BUFSIZE = BASEBUFSIZE << 7;
 	const unsigned long MAXFIRSTBYTES = BASEBUFSIZE << 7;
@@ -1234,19 +1258,36 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2) {
 			goto End;
 		}
 
+#ifdef DUPFINDER_GUI
+		if(!guii->bContinue) {
+			return false;
+		}
+		wxTheApp->Yield();
+#endif
+
+
 		tcurrent = time(NULL);
 		if(tcurrent - tstart >= REFRESH_INTERVAL) {
 			// display status
-			deleteline(output.Length());
-			output.Printf(_T(" %.2f mb/sec"), (double)(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
-			_ftprintf(stderr, _T("%s"), output.c_str());
+			if(guii) {
+				output.Printf(_T(" %.2f mb/sec"), 
+					(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
+				guii->wSpeed->SetLabel(output);
+
+			}
+			else {
+				deleteline(output.Length());
+				output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
+				_ftprintf(stderr, _T("%s"), output.c_str());
+
+			}
 
 			nPrevBytesRead = nBytesRead;
 			tstart = tcurrent;
 		}
 		
 
-	}
+	} /* while(true) */
 
 End:
 	deleteline(output.Length());

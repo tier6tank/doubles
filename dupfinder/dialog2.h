@@ -52,6 +52,9 @@ private:
 	wxStaticText *wnFiles;
 	wxStaticText *wcFiles;
 
+	wxStaticText *wProgress;
+	wxStaticText *wSpeed;
+
 	guiinfo guii;
 
 	DECLARE_EVENT_TABLE()
@@ -62,7 +65,9 @@ enum {
 	ID_SEARCHDIRNAME = 1, 
 	ID_NFILES, 
 	ID_SHOWMESSAGES, 
-	ID_CFILES
+	ID_CFILES, 
+	ID_PROGRESS, 
+	ID_SPEED
 };
 
 
