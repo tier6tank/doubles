@@ -759,7 +759,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				if(bFirstDouble) {
 					bool bNotEqual = true;
 					__it3 = it;
-					for(__it3++; __it3 != (*it2).files.end(); __it3++) {
+					for(__it3++; __it3 != (*it2)->files.end(); __it3++) {
 						bEqual = comparefiles0(*it, *__it3);
 						if(bEqual) {
 							bNotEqual = false;
@@ -825,14 +825,14 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 #ifdef TEST
 	for(__it2 = sortedbysize.begin(); __it2 != sortedbysize.end(); __it2++) {
-		for(__it4 = (*__it2).equalfiles.begin(); __it4 != (*__it2).equalfiles.end(); __it4++) {
+		for(__it4 = (*__it2)->equalfiles.begin(); __it4 != (*__it2)->equalfiles.end(); __it4++) {
 			for(__it = (*__it4).files.begin(); __it != (*__it4).files.end(); __it++) {
 				__it5 = __it;
 				for(__it5++; __it5 != (*__it4).files.end(); __it5++) {
 					if(!comparefiles0((*__it), (*__it5))) {
 						_ftprintf(stderr, _T("Error: %s != %s\n"), 
-							(*__it).name.GetFullPath().c_str(), 
-							(*__it5).name.GetFullPath().c_str());
+							(*__it).name.c_str(), 
+							(*__it5).name.c_str());
 					}
 				}
 			}
@@ -947,7 +947,7 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 
 	F1 = NULL;
 	F2 = NULL;
-	_tfopen_s(&F1, f1.name.GetFullPath(), _T("rb"));
+	_tfopen_s(&F1, f1.name, _T("rb"));
 
 	if(F1) {
 
@@ -955,10 +955,10 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 		__nFilesOpened++;
 #endif
 
-		_tfopen_s(&F2, f2.name.GetFullPath(), _T("rb"));
+		_tfopen_s(&F2, f2.name, _T("rb"));
 		
 		if(!F2) {
-			f2.error = true;
+			f2.data->error = true;
 			bResult = false;
 			goto End;
 		}
@@ -969,7 +969,7 @@ bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
 #endif
 	}
 	else {
-		f1.error = true;
+		f1.data->error = true;
 		bResult = false;
 		goto End;
 	}
@@ -1160,6 +1160,13 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 	}
 
 	while(true) {
+
+#ifdef DUPFINDER_GUI
+		if(!guii->bContinue) {
+			return false;
+		}
+		wxTheApp->Yield();
+#endif
 		for(i = 0; i < 2; i++) {
 			usingbuffer[i] = 
 				pfi[i]->data->firstbytes && nOffset[i] < pfi[i]->data->nFirstBytes;
@@ -1241,7 +1248,7 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 
 			nOffset[i] += n[i];
 
-		}
+		} /* for(i = 0; i < 2; i++) */
 	
 		if(n[0] != n[1]) {
 			bResult = false;
@@ -1257,13 +1264,6 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 			bResult = true;
 			goto End;
 		}
-
-#ifdef DUPFINDER_GUI
-		if(!guii->bContinue) {
-			return false;
-		}
-		wxTheApp->Yield();
-#endif
 
 
 		tcurrent = time(NULL);
