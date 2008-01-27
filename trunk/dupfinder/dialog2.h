@@ -57,6 +57,8 @@ private:
 
 	guiinfo guii;
 
+	wxStaticText *wStep1, *wStep2;
+
 	DECLARE_EVENT_TABLE()
 
 };
@@ -67,7 +69,9 @@ enum {
 	ID_SHOWMESSAGES, 
 	ID_CFILES, 
 	ID_PROGRESS, 
-	ID_SPEED
+	ID_SPEED, 
+	ID_STEP1, 
+	ID_STEP2
 };
 
 

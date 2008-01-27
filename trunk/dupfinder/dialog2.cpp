@@ -79,14 +79,14 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progresssizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("1) Searching files in directory: ")), 
+		wStep1 = new wxStaticText(this, ID_STEP1, _T("1) Searching files: In directory ")), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	progresssizer->Add(
 		wDirName = new wxTextCtrl(this, ID_SEARCHDIRNAME, _T("----"), 
-			wxDefaultPosition, wxSize(250, wxDefaultSize.GetHeight()), wxTE_READONLY), 
+			wxDefaultPosition, wxSize(300, wxDefaultSize.GetHeight()), wxTE_READONLY), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -154,14 +154,7 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progresssizer->Add(
-		new wxStaticBox(this, wxID_STATIC, _T(""), wxDefaultPosition, 
-			wxSize(10, 10)), 
-		0, 
-		wxTOPLEFTRIGHT | wxEXPAND, 
-		10);
-
-	progresssizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("2) Compare files: ")), 
+		wStep2 = new wxStaticText(this, ID_STEP2, _T("2) Comparing files: ")), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -241,6 +234,8 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	// and then the dialog box is closed again
 
 	if(!bStarted) {
+		wxFont font, boldfont;
+
 		// change this and LEAVE THIS AT THE BEGINNING
 		bStarted = true;
 
@@ -257,8 +252,14 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		guii.wSpeed = wSpeed;
 		guii.wProgress = wProgress;
 
+		font = boldfont = wStep1->GetFont();
+		boldfont.SetWeight(wxFONTWEIGHT_BOLD);
+		wStep1->SetFont(boldfont);
+
 		ffi.pFilesBySize = &sortedbysize;
 		FindFiles(ffi, &guii);
+
+		wStep1->SetFont(font);
 
 		// test if aborted
 		if(!guii.bContinue) {
@@ -266,7 +267,11 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 			return;
 		}
 
+		wStep2->SetFont(boldfont);
+
 		GetEqualFiles(sortedbysize, &guii);
+
+		wStep2->SetFont(font);
 
 		if(!guii.bContinue) {
 			EndModal(1);

@@ -43,50 +43,17 @@ description of the scanning process:
 COMPILING:
 ----------
 
-1) At first you have to compile the wxWidgets library:
+1) You have to have the wxWidgets library installed. 
+   To get there, you have to download wxWidgets from 
+   http://sourceforge.net/projects/wxwindows
 
-a) Unix:
+a) In Unix configure the whole thing with options as you like 
+   (but --disable-shared is required, you could but also change 
+    the makefiles to be able to link with shared libraries), 
+   for example
+   configure --with-gtk --disable-shared [--enable-debug]
 
-Follow the following instructions: 
-download wxWidgets, then run the configure shell script in an newly created directory
-(e.g. buildgtk-dbl or buildmotif-dbl) with the following options: 
---with-gtk|--with-motif --disable-shared --enable-std_iostreams [--enable-debug]
-here is an example of how to do this:
-
-# this is the path where you unpacked wxWidgets
-cd <wx-library-path>
-# change this to buildgtkd-dbl for debug, replace gtk by motif etc. 
-# if you want to use a different graphical interface
-mkdir buildgtk-dbl
-# use either --with-gtk or --with-motif as you want, if you want to create a debug
-# library, use --enable-debug
-../configure --with-gtk|--with-motif --disable-shared --enable-std_iostreams [--enable-debug]
-make
-su <enter root password>
-make install
-exit
-
-b) Windows: 
-
-In windows follow the following steps (see also technical note 0021):
-
-Edit your setup.h file (in lib/*_lib/msw*/wx); if it does not exist, 
-you have to run make once, but you need not wait until the compilation 
-exits, because the setup.h file is created at the beginning (press Ctrl+c).
-Choose the right options (UNICODE=[0/1], BUILD=[release|debug]). 
-
-Then you have to edit all the lib/*_lib/msw*/setup.h files before you 
-compile the wxWidgets library (again): 
-Change in all files the line
-
-#define wxUSE_STD_IOSTREAM 0
-
-to 
-
-#define wxUSE_STD_IOSTREAM 1
-
-Then (re)compile wxWidgets (for some reasons be sure to use the 
-option -A with nmake if you use visual c++). 
+b) In Windows, follow the instructions you find in the docs directory
 
 
 2) The rest is pretty simple: 
