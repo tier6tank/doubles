@@ -83,7 +83,7 @@ void DupFinderDlg::CreateControls()
 
 	dirsizer->Add(
 		wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
-			wxSize(wxDefaultSize.GetWidth(), 200)), 
+			wxSize(wxDefaultSize.GetWidth(), 200), wxBORDER_SUNKEN | wxLC_REPORT), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -386,7 +386,7 @@ void DupFinderDlg::OnDirRemove(wxCommandEvent &WXUNUSED(event)) {
 void DupFinderDlg::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 	wxDirDialog dirch(this);
 
-	dirch.SetStyle(wxDD_DIR_MUST_EXIST);
+	dirch.SetWindowStyle(wxDD_DIR_MUST_EXIST);
 
 	dirch.SetPath(wDirName->GetValue());
 	// dirch.SetMessage(
