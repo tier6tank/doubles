@@ -320,6 +320,13 @@ DECLARE_MAIN
 	
 	PrintResults(sortedbysize, fOutput, bReverse);
 
+	// clean release memory
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
+		delete *it2;
+	}
+	
+	sortedbysize.clear();
+
 
 	fOutput.Close();
 
@@ -901,12 +908,6 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 			_T("on the console screen! \nIf you want to get the correct filenames, use the -o option! \n\n"));
 	}
 
-	// clean release memory
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
-		delete *it2;
-	}
-	
-	sortedbysize.clear();
 }
 
 
@@ -1171,12 +1172,12 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 
 	while(true) {
 
-#ifdef DUPFINDER_GUI
-		if(!guii->bContinue) {
-			return false;
+		if(guii) {
+			if(!guii->bContinue) {
+				return false;
+			}
+			wxTheApp->Yield();
 		}
-		wxTheApp->Yield();
-#endif
 		for(i = 0; i < 2; i++) {
 			usingbuffer[i] = 
 				pfi[i]->data->firstbytes && nOffset[i] < pfi[i]->data->nFirstBytes;

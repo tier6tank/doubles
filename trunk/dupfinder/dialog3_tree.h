@@ -17,3 +17,46 @@
  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+#ifndef DIALOG_3_H
+#define DIALOG_3_H
+
+#include "stdinc.h"
+using namespace std;
+#include "dbl.h"
+
+class DupFinderDlg3 : public wxDialog
+{
+public:
+	DupFinderDlg3(wxWindow *, findfileinfo &);
+	
+	~DupFinderDlg3();
+
+	void OnClose(wxCloseEvent &);
+	void OnSize(wxSizeEvent &);
+
+	void OnStore(wxCommandEvent &);
+
+	void CreateControls();
+	void DisplayResults();
+
+private:
+
+	findfileinfo &ffi;
+
+	wxListView *wResultList;
+	wxCheckBox *wReverse;
+
+	wxLog *oldlogtarget;
+
+	DECLARE_EVENT_TABLE()
+};
+
+enum {
+	ID_RESULTLIST = 1, 
+	ID_REVERSE, 
+	ID_STORE
+};
+
+
+#endif

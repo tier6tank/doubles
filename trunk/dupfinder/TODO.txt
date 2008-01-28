@@ -57,20 +57,20 @@ TODO/IDEAS:
 - make install for unix
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
 - it should be easy to implement a "do not add double files" algorithm (list->set!)
-- fix div by zero errors 
++ fix div by zero errors (not fixed, but disappeared)
 - adding MAXimal size of files option? but what for...
 - think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size
 - create manifest file
 - create configure/automake/autoconf system for unix
 - installer for windows
 - removing this *** wxUSE_STD_IOSTREAM again
-- create clear <dirlist> button
++ create clear <dirlist> button done.
 - considered ??? files
 - heap corruption when canceling in windows! (still there?)
-- checking that there are no double &<> in dialog boxes
+! checking that there are no double &<> in dialog boxes (sticky todo)
 - fixing those massive memory leaks which occur when interrupted (via bContinue = false)
 - supporting unix unicode build
 - ALL memory cleanup with gui (nearly impossible?)
-
+- instead of yielding creating a new thread?
 
 

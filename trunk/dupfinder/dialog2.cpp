@@ -23,6 +23,7 @@
 using namespace std;
 
 #include "dialog2.h"
+#include "dialog3.h"
 #include "dbl.h"
 
 BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
@@ -261,7 +262,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	if(!bStarted) {
 		wxFont font, boldfont;
 
-		// change this and LEAVE THIS AT THE BEGINNING
+		// do not change this and LEAVE THIS AT THE BEGINNING
 		bStarted = true;
 
 		// do not pass messages to old (gui) log target!
@@ -302,6 +303,17 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 			EndModal(1);
 			return;
 		}
+
+		Hide();
+		((wxLogWindow *)wxLog::GetActiveTarget())->Show(false);
+		
+		DupFinderDlg3 * resultdlg;
+
+		resultdlg = new DupFinderDlg3(this, ffi);
+
+		resultdlg->ShowModal();
+
+		delete resultdlg;
 
 		EndModal(0);
 	}

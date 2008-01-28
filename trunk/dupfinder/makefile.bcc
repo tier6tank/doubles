@@ -77,7 +77,7 @@ $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\os_cc_sp
 	bcc32 $(opt) -e"$(outdir)\$(name).exe"  $** $(libs)
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\os_cc_specific.obj $(outdir)\dupfgui.obj \
-		$(outdir)\dialog1.obj $(outdir)\dialog2.obj
+		$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj
 	bcc32 $(optgui) -e"$(outdir)\$(namegui).exe" $** $(libsgui)
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
@@ -97,6 +97,9 @@ $(outdir)\dialog1.obj: dialog1.cpp $(headersgui)
 
 $(outdir)\dialog2.obj: dialog2.cpp $(headersgui)
 	bcc32 $(opt) -c -o"$@" dialog2.cpp
+
+$(outdir)\dialog3.obj: dialog3.cpp $(headersgui)
+	bcc32 $(opt) -c -o"$@" dialog3.cpp
 
 run:
 	-$(outdir)\$(name).exe
