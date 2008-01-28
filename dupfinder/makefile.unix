@@ -73,9 +73,9 @@ ifneq ($(debug),1)
 endif
 
 $(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-	$(outdir)/dialog1.o $(outdir)/dialog2.o
+	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o
 	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-		$(outdir)/dialog1.o $(outdir)/dialog2.o $(libs)
+		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(namegui)
 endif
@@ -97,6 +97,9 @@ $(outdir)/dialog1.o: dialog1.cpp $(headers)
 
 $(outdir)/dialog2.o: dialog2.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/dialog2.o dialog2.cpp
+
+$(outdir)/dialog3.o: dialog3.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dialog3.o dialog3.cpp
 
 
 run:
