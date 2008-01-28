@@ -388,7 +388,7 @@ class AddFileToList : public wxDirTraverser
 public:
 	AddFileToList(findfileinfo * pInfo, pathinfo *ppi, wxULongLong &_nFiles, 
 		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), 
-		nFiles(_nFiles), bDirChanged(true) {
+		bDirChanged(true), nFiles(_nFiles) {
 #ifdef PROFILE
 		__OnFile.QuadPart = 0;
 		__OnDir.QuadPart = 0;
@@ -719,11 +719,12 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				for(it3++; it3 != (*it2)->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
 					bEqual = comparefiles(*it, *it3, guii);
-#ifdef DUPFINDER_GUI
-					if(!guii->bContinue) {
-						return;
+
+					if(guii) {
+						if(!guii->bContinue) {
+							return;
+						}
 					}
-#endif
 
 #ifdef TEST
 					if(bEqual != comparefiles0(*it, *it3)) { assert(0 == 1); abort(); }
@@ -749,6 +750,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 						erase(*ittmp);
 						(*it2)->files.erase(ittmp);
 					}
+
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
 				}
 				if(!bFirstDouble) {
@@ -922,17 +924,25 @@ void	deleteline(int n) {
 }
 
 void	erase(fileinfo &fi) {
+	// make it so, that it can be easily and 
+	// with no mistakes be deleted twice !
 	if(fi.data) {
-		delete [] fi.data->firstbytes;
-		fi.data->firstbytes = NULL;
-		fi.data->nFirstBytes = fi.data->nMaxFirstBytes = 0;
-		
-		if(fi.data->pFile->IsOpened()) {
-			fi.data->pFile->Close(); 
+		if(fi.data->firstbytes) {
+			delete [] fi.data->firstbytes;
 		}
-		delete fi.data->pFile;
+		// fi.data->firstbytes = NULL;
+		// fi.data->nFirstBytes = fi.data->nMaxFirstBytes = 0;
+		
+		if(fi.data->pFile) {
+			if(fi.data->pFile->IsOpened()) {
+				fi.data->pFile->Close(); 
+			}
+			delete fi.data->pFile;
+		}
+		fi.data->pFile = NULL;
 	}
 	delete fi.data;
+	fi.data = NULL;
 }
 
 #if defined(BENCHMARK) || defined(TEST)

@@ -66,5 +66,11 @@ TODO/IDEAS:
 - removing this *** wxUSE_STD_IOSTREAM again
 - create clear <dirlist> button
 - considered ??? files
-- heap corruption when canceling!
-- checking all &<>
+- heap corruption when canceling in windows! (still there?)
+- checking that there are no double &<> in dialog boxes
+- fixing those massive memory leaks which occur when interrupted (via bContinue = false)
+- supporting unix unicode build
+- ALL memory cleanup with gui (nearly impossible?)
+
+
+

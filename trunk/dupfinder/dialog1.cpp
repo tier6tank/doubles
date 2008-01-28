@@ -56,6 +56,20 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 
 }
 
+DupFinderDlg::~DupFinderDlg() {
+	int i;
+	int count = wDirList->GetItemCount();
+
+	// delete item related memory
+	for(i = 0; i < count; i++) {
+		// delete item <item>
+		list<pathinfo>::iterator *pit = 
+			(list<pathinfo>::iterator *)wDirList->GetItemData(i);
+		
+		delete pit;
+	}
+}
+
 void DupFinderDlg::CreateControls()
 {
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
@@ -317,7 +331,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	pi.nMaxFileSizeIgnore = minsize;
 	pi.bGoIntoSubDirs = wRecursive->GetValue();
 	pi.bSearchHidden = wHidden->GetValue();
-	pi.Mask = wMaskEnable->GetValue() ? wMask->GetValue() : _T("");
+	pi.Mask = wMaskEnable->GetValue() ? wMask->GetValue() : wxString(_T(""));
 
 	AddDir(pi);
 
