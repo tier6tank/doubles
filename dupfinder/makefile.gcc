@@ -61,9 +61,10 @@ endif
 opt := $(opt) $(dbg) $(uniopt)
 nopchopt := $(nopchopt) $(dbg) $(uniopt)
 
-libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid
-libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4 -lole32
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
+libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid -lole32
+libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h 
+headersgui = dupfgui.h dialog1.h dialog2.h dialog3.h dbl.cpp
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
 
@@ -85,14 +86,24 @@ $(outdir)\os_cc_specific.o: os_cc_specific.cpp $(headers)
 $(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)\stdinc.h.gch stdinc.h
 
-$(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\os_cc_specific.o
-	g++ $(opt) -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\os_cc_specific.o $(libsgui)
+$(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
+		$(outdir)\dialog2.o $(outdir)\os_cc_specific.o
+	g++ $(opt) -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
+		$(outdir)\dialog2.o $(outdir)\os_cc_specific.o $(libsgui)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(namegui).exe
 endif
 
-$(outdir)\dupfgui.o: dupfgui.cpp dbl.cpp $(headers)
+$(outdir)\dupfgui.o: dupfgui.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)\dupfgui.o dupfgui.cpp
+
+$(outdir)\dialog1.o: dialog1.cpp $(headersgui)
+	g++ $(opt) -c -o $(outdir)\dialog1.o dialog1.cpp
+
+
+$(outdir)\dialog2.o: dialog2.cpp $(headersgui)
+	g++ $(opt) -c -o $(outdir)\dialog2.o dialog2.cpp
+
 
 run:
 	-$(outdir)\$(name).exe

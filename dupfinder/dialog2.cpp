@@ -46,9 +46,34 @@ DupFinderDlg2::DupFinderDlg2(findfileinfo _ffi, wxWindow *parent) :
 
 DupFinderDlg2::~DupFinderDlg2() 
 {
+	multiset_fileinfosize_it it;
+	list<fileinfo>::iterator it2;
+
 	wxLogWindow *logw = (wxLogWindow *)wxLog::GetActiveTarget();
 	wxLog::SetActiveTarget(NULL);
 	delete logw;
+	
+	// delete sortedbysize
+	// are there memory leaks if i don't delete 
+	// the equalfiles-list?
+	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
+		for(it2 = (*it)->files.begin(); 
+			it2 != (*it)->files.end();
+			it2++) {
+			erase(*it2);
+		}
+		/*for(it3 = (*it)->equalfiles.begin(); 
+			it3 != (*it)->equalfiles.end();
+			it3++) {
+			for(it4 = it3->files.begin(); 
+				it4 != it3->files.end();
+				it4++) {
+				erase (*it4);
+			}
+		}*/
+
+		delete *it;
+	}
 }
 
 void DupFinderDlg2::OnClose(wxCloseEvent &WXUNUSED(event)) 

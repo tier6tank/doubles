@@ -44,6 +44,7 @@ enum {
 class DupFinderDlg : public wxDialog {
 public:
 	DupFinderDlg(wxWindow *);
+	~DupFinderDlg();
 
 	void OnClose(wxCloseEvent &);
 	void OnSize(wxSizeEvent &);
