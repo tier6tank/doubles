@@ -39,6 +39,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_BUTTON(ID_RMDIR, 		DupFinderDlg::OnDirRemove)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg::OnGetDir)
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg::OnDirNameEnter)
+	EVT_BUTTON(ID_RMALL, 		DupFinderDlg::OnRemoveAll)
 END_EVENT_TABLE()
 
 
@@ -74,7 +75,7 @@ void DupFinderDlg::CreateControls()
 {
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticBoxSizer *dirsizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Directories"));
+	wxStaticBoxSizer *dirsizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Direc&tories"));
 
 	wxBoxSizer *dirrow1 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *dirrow2 = new wxBoxSizer(wxHORIZONTAL);
@@ -165,7 +166,13 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow3->Add(
-		new wxButton(this, ID_RMDIR, _T("Re&move")), 	
+		new wxButton(this, ID_RMDIR, _T("&Remove")), 	
+		0, 
+		wxTOPLEFT | wxBOTTOM, 
+		10);
+
+	dirrow3->Add(
+		new wxButton(this, ID_RMALL, _T("Rem&ove all")), 
 		0, 
 		wxTOPLEFTRIGHT | wxBOTTOM, 
 		10);
@@ -411,4 +418,18 @@ void DupFinderDlg::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 	}
 }
 
+void DupFinderDlg::OnRemoveAll(wxCommandEvent &WXUNUSED(event)) {
+	int i;
+	int count = wDirList->GetItemCount();
 
+	for(i = 0; i < count; i++) {
+		delete (list<pathinfo>::iterator *)wDirList->GetItemData(i);
+	}
+
+	ffi.paths.clear();
+
+	wDirList->DeleteAllItems();
+
+	UpdateView();
+
+}

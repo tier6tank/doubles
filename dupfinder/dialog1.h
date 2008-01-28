@@ -39,6 +39,7 @@ enum {
 	ID_MASKENABLE, 
 	ID_MASK, 
 	ID_MINSIZE, 
+	ID_RMALL
 };
 
 class DupFinderDlg : public wxDialog {
@@ -63,6 +64,7 @@ public:
 
 	void OnDirAdd(wxCommandEvent &);
 	void OnDirRemove(wxCommandEvent &);
+	void OnRemoveAll(wxCommandEvent &);
 
 	void AddDir(const pathinfo  &);
 

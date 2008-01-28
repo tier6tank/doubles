@@ -72,7 +72,7 @@ $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\os_cc_sp
 	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:$(wxdir)\lib\vc_lib
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
-	$(outdir)\dialog1.obj $(outdir)\dialog2.obj
+	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj
 	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:$(wxdir)\lib\vc_lib
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
@@ -92,6 +92,9 @@ $(outdir)\dialog1.obj: dialog1.cpp $(headers)
 
 $(outdir)\dialog2.obj: dialog2.cpp $(headers)
 	cl $(opt) -c dialog2.cpp
+
+$(outdir)\dialog3.obj: dialog3.cpp $(headers)
+	cl $(opt) -c dialog3.cpp
 
 run:
 	-$(outdir)\$(name).exe
