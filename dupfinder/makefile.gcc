@@ -88,7 +88,7 @@ $(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\os_cc_specific.o
-	g++ $(opt) -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
+	g++ $(opt) -mwindows -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\os_cc_specific.o $(libsgui)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(namegui).exe
