@@ -47,6 +47,8 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 
 	CreateControls();
 	DisplayResults();
+
+	CenterOnScreen();
 }
 
 void DupFinderDlg3::CreateControls() {
