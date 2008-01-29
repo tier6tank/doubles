@@ -41,8 +41,6 @@ DupFinderDlg2::DupFinderDlg2(findfileinfo _ffi, wxWindow *parent) :
 	bStarted(false)
 {
 	
-	CreateControls();
-	CenterOnParent();
 }
 
 DupFinderDlg2::~DupFinderDlg2() 
@@ -79,8 +77,8 @@ DupFinderDlg2::~DupFinderDlg2()
 
 void DupFinderDlg2::OnClose(wxCloseEvent &WXUNUSED(event)) 
 {
-	assert(false);
-	EndModal(0);
+	// assert(false);
+	// EndModal(0);
 }
 
 void DupFinderDlg2::CreateControls()
@@ -243,6 +241,9 @@ void DupFinderDlg2::OnSize(wxSizeEvent &WXUNUSED(event))
 
 void DupFinderDlg2::OnInitDialog(wxInitDialogEvent &event) {
 	wxDialog::OnInitDialog(event);	
+
+	CreateControls();
+	CenterOnParent();
 }
 
 
@@ -260,10 +261,10 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	// and then the dialog box is closed again
 
 	if(!bStarted) {
-		wxFont font, boldfont;
-
 		// do not change this and LEAVE THIS AT THE BEGINNING
 		bStarted = true;
+
+		wxFont font, boldfont;
 
 		// do not pass messages to old (gui) log target!
 		wxLogWindow *logw = new wxLogWindow(NULL, _T("Messages"), true, false);
@@ -304,7 +305,11 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 			return;
 		}
 
-		Hide();
+		// instead of Hide()
+		EndModal(0);
+		// this causes problems because it 
+		// internally calls EndModal()
+		// Hide();
 		((wxLogWindow *)wxLog::GetActiveTarget())->Show(false);
 		
 		DupFinderDlg3 * resultdlg;
@@ -315,7 +320,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 
 		delete resultdlg;
 
-		EndModal(0);
+		// EndModal(0);
 	}
 }
 

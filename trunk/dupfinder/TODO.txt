@@ -72,5 +72,5 @@ TODO/IDEAS:
 - supporting unix unicode build
 - ALL memory cleanup with gui (nearly impossible?)
 - instead of yielding creating a new thread?
-
+- context menu (delete, create hard-/symlink)
 

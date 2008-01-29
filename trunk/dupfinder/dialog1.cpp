@@ -40,6 +40,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg::OnGetDir)
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg::OnDirNameEnter)
 	EVT_BUTTON(ID_RMALL, 		DupFinderDlg::OnRemoveAll)
+	EVT_INIT_DIALOG(		DupFinderDlg::OnInitDialog)
 END_EVENT_TABLE()
 
 
@@ -47,13 +48,6 @@ END_EVENT_TABLE()
 DupFinderDlg::DupFinderDlg(wxWindow * parent) 
 	: wxDialog(parent, -1, _T("DupFinder"), 
 		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
-
-	CreateControls();
-
-	InitControls();
-	UpdateView();
-
-	CenterOnScreen();
 
 }
 
@@ -433,3 +427,16 @@ void DupFinderDlg::OnRemoveAll(wxCommandEvent &WXUNUSED(event)) {
 	UpdateView();
 
 }
+
+void DupFinderDlg::OnInitDialog(wxInitDialogEvent &event) {
+	wxDialog::OnInitDialog(event);
+
+	CreateControls();
+
+	InitControls();
+	UpdateView();
+
+	CenterOnScreen();
+}
+
+

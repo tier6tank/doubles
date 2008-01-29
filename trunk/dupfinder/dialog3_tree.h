@@ -40,6 +40,8 @@ public:
 	void CreateControls();
 	void DisplayResults();
 
+	void OnInitDialog(wxInitDialogEvent &);
+
 private:
 
 	findfileinfo &ffi;
