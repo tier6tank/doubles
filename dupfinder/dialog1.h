@@ -72,6 +72,8 @@ public:
 
 	void OnDirNameEnter(wxCommandEvent &event) { OnDirAdd(event); }
 
+	void OnInitDialog(wxInitDialogEvent &event);
+
 private:
 	wxListView *wDirList;
 	wxTextCtrl *wDirName;

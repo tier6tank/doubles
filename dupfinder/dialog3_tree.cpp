@@ -26,9 +26,6 @@ DupFinderDlg3::DupFinderDlg3(wxWindow *parent, findfileinfo &_ffi)
 	: wxDialog(parent, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi)
 {
-	CreateControls();
-	DisplayResults();
-
 	oldlogtarget = wxLog::GetActiveTarget();
 	wxLog::SetActiveTarget(NULL);
 }
@@ -41,7 +38,16 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_CLOSE(			DupFinderDlg3::OnClose)
 	EVT_SIZE(			DupFinderDlg3::OnSize)
 	EVT_BUTTON(ID_STORE, 		DupFinderDlg3::OnStore)
+	EVT_INIT_DIALOG(		DupFinderDlg3::OnInitDialog)
 END_EVENT_TABLE()
+
+void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event) 
+{
+	wxDialog::OnInitDialog(event);
+
+	CreateControls();
+	DisplayResults();
+}
 
 void DupFinderDlg3::CreateControls() {
 	
@@ -109,11 +115,13 @@ void DupFinderDlg3::OnClose(wxCloseEvent &WXUNUSED(event)) {
 }
 
 void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
-	GetSizer()->SetDimension(0, 0, 
-		GetClientSize().GetWidth(), 
-		GetClientSize().GetHeight());
+	wxSizer *pSizer = GetSizer();
+	if(pSizer) {
+		pSizer->SetDimension(0, 0, 
+			GetClientSize().GetWidth(), 
+			GetClientSize().GetHeight());
+	}
 }
-
 
 void DupFinderDlg3::DisplayResults() {
 	multiset_fileinfosize_it it;
@@ -140,6 +148,19 @@ void DupFinderDlg3::DisplayResults() {
 				wResultList->InsertItem(wResultList->GetItemCount()+1, it3->name);
 			}
 		}
+	}
+
+	// this causes problems with EndModal
+	// i get a debug message that EndModal is 
+	// called twice, but why?
+	/*if(ffi.pFilesBySize->size() == 0) {
+		wxMessageBox(_T("There are no double files! "), _T("DupFinder"), 
+			 wxOK | wxICON_INFORMATION);
+
+		EndModal(0);
+	}*/
+	if(ffi.pFilesBySize->size() == 0) {
+		wResultList->InsertItem(1, _T("No duplicate files found. "));
 	}
 
 }
