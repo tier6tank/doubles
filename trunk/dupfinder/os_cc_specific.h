@@ -88,7 +88,15 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
 #endif /* defined(__MINGW32_VERSION) */
 
+// prototypes
+
 bool IsSymLink(const wxString &);
+
+bool IsSymLinkSupported();
+bool IsHardLinkSupported();
+
+bool CreateHardLink(const wxString &, const wxString &);
+bool CreateSymLink(const wxString &, const wxString &);
 
 #ifndef _WIN32
 

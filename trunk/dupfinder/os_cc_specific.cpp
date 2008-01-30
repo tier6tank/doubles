@@ -71,6 +71,14 @@ bool IsSymLink(const wxString &) {
 	return false;
 }
 
+bool IsSymLinkSupported() {
+	return false;
+}
+
+bool IsHardLinkSupported() {
+	return true;
+}
+
 #endif
 
 
@@ -85,6 +93,15 @@ bool IsSymLink(const wxString &filename) {
 	else {
 		return false;
 	}
+}
+
+bool IsSymLinkSupported() {
+	return true;
+
+}
+
+bool IsHardLinkSupported() {
+	return true;
 }
 
 #endif

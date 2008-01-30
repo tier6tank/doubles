@@ -74,6 +74,8 @@ public:
 
 	void OnInitDialog(wxInitDialogEvent &event);
 
+	void OnAbout(wxCommandEvent &);
+
 private:
 	wxListView *wDirList;
 	wxTextCtrl *wDirName;
