@@ -1,4 +1,3 @@
-
 /******************************************************************************
     dupfinder - search for duplicate files
     Copyright (C) 2007-2008 Matthias Boehm
@@ -19,30 +18,16 @@
 
 ******************************************************************************/
 
-#ifndef __STDINC_H_010987
-#define __STDINC_H_010987
 
-#include <wx/wx.h>
-#include <wx/dir.h>
-#include <wx/filename.h>
-#include <wx/file.h>
-#include <wx/log.h>
-#include <wx/listctrl.h>
-#include <cstdio>
-#include <cassert>
-#include <ctime>
-#include <cmath>
-#include <list>
-#include <set>
-#include <strstream>
-#include "os_cc_specific_includes.h"
+#ifndef DUPF_H
+#define DUPF_H
 
-using namespace std;
 
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
+
+
+
+
+
 
 
 #endif
-

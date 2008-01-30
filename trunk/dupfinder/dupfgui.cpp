@@ -22,12 +22,8 @@
 
 #include "stdinc.h"
 #include "dupfgui.h"
-
 #include "stdinc.h"
-
-#define DUPFINDER_GUI
-#include "dbl.cpp"
-
+#include "dbl.h"
 #include "dialog1.h"
 
 class DupFinderApp :public wxApp {
