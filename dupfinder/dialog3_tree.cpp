@@ -287,7 +287,7 @@ void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event))
 	wxString filename = *(wxString *)wResultList->GetItemData(curtarget);
 
 	wxString tmp;
-	tmp.Printf(_T("Do you really want to delete %s? "), filename);
+	tmp.Printf(_T("Do you really want to delete \"%s?\" "), filename.c_str());
 
 	int result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO);
 
