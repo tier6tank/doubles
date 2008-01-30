@@ -74,7 +74,7 @@ bool IsSymLink(const wxString &) {
 #endif
 
 
-#ifdef __UNIX__
+#if defined( __UNIX__ ) && !defined(_WIN32)
 
 bool IsSymLink(const wxString &filename) {
 	struct stat st;

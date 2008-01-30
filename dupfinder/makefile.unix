@@ -66,22 +66,25 @@ all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 $(outdir): 
 	-@mkdir $(outdir)
 
-$(outdir)/$(name): $(outdir)/stdinc.h.gch $(outdir)/dbl.o $(outdir)/os_cc_specific.o
-	g++ $(opt) -o "$(outdir)/$(name)" $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
+$(outdir)/$(name): $(outdir)/stdinc.h.gch $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o
+	g++ $(opt) -o "$(outdir)/$(name)" $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(name)
 endif
 
 $(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o
+	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o
 	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(libs)
+		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(namegui)
 endif
 
 $(outdir)/dbl.o: dbl.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
+
+$(outdir)/dupf.o: dupf.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/dupf.o dupf.cpp
 
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
