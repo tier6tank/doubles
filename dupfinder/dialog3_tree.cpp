@@ -32,6 +32,15 @@ DupFinderDlg3::DupFinderDlg3(wxWindow *parent, findfileinfo &_ffi)
 
 DupFinderDlg3::~DupFinderDlg3() {
 	wxLog::SetActiveTarget(oldlogtarget);
+
+	int count = wResultList->GetItemCount();
+	int i;
+
+	for(i = 0; i < count; i++) {
+		if(wResultList->GetItemData(i)) {
+			delete (wxString *)wResultList->GetItemData(i);
+		}
+	}
 }
 
 BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
@@ -39,6 +48,17 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_SIZE(			DupFinderDlg3::OnSize)
 	EVT_BUTTON(ID_STORE, 		DupFinderDlg3::OnStore)
 	EVT_INIT_DIALOG(		DupFinderDlg3::OnInitDialog)
+	EVT_LIST_ITEM_ACTIVATED(ID_RESULTLIST, DupFinderDlg3::OnListItemActivated)
+	EVT_LIST_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnListItemRightClick)
+	// Menu
+	EVT_MENU(ID_OPENFILE, 		DupFinderDlg3::OnOpenFile)
+	EVT_MENU(ID_OPENDIR, 		DupFinderDlg3::OnOpenDir)
+	EVT_MENU(ID_COPYFILENAME, 	DupFinderDlg3::OnCopyFileName)
+	EVT_MENU(ID_DELETE, 		DupFinderDlg3::OnDelete)
+	/* not yet implemeted
+	EVT_MENU(ID_HARDLINK, 		DupFinderDlg3::OnHardlink)
+	EVT_MENU(ID_SOFTLINK, 		DupFinderDlg3::OnSoftLink)
+	*/
 END_EVENT_TABLE()
 
 void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event) 
@@ -146,8 +166,12 @@ void DupFinderDlg3::DisplayResults() {
 			
 			wResultList->SetItemFont(item, boldfont);
 
+			wResultList->SetItemData(item, 0);
+
 			for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
-				wResultList->InsertItem(wResultList->GetItemCount()+1, it3->name);
+				item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->name);
+				wxString *itemdata = new wxString(it3->name);
+				wResultList->SetItemData(item, (long)itemdata);
 			}
 		}
 	}
@@ -187,9 +211,95 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 }
 
 
+void DupFinderDlg3::OnListItemActivated(wxListEvent &event) 
+{
+	
+	if(event.GetData() != 0) {
+		curtarget = event.GetIndex();
+		OpenDir();
+	}
+
+}
+
+void DupFinderDlg3::OpenDir() {
+		wxFileName filename = *(wxString *)wResultList->GetItemData(curtarget);
+
+		wxString path = filename.GetPath();
+
+		::wxLaunchDefaultBrowser(path);
+}
+
+void DupFinderDlg3::OpenFile() {
+		::wxLaunchDefaultBrowser(*(wxString *)wResultList->GetItemData(curtarget));
+}
+
+void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
+{
+	if(event.GetData() != 0) {
+		curtarget = event.GetIndex();
+
+		wxMenu * popupmenu = new wxMenu();
+		
+		popupmenu->Append(ID_OPENFILE, _T("&Open"));
+		popupmenu->Append(ID_OPENDIR, _T("O&pen containing folder"));
+		popupmenu->AppendSeparator();
+		popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename to clipboard"));
+		popupmenu->AppendSeparator();
+		popupmenu->Append(ID_DELETE, _T("&Delete"));
+		/* not implemented yet
+		popupmenu->Append(ID_HARDLINK, _T("Create &hardlink"));
+		popupmenu->Append(ID_SOFTLINK, _T("Create &symbolic link));
+		*/
+		
+		wResultList->PopupMenu(popupmenu);
+
+		delete popupmenu; 
+	}
+}
 
 
+void DupFinderDlg3::OnOpenFile(wxCommandEvent &WXUNUSED(event)) 
+{
+	OpenFile();
+}
 
+void DupFinderDlg3::OnOpenDir(wxCommandEvent &WXUNUSED(event))
+{
+	OpenDir();
+}
+
+void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
+{
+	wxString filename = *(wxString *)wResultList->GetItemData(curtarget);
+
+	wxTextDataObject * wxfile = new wxTextDataObject(filename);
+
+	if(wxTheClipboard->Open()) {
+	
+		wxTheClipboard->SetData(wxfile);
+		wxTheClipboard->Close();
+	}
+}
+
+void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event)) 
+{
+	// delete file and delete item
+	wxString filename = *(wxString *)wResultList->GetItemData(curtarget);
+
+	wxString tmp;
+	tmp.Printf(_T("Do you really want to delete %s? "), filename);
+
+	int result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO);
+
+	if(result == wxYES) {
+		
+		bool bResult = wxRemoveFile(filename);
+
+		if(bResult) {
+			wResultList->DeleteItem(curtarget);
+		}
+	}
+}
 
 
 

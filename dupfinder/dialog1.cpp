@@ -41,6 +41,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg::OnDirNameEnter)
 	EVT_BUTTON(ID_RMALL, 		DupFinderDlg::OnRemoveAll)
 	EVT_INIT_DIALOG(		DupFinderDlg::OnInitDialog)
+	EVT_BUTTON(wxID_ABOUT, 		DupFinderDlg::OnAbout)
 END_EVENT_TABLE()
 
 
@@ -172,6 +173,14 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	controlssizer->Add(
+		new wxButton(this, wxID_ABOUT, _T("A&bout...")), 
+		0, 
+		wxALIGN_LEFT, 
+		10);
+
+	controlssizer->AddStretchSpacer(1);
+
+	controlssizer->Add(
 		new wxButton(this, wxID_OK, _T("&Go! ")), 
 		0, 
 		wxALIGN_RIGHT, 
@@ -205,7 +214,7 @@ void DupFinderDlg::CreateControls()
 
 	topsizer->Add(controlssizer, 
 		0, 
-		wxALL | wxALIGN_RIGHT, 
+		wxALL | wxEXPAND, 
 		10); 
 	
 
@@ -263,6 +272,11 @@ void DupFinderDlg::UpdateView() {
 	// one path in the list
 
 	FindWindow(wxID_OK)->Enable(
+		ffi.paths.size() > 0
+	);
+
+	// RemoveAll enabled if there's something in the list
+	FindWindow(ID_RMALL)->Enable(
 		ffi.paths.size() > 0
 	);
 
@@ -439,4 +453,23 @@ void DupFinderDlg::OnInitDialog(wxInitDialogEvent &event) {
 	CenterOnScreen();
 }
 
+void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
+	wxAboutDialogInfo info;
+
+	info.AddDeveloper(_T("Matthias Boehm"));
+	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
+	info.SetDescription(_T("Find duplicate files"));
+	info.SetName(_T("DupFinder"));
+	info.SetVersion(_T("gui 0.10"));
+	
+#ifdef __MINGW32_VERSION
+	wxMessageBox(_T("DupFinder v1.0\nCopyright Matthias Boehm 2008"));
+#else
+	// mingw has problems with this
+	wxAboutBox(info);
+#endif
+
+
+}
+	
 

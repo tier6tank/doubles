@@ -294,6 +294,9 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 			return;
 		}
 
+		wDirName->Disable();
+		wDirName->SetValue(_T(""));
+
 		wStep2->SetFont(boldfont);
 
 		GetEqualFiles(sortedbysize, &guii);

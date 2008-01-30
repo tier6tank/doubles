@@ -42,6 +42,17 @@ public:
 
 	void OnInitDialog(wxInitDialogEvent &);
 
+	void OnListItemRightClick(wxListEvent &);
+	void OnListItemActivated(wxListEvent &);
+
+	void OnOpenFile(wxCommandEvent &);
+	void OnOpenDir(wxCommandEvent &);
+	void OnCopyFileName(wxCommandEvent &);
+	void OnDelete(wxCommandEvent &);
+
+	void OpenDir();
+	void OpenFile();
+
 private:
 
 	findfileinfo &ffi;
@@ -50,6 +61,8 @@ private:
 	wxCheckBox *wReverse;
 
 	wxLog *oldlogtarget;
+	
+	int curtarget;
 
 	DECLARE_EVENT_TABLE()
 };
@@ -57,7 +70,15 @@ private:
 enum {
 	ID_RESULTLIST = 1, 
 	ID_REVERSE, 
-	ID_STORE
+	ID_STORE, 
+
+	// menu
+	ID_OPENFILE, 
+	ID_OPENDIR, 
+	ID_COPYFILENAME, 
+	ID_DELETE, 
+	ID_HARDLINK, 
+	ID_SOFTLINK
 };
 
 

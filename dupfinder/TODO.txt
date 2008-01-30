@@ -72,5 +72,12 @@ TODO/IDEAS:
 - supporting unix unicode build
 - ALL memory cleanup with gui (nearly impossible?)
 - instead of yielding creating a new thread?
-- context menu (delete, create hard-/symlink)
++ context menu (delete, create hard-/symlink, open folder) done
++ context menu Ctrl+C (copy) done
++ About box in first dialog? done
+- show in progress display which files are compared
++ add remove all button to updateview done. 
 - gui/console version in one package!
+- storing current user preferences (checkboxes, size, ...)?
+- instead of completely removing only move to trash
+- synchronization "show messages" checkbox <-> message window

@@ -28,6 +28,8 @@
 #include <wx/file.h>
 #include <wx/log.h>
 #include <wx/listctrl.h>
+#include <wx/aboutdlg.h>
+#include <wx/clipbrd.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
