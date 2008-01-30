@@ -81,3 +81,4 @@ TODO/IDEAS:
 - storing current user preferences (checkboxes, size, ...)?
 - instead of completely removing only move to trash
 - synchronization "show messages" checkbox <-> message window
+- open containing folder is not working in linux
