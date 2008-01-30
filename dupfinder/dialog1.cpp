@@ -410,6 +410,8 @@ void DupFinderDlg::OnDirRemove(wxCommandEvent &WXUNUSED(event)) {
 
 		// item = wDirList->GetNextSelected();
 	}
+
+	UpdateView();
 }
 
 void DupFinderDlg::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
