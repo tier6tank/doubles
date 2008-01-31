@@ -22,9 +22,9 @@
 
 #include "dialog3.h"
 
-DupFinderDlg3::DupFinderDlg3(wxWindow *parent, findfileinfo &_ffi) 
-	: wxDialog(parent, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
-		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi)
+DupFinderDlg3::DupFinderDlg3(wxWindow *_parent, findfileinfo &_ffi) 
+	: wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
+		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi), parent(_parent)
 {
 	oldlogtarget = wxLog::GetActiveTarget();
 	wxLog::SetActiveTarget(NULL);
@@ -50,6 +50,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_INIT_DIALOG(		DupFinderDlg3::OnInitDialog)
 	EVT_LIST_ITEM_ACTIVATED(ID_RESULTLIST, DupFinderDlg3::OnListItemActivated)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnListItemRightClick)
+	EVT_LIST_KEY_DOWN(ID_RESULTLIST, DupFinderDlg3::OnListKeyDown)
 	// Menu
 	EVT_MENU(ID_OPENFILE, 		DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_OPENDIR, 		DupFinderDlg3::OnOpenDir)
@@ -111,14 +112,24 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFT | wxRIGHT, 
 		10);
 
+	savesizer->AddStretchSpacer(1);
+
+	savesizer->Add(
+		wConfDelete = new wxCheckBox(this, ID_CONFDELETE, _T("&Confirm delete")), 
+		0, 
+		wxTOPLEFT | wxRIGHT | wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
 	topsizer->Add(
 		savesizer, 
 		0, 
-		wxTOP | wxBOTTOM, 
+		wxTOP | wxBOTTOM | wxEXPAND, 
 		10);
 	
 
-	wResultList->InsertColumn(0, _T(""), wxLIST_FORMAT_LEFT, 500);
+	wResultList->InsertColumn(0, _T(""), wxLIST_FORMAT_LEFT, 1000);
+
+	wConfDelete->SetValue(true);
 
 	SetSizer(topsizer);
 	topsizer->SetSizeHints(this);
@@ -132,7 +143,7 @@ void DupFinderDlg3::OnClose(wxCloseEvent &WXUNUSED(event)) {
 		_T("Confirm close"), wxYES_NO | wxICON_QUESTION, this);
 
 	if(result == wxYES) {
-		EndModal(0);
+		ReturnToParent();
 	}
 }
 
@@ -176,19 +187,12 @@ void DupFinderDlg3::DisplayResults() {
 		}
 	}
 
-	// this causes problems with EndModal
-	// i get a debug message that EndModal is 
-	// called twice, but why?
-	/*if(ffi.pFilesBySize->size() == 0) {
+	if(ffi.pFilesBySize->size() == 0) {
 		wxMessageBox(_T("There are no double files! "), _T("DupFinder"), 
 			 wxOK | wxICON_INFORMATION);
 
-		EndModal(0);
-	}*/
-	if(ffi.pFilesBySize->size() == 0) {
-		wResultList->InsertItem(1, _T("No duplicate files found. "));
+		ReturnToParent();
 	}
-
 }
 
 void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
@@ -213,37 +217,40 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnListItemActivated(wxListEvent &event) 
 {
-	
+		
 	if(event.GetData() != 0) {
-		curtarget = event.GetIndex();
-		OpenDir();
+		OpenDir(event.GetIndex());
 	}
 
 }
 
-void DupFinderDlg3::OpenDir() {
-		wxFileName filename = *(wxString *)wResultList->GetItemData(curtarget);
+void DupFinderDlg3::OpenDir(long i) {
+	wxString *data = (wxString *)wResultList->GetItemData(i);
+	if(data) {
+		wxFileName filename = *data;
 
-		wxString path = filename.GetPath();
+		wxString path = filename.GetPathWithSep();
 
 		::wxLaunchDefaultBrowser(path);
+	}
 }
 
-void DupFinderDlg3::OpenFile() {
-		::wxLaunchDefaultBrowser(*(wxString *)wResultList->GetItemData(curtarget));
+void DupFinderDlg3::OpenFile(long i) {
+	wxString *data = (wxString *)wResultList->GetItemData(i);
+	if(data) {
+		::wxLaunchDefaultBrowser(*data);
+	}
 }
 
 void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 {
 	if(event.GetData() != 0) {
-		curtarget = event.GetIndex();
-
 		wxMenu * popupmenu = new wxMenu();
 		
 		popupmenu->Append(ID_OPENFILE, _T("&Open"));
 		popupmenu->Append(ID_OPENDIR, _T("O&pen containing folder"));
 		popupmenu->AppendSeparator();
-		popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename to clipboard"));
+		popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
 		popupmenu->AppendSeparator();
 		popupmenu->Append(ID_DELETE, _T("&Delete"));
 		/* not implemented yet
@@ -260,17 +267,38 @@ void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 
 void DupFinderDlg3::OnOpenFile(wxCommandEvent &WXUNUSED(event)) 
 {
-	OpenFile();
+	int focus = wResultList->GetFocusedItem(); 
+	if(focus != -1) {
+		OpenFile(focus);
+	}
 }
 
 void DupFinderDlg3::OnOpenDir(wxCommandEvent &WXUNUSED(event))
 {
-	OpenDir();
+	int focus = wResultList->GetFocusedItem();
+	if(focus != -1) {
+		OpenDir(focus);
+	}
 }
 
 void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 {
-	wxString filename = *(wxString *)wResultList->GetItemData(curtarget);
+	wxString filename, tmp;
+	int i, j, count;
+	
+	count = wResultList->GetSelectedItemCount();
+
+	if(count > 1) {
+		for(i = wResultList->GetFirstSelected(), j = 0; i != -1; i = wResultList->GetNextSelected(i), j++) {
+			tmp.Printf(_T("\"%s\"%s"), 
+				((wxString *)wResultList->GetItemData(i))->c_str(), 
+				j == count-1 ? _T("") : _T(" ") );
+			filename.Append(tmp);
+		}
+	}
+	else {
+		filename = *(wxString *)wResultList->GetItemData(wResultList->GetFirstSelected());
+	}
 
 	wxTextDataObject * wxfile = new wxTextDataObject(filename);
 
@@ -283,23 +311,115 @@ void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event)) 
 {
-	// delete file and delete item
-	wxString filename = *(wxString *)wResultList->GetItemData(curtarget);
+	DeleteFiles();
+}
 
+void DupFinderDlg3::DeleteFiles()
+{
+	int i, count;
 	wxString tmp;
-	tmp.Printf(_T("Do you really want to delete \"%s?\" "), filename.c_str());
+	set<wxString> deletionfail;
+	wxString filename;
+	int result;
 
-	int result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO);
+	count = wResultList->GetSelectedItemCount();
+
+	if(count == 0) { return; }
+
+	if(wConfDelete->GetValue()) {
+
+		if(count == 1) {
+			tmp.Printf(_T("Do you really want to delete \n\"%s?\" "), 
+				((wxString *)wResultList->GetItemData(wResultList->GetFirstSelected()))->c_str() );
+		}
+		else {
+			tmp.Printf(_T("Do you really want to delete these %i files? "), count);
+		}
+
+		result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO);
+	}
+	else { 
+		result = wxYES;
+	}
 
 	if(result == wxYES) {
-		
-		bool bResult = wxRemoveFile(filename);
 
-		if(bResult) {
-			wResultList->DeleteItem(curtarget);
+		i = wResultList->GetFirstSelected();
+		while(i != -1) {
+
+			filename = *(wxString *)wResultList->GetItemData(i);
+
+			bool bResult = wxRemoveFile(filename);
+
+			if(bResult) {
+				wResultList->DeleteItem(i);
+				i = wResultList->GetFirstSelected();
+			}
+			else {
+				if(deletionfail.find(filename) == deletionfail.end()) {
+					deletionfail.insert(filename);
+				}
+
+				// choose another list item
+				i = wResultList->GetNextSelected(i);
+			}
+		}
+		set<wxString>::iterator it;
+		for(it = deletionfail.begin(); it != deletionfail.end(); it++) {
+			tmp.Printf(_T("Error: cannot delete \"%s\"! "), (*it).c_str());
+			wxMessageBox(tmp, _T("Error"), wxICON_ERROR);
 		}
 	}
 }
+
+void DupFinderDlg3::ReturnToParent() {
+
+	Hide();
+	parent->Show();
+	Destroy();
+}
+
+void DupFinderDlg3::OnListKeyDown(wxListEvent &event)
+{
+	long focus = wResultList->GetFocusedItem();
+
+	switch(event.GetKeyCode()) {
+	case WXK_RETURN:
+		OpenDir(focus);
+		break;
+	case WXK_DELETE:
+		DeleteFiles();
+		break;
+	}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

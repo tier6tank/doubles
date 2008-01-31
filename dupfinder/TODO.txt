@@ -77,8 +77,14 @@ TODO/IDEAS:
 + About box in first dialog? done
 - show in progress display which files are compared
 + add remove all button to updateview done. 
-- gui/console version in one package!
++ gui/console version in one package! ok, since now
 - storing current user preferences (checkboxes, size, ...)?
 - instead of completely removing only move to trash
 - synchronization "show messages" checkbox <-> message window
-- open containing folder is not working in linux
+- open containing folder is not working in linux (perhaps with backslash at the end?)
++ change modal dialog boxes to not modal dialogboxes done.
++ delete marked instead of the item over which it was and filenames done.
+! dynamic cast where possible (Log targets, FindWindow, ...)
+- checkbox with don't confirm delete
++ delete key (done)
+

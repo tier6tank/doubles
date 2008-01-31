@@ -50,8 +50,14 @@ public:
 	void OnCopyFileName(wxCommandEvent &);
 	void OnDelete(wxCommandEvent &);
 
-	void OpenDir();
-	void OpenFile();
+	void OpenDir(long i);
+	void OpenFile(long i);
+
+	void ReturnToParent();
+
+	void OnListKeyDown(wxListEvent &);
+
+	void DeleteFiles();
 
 private:
 
@@ -59,10 +65,11 @@ private:
 
 	wxListView *wResultList;
 	wxCheckBox *wReverse;
+	wxCheckBox *wConfDelete;
 
 	wxLog *oldlogtarget;
 	
-	int curtarget;
+	wxWindow *parent;
 
 	DECLARE_EVENT_TABLE()
 };
@@ -71,6 +78,7 @@ enum {
 	ID_RESULTLIST = 1, 
 	ID_REVERSE, 
 	ID_STORE, 
+	ID_CONFDELETE, 
 
 	// menu
 	ID_OPENFILE, 

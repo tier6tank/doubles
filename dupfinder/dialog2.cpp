@@ -35,10 +35,10 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_CHECKBOX(ID_SHOWMESSAGES, 	DupFinderDlg2::OnShowMessages)
 END_EVENT_TABLE()
 
-DupFinderDlg2::DupFinderDlg2(findfileinfo _ffi, wxWindow *parent) : 
-	wxDialog(parent, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
-	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX), ffi(_ffi), 
-	bStarted(false)
+DupFinderDlg2::DupFinderDlg2(findfileinfo _ffi, wxWindow *_parent) : 
+	wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
+	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), ffi(_ffi), 
+	bStarted(false), parent(_parent)
 {
 	
 }
@@ -48,7 +48,7 @@ DupFinderDlg2::~DupFinderDlg2()
 	multiset_fileinfosize_it it;
 	list<fileinfo>::iterator it2;
 
-	wxLogWindow *logw = (wxLogWindow *)wxLog::GetActiveTarget();
+	wxLogWindow *logw = dynamic_cast<wxLogWindow *>(wxLog::GetActiveTarget());
 	wxLog::SetActiveTarget(NULL);
 	delete logw;
 	
@@ -226,7 +226,7 @@ void DupFinderDlg2::CreateControls()
 	SetSizer(topsizer);
 	topsizer->SetSizeHints(this);
 
-	((wxCheckBox *)FindWindow(ID_SHOWMESSAGES))->SetValue(true);
+	dynamic_cast<wxCheckBox *>(FindWindow(ID_SHOWMESSAGES))->SetValue(true);
 }
 
 void DupFinderDlg2::OnSize(wxSizeEvent &WXUNUSED(event)) 
@@ -243,7 +243,7 @@ void DupFinderDlg2::OnInitDialog(wxInitDialogEvent &event) {
 	wxDialog::OnInitDialog(event);	
 
 	CreateControls();
-	CenterOnParent();
+	CenterOnScreen();
 }
 
 
@@ -267,8 +267,9 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		wxFont font, boldfont;
 
 		// do not pass messages to old (gui) log target!
-		wxLogWindow *logw = new wxLogWindow(NULL, _T("Messages"), true, false);
+		wxLogWindow *logw = new wxLogWindow(this, _T("Messages"), true, false);
 		wxLog::SetActiveTarget(logw);
+		this->Raise();
 
 		guii.out = wDirName;
 		guii.nfiles = wnFiles;
@@ -290,7 +291,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 
 		// test if aborted
 		if(!guii.bContinue) {
-			EndModal(1);
+			ReturnToStart();
 			return;
 		}
 
@@ -304,45 +305,42 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		wStep2->SetFont(font);
 
 		if(!guii.bContinue) {
-			EndModal(1);
+			ReturnToStart();
 			return;
 		}
 
-		// instead of Hide()
-		EndModal(0);
-		// this causes problems because it 
-		// internally calls EndModal()
-		// Hide();
-		((wxLogWindow *)wxLog::GetActiveTarget())->Show(false);
-		
 		DupFinderDlg3 * resultdlg;
 
-		resultdlg = new DupFinderDlg3(this, ffi);
+		Hide();
 
-		resultdlg->ShowModal();
+		resultdlg = new DupFinderDlg3(parent, ffi);
 
-		delete resultdlg;
+		resultdlg->Show();
 
-		// EndModal(0);
+		Destroy();
 	}
 }
 
 void DupFinderDlg2::OnCancel(wxCommandEvent &WXUNUSED(event)) {
 	guii.bContinue = false;
 	// no EndModal / Destroy here!
-	// EndModal(0);
 }
 
 
 
 void DupFinderDlg2::OnShowMessages(wxCommandEvent &WXUNUSED(event)) {
 	bool bCheck = 
-		((wxCheckBox *)FindWindow(ID_SHOWMESSAGES))->GetValue();
+		dynamic_cast<wxCheckBox *>(FindWindow(ID_SHOWMESSAGES))->GetValue();
 
-	((wxLogWindow *)wxLog::GetActiveTarget())->Show(bCheck);
+	dynamic_cast<wxLogWindow *>(wxLog::GetActiveTarget())->Show(bCheck);
 }
 
+void DupFinderDlg2::ReturnToStart() {
 
+	Hide();
+	parent->Show();
+	Destroy();
+}
 
 
 

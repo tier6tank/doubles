@@ -62,6 +62,7 @@ opt = $(opt) $(dbg) $(uniopt)
 libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
+headersgui = dbl.h os_cc_specific.h dupfgui.h dialog1.h dialog2.h dialog3.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
 
