@@ -50,6 +50,11 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 	: wxDialog(parent, -1, _T("DupFinder"), 
 		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
 
+	CreateControls();
+
+	InitControls();
+
+	CenterOnScreen();
 }
 
 DupFinderDlg::~DupFinderDlg() {
@@ -308,15 +313,11 @@ void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 	}
 	*/
 
-	DupFinderDlg2 *progress = new DupFinderDlg2(ffi, NULL);
+	DupFinderDlg2 *progress = new DupFinderDlg2(ffi, this);
 	
 	
-	// this->Hide();
-	progress->ShowModal();
-
-	delete progress;
-
-	// this->Show();
+	this->Hide();
+	progress->Show();
 
 }
 
@@ -447,12 +448,7 @@ void DupFinderDlg::OnRemoveAll(wxCommandEvent &WXUNUSED(event)) {
 void DupFinderDlg::OnInitDialog(wxInitDialogEvent &event) {
 	wxDialog::OnInitDialog(event);
 
-	CreateControls();
-
-	InitControls();
 	UpdateView();
-
-	CenterOnScreen();
 }
 
 void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
@@ -462,10 +458,10 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
 	info.SetDescription(_T("Find duplicate files"));
 	info.SetName(_T("DupFinder"));
-	info.SetVersion(_T("gui 0.10"));
+	info.SetVersion(_T("gui 0.12"));
 	
 #ifdef __MINGW32_VERSION
-	wxMessageBox(_T("DupFinder v1.0\nCopyright Matthias Boehm 2008"));
+	wxMessageBox(_T("DupFinder gui 0.12\nFind duplicate files\n\nCopyright Matthias Boehm 2008"));
 #else
 	// mingw has problems with this
 	wxAboutBox(info);

@@ -40,6 +40,8 @@ public:
 	void OnCancel(wxCommandEvent &);
 
 	void OnShowMessages(wxCommandEvent &);
+
+	void ReturnToStart();
 	
 private:
 
@@ -58,6 +60,8 @@ private:
 	guiinfo guii;
 
 	wxStaticText *wStep1, *wStep2;
+
+	wxWindow *parent;
 
 	DECLARE_EVENT_TABLE()
 

@@ -59,6 +59,7 @@ nopchopt := $(nopchopt) $(dbg)
 
 libs = `wx-config $(wxconfigopt) --libs`
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
+headersgui = dbl.h os_cc_specific.h dupfgui.h dialog1.h dialog2.h dialog3.h
 
 all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
@@ -83,7 +84,7 @@ endif
 $(outdir)/dbl.o: dbl.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
 
-$(outdir)/dupf.o: dupf.cpp $(headers)
+$(outdir)/dupf.o: dupf.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dupf.o dupf.cpp
 
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
@@ -92,16 +93,16 @@ $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 $(outdir)/stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
 
-$(outdir)/dupfgui.o: dupfgui.cpp $(headers)
+$(outdir)/dupfgui.o: dupfgui.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dupfgui.o dupfgui.cpp
 
-$(outdir)/dialog1.o: dialog1.cpp $(headers)
+$(outdir)/dialog1.o: dialog1.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog1.o dialog1.cpp
 
-$(outdir)/dialog2.o: dialog2.cpp $(headers)
+$(outdir)/dialog2.o: dialog2.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog2.o dialog2.cpp
 
-$(outdir)/dialog3.o: dialog3.cpp $(headers)
+$(outdir)/dialog3.o: dialog3.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog3.o dialog3.cpp
 
 

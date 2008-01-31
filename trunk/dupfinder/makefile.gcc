@@ -64,7 +64,7 @@ nopchopt := $(nopchopt) $(dbg) $(uniopt)
 libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h 
-headersgui = dupfgui.h dialog1.h dialog2.h dialog3.h dbl.cpp
+headersgui = dbl.h os_cc_specific.h dupfgui.h dialog1.h dialog2.h dialog3.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
 
