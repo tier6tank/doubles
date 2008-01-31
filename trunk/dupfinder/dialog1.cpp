@@ -260,7 +260,7 @@ void DupFinderDlg::UpdateView() {
 	// dir text control and there is a valid number/no number
 	// in minsize field
 
-	wxString dir = wDirName->GetValue();	
+	wxString dir = wDirName->GetValue();
 
 	FindWindow(ID_ADDDIR)->Enable(
 		wxFileName::DirExists(dir)  && wMinSize->GetValue().IsNumber()
@@ -321,6 +321,31 @@ void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 
 }
 
+static wxULongLong_t StrToULongLong(const wxString & str) {
+	
+	// no test whether it's a valid string
+	// not necessary because of Validator
+	wxULongLong_t value, lastvalue;
+	int size = str.Length();
+	int i;
+	
+	value = lastvalue = 0;
+	for(i = 0; i < size; i++) {
+		value *= 10;
+		if(str[i] < '0' || str[i] > '9') {
+			break;
+		}
+		value += str[i]-'0';
+		// test for overflow
+		if(lastvalue > value) {
+			return 0;
+		}
+		lastvalue = value;
+	}
+
+	return value;
+}
+
 void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	pathinfo pi;
 	wxULongLong_t minsize;
@@ -338,12 +363,11 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	 * if not, i have to change the upper to ....ToULong(..)
 	 */
 	if(!bResult) {
-		minsize = 0;
+		// this is ONLY the case, if the number is a) too big
+		// or b) we are using mingw
+		minsize = StrToULongLong(wMinSize->GetValue());
 	}
-		/* wxMessageBox(_T("You have to enter a number in the minimum size text field! \n"), 
-			_T("Error"), wxOK | wxICON_ERROR, this);
-		SetFocus(wMinSize);
-		return; */
+	
 	pi.nMaxFileSizeIgnore = minsize;
 	pi.bGoIntoSubDirs = wRecursive->GetValue();
 	pi.bSearchHidden = wHidden->GetValue();
