@@ -88,16 +88,16 @@ $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 $(outdir)\stdinc.obj: stdinc.cpp stdinc.h os_cc_specific_includes.h
 	cl $(opt)  -c -Yc"stdinc.h" stdinc.cpp
 
-$(outdir)\dupfgui.obj: dupfgui.cpp $(headers) dbl.cpp
+$(outdir)\dupfgui.obj: dupfgui.cpp $(headersgui) dbl.cpp
 	cl $(opt) -c  dupfgui.cpp
 
-$(outdir)\dialog1.obj: dialog1.cpp $(headers)
+$(outdir)\dialog1.obj: dialog1.cpp $(headersgui)
 	cl $(opt) -c dialog1.cpp
 
-$(outdir)\dialog2.obj: dialog2.cpp $(headers)
+$(outdir)\dialog2.obj: dialog2.cpp $(headersgui)
 	cl $(opt) -c dialog2.cpp
 
-$(outdir)\dialog3.obj: dialog3.cpp $(headers)
+$(outdir)\dialog3.obj: dialog3.cpp $(headersgui)
 	cl $(opt) -c dialog3.cpp
 
 run:

@@ -27,20 +27,6 @@ using namespace std;
 
 #include "dbl.h"
 
-enum {
-	ID_DIRLIST = 1, 
-	ID_GETDIR, 
-	ID_ADDDIR, 
-	ID_RMDIR, 
-	ID_DIRNAME, 
-	// options
-	ID_RECURSIVE, 
-	ID_HIDDEN, 
-	ID_MASKENABLE, 
-	ID_MASK, 
-	ID_MINSIZE, 
-	ID_RMALL
-};
 
 class DupFinderDlg : public wxDialog {
 public:
@@ -75,6 +61,8 @@ public:
 	void OnInitDialog(wxInitDialogEvent &event);
 
 	void OnAbout(wxCommandEvent &);
+
+	void CleanUp();
 
 private:
 	wxListView *wDirList;

@@ -26,6 +26,17 @@ using namespace std;
 #include "dialog3.h"
 #include "dbl.h"
 
+enum {
+	ID_SEARCHDIRNAME = 1, 
+	ID_NFILES, 
+	ID_SHOWMESSAGES, 
+	ID_CFILES, 
+	ID_PROGRESS, 
+	ID_SPEED, 
+	ID_STEP1, 
+	ID_STEP2
+};
+
 BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_CLOSE(			DupFinderDlg2::OnClose)
 	EVT_SIZE( 			DupFinderDlg2::OnSize)
@@ -35,44 +46,16 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_CHECKBOX(ID_SHOWMESSAGES, 	DupFinderDlg2::OnShowMessages)
 END_EVENT_TABLE()
 
-DupFinderDlg2::DupFinderDlg2(findfileinfo _ffi, wxWindow *_parent) : 
+DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
 	wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
-	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), ffi(_ffi), 
-	bStarted(false), parent(_parent)
+	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), 
+	bStarted(false), parent(_parent), ffi(_ffi), sortedbysize(*_ffi.pFilesBySize)
 {
 	
 }
 
 DupFinderDlg2::~DupFinderDlg2() 
 {
-	multiset_fileinfosize_it it;
-	list<fileinfo>::iterator it2;
-
-	wxLogWindow *logw = dynamic_cast<wxLogWindow *>(wxLog::GetActiveTarget());
-	wxLog::SetActiveTarget(NULL);
-	delete logw;
-	
-	// delete sortedbysize
-	// are there memory leaks if i don't delete 
-	// the equalfiles-list?
-	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
-		for(it2 = (*it)->files.begin(); 
-			it2 != (*it)->files.end();
-			it2++) {
-			erase(*it2);
-		}
-		/*for(it3 = (*it)->equalfiles.begin(); 
-			it3 != (*it)->equalfiles.end();
-			it3++) {
-			for(it4 = it3->files.begin(); 
-				it4 != it3->files.end();
-				it4++) {
-				erase (*it4);
-			}
-		}*/
-
-		delete *it;
-	}
 }
 
 void DupFinderDlg2::OnClose(wxCloseEvent &WXUNUSED(event)) 
@@ -312,6 +295,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		DupFinderDlg3 * resultdlg;
 
 		Hide();
+		RestoreLogTarget();
 
 		resultdlg = new DupFinderDlg3(parent, ffi);
 
@@ -338,13 +322,18 @@ void DupFinderDlg2::OnShowMessages(wxCommandEvent &WXUNUSED(event)) {
 void DupFinderDlg2::ReturnToStart() {
 
 	Hide();
+	RestoreLogTarget();
+	parent->CleanUp();
 	parent->Show();
 	Destroy();
 }
 
 
-
-
+void DupFinderDlg2::RestoreLogTarget() {
+	wxLogWindow *logw = dynamic_cast<wxLogWindow *>(wxLog::GetActiveTarget());
+	wxLog::SetActiveTarget(NULL);
+	delete logw;
+}
 
 
 

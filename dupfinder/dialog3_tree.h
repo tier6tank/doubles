@@ -24,11 +24,12 @@
 #include "stdinc.h"
 using namespace std;
 #include "dbl.h"
+#include "dialog1.h"
 
 class DupFinderDlg3 : public wxDialog
 {
 public:
-	DupFinderDlg3(wxWindow *, findfileinfo &);
+	DupFinderDlg3(DupFinderDlg *, findfileinfo &);
 	
 	~DupFinderDlg3();
 
@@ -67,34 +68,35 @@ public:
 
 	void OnCancel(wxCommandEvent &);
 
+	void OnApplyDir(wxCommandEvent &);
+	void OnShowAll(wxCommandEvent &);
+
+	void RestrictViewTo(const wxString &);
+
+	void ClearList();
+
+	void OnRestToDir(wxCommandEvent &);
+
+	void UpdateView();
+
+	void OnDlgChange(wxCommandEvent &);
+
 private:
 
-	findfileinfo &ffi;
+	findfileinfo ffi;
 
 	wxListView *wResultList;
 	wxCheckBox *wReverse;
 	wxCheckBox *wConfDelete;
-
-	wxLog *oldlogtarget;
+	wxTextCtrl *wDirName;
+	wxStaticText *wRestrictInfo;
 	
-	wxWindow *parent;
+	DupFinderDlg *parent;
+
+	wxFileName RestrictToDir;
+	bool bRestrict;
 
 	DECLARE_EVENT_TABLE()
-};
-
-enum {
-	ID_RESULTLIST = 1, 
-	ID_REVERSE, 
-	ID_STORE, 
-	ID_CONFDELETE, 
-
-	// menu
-	ID_OPENFILE, 
-	ID_OPENDIR, 
-	ID_COPYFILENAME, 
-	ID_DELETE, 
-	ID_HARDLINK, 
-	ID_SOFTLINK
 };
 
 

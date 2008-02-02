@@ -22,11 +22,12 @@
 #define __DIALOG_2__H
 
 #include "dbl.h"
+#include "dialog1.h"
 
 class DupFinderDlg2 : public wxDialog 
 {
 public:
-	DupFinderDlg2(findfileinfo, wxWindow *);
+	DupFinderDlg2(findfileinfo &, DupFinderDlg *);
 	~DupFinderDlg2();
 	
 	void OnClose(wxCloseEvent &);
@@ -42,11 +43,13 @@ public:
 	void OnShowMessages(wxCommandEvent &);
 
 	void ReturnToStart();
+
+	void RestoreLogTarget();
 	
 private:
 
-	findfileinfo ffi;
-	multiset_fileinfosize sortedbysize;
+	findfileinfo &ffi;
+	multiset_fileinfosize &sortedbysize;
 
 	bool bStarted;
 
@@ -61,22 +64,12 @@ private:
 
 	wxStaticText *wStep1, *wStep2;
 
-	wxWindow *parent;
+	DupFinderDlg *parent;
 
 	DECLARE_EVENT_TABLE()
 
 };
 
-enum {
-	ID_SEARCHDIRNAME = 1, 
-	ID_NFILES, 
-	ID_SHOWMESSAGES, 
-	ID_CFILES, 
-	ID_PROGRESS, 
-	ID_SPEED, 
-	ID_STEP1, 
-	ID_STEP2
-};
 
 
 #endif

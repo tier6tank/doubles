@@ -70,7 +70,7 @@ TODO/IDEAS:
 ! checking that there are no double &<> in dialog boxes (sticky todo)
 - fixing those massive memory leaks which occur when interrupted (via bContinue = false)
 - supporting unix unicode build
-- ALL memory cleanup with gui (nearly impossible?)
+- ALL memory cleanup with gui (nearly impossible?) perhaps struct to class?
 - instead of yielding creating a new thread?
 + context menu (delete, create hard-/symlink, open folder) done
 + context menu Ctrl+C (copy) done
@@ -88,4 +88,12 @@ TODO/IDEAS:
 + checkbox with don't confirm delete done.
 + delete key (done)
 + remove list from DeleteFiles
-
+- Display whether restricted or not(red) "restricted to ...."
++ context menu restrict
+- revising all that cleaning up/memory problems associated with fileinfo
+- reimplement the search for duplicate files algorithm, so that i have no problems with deleting
+  a fileinfo object twice!
+- add a note please no short filesnames?!?
+- reimplement a double listed files remove algorithm!
+- instead of CleanUp full return to dialog1 function
+- checkbox: store currently displayed / all results!
