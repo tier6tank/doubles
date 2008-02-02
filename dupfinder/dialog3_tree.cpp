@@ -357,9 +357,9 @@ void DupFinderDlg3::DeleteFiles()
 {
 	int i, count;
 	wxString tmp;
-	set<wxString> deletionfail;
 	wxString filename;
 	int result;
+	list<int> delete_this;
 
 	GetSelectedFilenameCount(count);
 
@@ -391,25 +391,25 @@ void DupFinderDlg3::DeleteFiles()
 			bool bResult = wxRemoveFile(filename);
 
 			if(bResult) {
-				int deletei = i;
-				i = GetNextSelectedFilename(i);
-				wResultList->DeleteItem(deletei);
+				delete_this.push_back(i);
 			}
 			else {
-				if(deletionfail.find(filename) == deletionfail.end()) {
-					deletionfail.insert(filename);
-				}
-
-				// choose another list item
-				i = GetNextSelectedFilename(i);
+				tmp.Printf(_T("Error: cannot delete \"%s\"! "), filename.c_str());
+				wxMessageBox(tmp, _T("Error"), wxICON_ERROR);
 			}
-		}
-		set<wxString>::iterator it;
-		for(it = deletionfail.begin(); it != deletionfail.end(); it++) {
-			tmp.Printf(_T("Error: cannot delete \"%s\"! "), (*it).c_str());
-			wxMessageBox(tmp, _T("Error"), wxICON_ERROR);
+
+			i = GetNextSelectedFilename(i);
 		}
 	}
+
+	list<int>::reverse_iterator rit;
+
+	// from the bottom to the top!
+	for(rit = delete_this.rbegin(); rit != delete_this.rend(); rit++) {
+		wResultList->DeleteItem(*rit);
+	}
+
+	DeleteOrphanedHeaders();
 }
 
 void DupFinderDlg3::ReturnToParent() {
@@ -435,7 +435,30 @@ void DupFinderDlg3::OnListKeyDown(wxListEvent &event)
 }
 
 
+void DupFinderDlg3::DeleteOrphanedHeaders()
+{
+	int i, count;
+	list<int> delete_this;
 
+	count = wResultList->GetItemCount();
+	
+	for(i = 0; i < count; i++) {
+		if(wResultList->GetItemData(i) == 0) {
+			if((i < count-1 && wResultList->GetItemData(i+1) == 0) ||
+				i == count-1) {
+				delete_this.push_back(i);
+			}
+		}	
+	}
+
+	list<int>::reverse_iterator it;
+
+	// delete from the end to the top, 
+	// so that the item indexes remain valid!!!!
+	for(it = delete_this.rbegin(); it != delete_this.rend(); it++) {
+		wResultList->DeleteItem(*it);
+	}
+}
 
 
 

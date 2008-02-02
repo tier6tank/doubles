@@ -63,6 +63,8 @@ public:
 	int GetFirstSelectedFilename();
 	int GetNextSelectedFilename(int i);
 
+	void DeleteOrphanedHeaders();
+
 private:
 
 	findfileinfo &ffi;
