@@ -512,6 +512,12 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 
 }
 
+void DupFinderDlg::ReturnToMe()
+{
+	CleanUp();
+	Show();
+}
+
 void DupFinderDlg::CleanUp()
 {
 	multiset_fileinfosize_it it;

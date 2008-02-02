@@ -323,8 +323,7 @@ void DupFinderDlg2::ReturnToStart() {
 
 	Hide();
 	RestoreLogTarget();
-	parent->CleanUp();
-	parent->Show();
+	parent->ReturnToMe();
 	Destroy();
 }
 

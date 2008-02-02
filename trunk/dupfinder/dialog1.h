@@ -62,9 +62,11 @@ public:
 
 	void OnAbout(wxCommandEvent &);
 
-	void CleanUp();
+	void ReturnToMe();
 
 private:
+	void CleanUp();
+
 	wxListView *wDirList;
 	wxTextCtrl *wDirName;
 	wxCheckBox *wRecursive;

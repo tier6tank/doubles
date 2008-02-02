@@ -86,7 +86,6 @@ private:
 	findfileinfo ffi;
 
 	wxListView *wResultList;
-	wxCheckBox *wReverse;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
 	wxStaticText *wRestrictInfo;
