@@ -87,5 +87,5 @@ TODO/IDEAS:
 ! dynamic cast where possible (Log targets, FindWindow, ...)
 + checkbox with don't confirm delete done.
 + delete key (done)
-- remove list from DeleteFiles
++ remove list from DeleteFiles
 
