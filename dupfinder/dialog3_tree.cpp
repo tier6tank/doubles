@@ -327,11 +327,11 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 				wxString *data = (wxString *)wResultList->GetItemData(i);
 				wxString tmp;
 				if(data) {
-					tmp.Printf(_T("  \"%s\"\r\n"), wResultList->GetItemText(i));
+					tmp.Printf(_T("  \"%s\"\r\n"), wResultList->GetItemText(i).c_str());
 				}
 				else {
 					// header item
-					tmp.Printf(_T("- %s\r\n"), wResultList->GetItemText(i));
+					tmp.Printf(_T("- %s\r\n"), wResultList->GetItemText(i).c_str());
 				}
 				outfile.Write(tmp);
 			}
