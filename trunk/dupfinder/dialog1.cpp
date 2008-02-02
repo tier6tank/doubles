@@ -23,6 +23,22 @@
 #include "dialog1.h"
 #include "dialog2.h"
 
+
+enum {
+	ID_DIRLIST = 1, 
+	ID_GETDIR, 
+	ID_ADDDIR, 
+	ID_RMDIR, 
+	ID_DIRNAME, 
+	// options
+	ID_RECURSIVE, 
+	ID_HIDDEN, 
+	ID_MASKENABLE, 
+	ID_MASK, 
+	ID_MINSIZE, 
+	ID_RMALL
+};
+
 BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_CLOSE(			DupFinderDlg::OnClose)
 	EVT_SIZE(			DupFinderDlg::OnSize)
@@ -55,6 +71,8 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 	InitControls();
 
 	CenterOnScreen();
+
+	ffi.pFilesBySize = new multiset_fileinfosize;
 }
 
 DupFinderDlg::~DupFinderDlg() {
@@ -493,5 +511,45 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 
 
 }
-	
+
+void DupFinderDlg::CleanUp()
+{
+	multiset_fileinfosize_it it;
+	list<fileinfo>::iterator it2, it4;
+	list<fileinfoequal>::iterator it3;
+	multiset_fileinfosize &sortedbysize = *ffi.pFilesBySize;
+
+	// set<filedata *> deleted;
+
+	// delete sortedbysize
+	// are there memory leaks if i don't delete 
+	// the equalfiles-list?
+	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
+		for(it2 = (*it)->files.begin(); 
+			it2 != (*it)->files.end();
+			it2++) {
+			/* if(it2->data) {
+				deleted.insert(it2->data);
+			} */
+			erase(*it2);
+		}
+		// memory leaks, memory leaks, memory leaks.....
+		/* for(it3 = (*it)->equalfiles.begin(); 
+			it3 != (*it)->equalfiles.end();
+			it3++) {
+			for(it4 = it3->files.begin(); 
+				it4 != it3->files.end();
+				it4++) {
+				if(deleted.find(it4->data) != deleted.end()) {
+					erase (*it4);
+				}
+			}
+		} */
+
+		delete *it;
+	}
+
+	sortedbysize.clear();
+}
+
 
