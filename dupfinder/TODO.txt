@@ -65,7 +65,7 @@ TODO/IDEAS:
 - installer for windows
 - removing this *** wxUSE_STD_IOSTREAM again
 + create clear <dirlist> button done.
-- considered ??? files
++ considered ??? files seems to be right
 - heap corruption when canceling in windows! (still there?)
 ! checking that there are no double &<> in dialog boxes (sticky todo)
 - fixing those massive memory leaks which occur when interrupted (via bContinue = false)

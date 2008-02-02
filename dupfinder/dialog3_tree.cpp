@@ -51,6 +51,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_LIST_ITEM_ACTIVATED(ID_RESULTLIST, DupFinderDlg3::OnListItemActivated)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnListItemRightClick)
 	EVT_LIST_KEY_DOWN(ID_RESULTLIST, DupFinderDlg3::OnListKeyDown)
+	EVT_BUTTON(wxID_CANCEL, 	DupFinderDlg3::OnCancel)
 	// Menu
 	EVT_MENU(ID_OPENFILE, 		DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_OPENDIR, 		DupFinderDlg3::OnOpenDir)
@@ -76,6 +77,8 @@ void DupFinderDlg3::CreateControls() {
 	
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *savesizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
+	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
 
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
@@ -86,10 +89,10 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFT, 
 		10);
 
-	topsizer->Add(
+	resultssizer->Add(
 		wResultList = new wxListView(this, ID_RESULTLIST, 
 			wxDefaultPosition, wxSize(500, 300), 
-			wxBORDER_SUNKEN | wxLC_REPORT), 
+			wxBORDER_SUNKEN | wxLC_REPORT | wxLC_NO_HEADER), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -120,10 +123,30 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFT | wxRIGHT | wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	topsizer->Add(
+	controlssizer->AddStretchSpacer(1);
+
+	controlssizer->Add(
+		new wxButton(this, wxID_CANCEL, _T("Cl&ose")), 
+		0, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_RIGHT, 
+		10);
+
+	resultssizer->Add(
 		savesizer, 
 		0, 
 		wxTOP | wxBOTTOM | wxEXPAND, 
+		10);
+
+	topsizer->Add(
+		resultssizer, 
+		1, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
+		10);
+
+	topsizer->Add(
+		controlssizer, 
+		0, 
+		wxEXPAND  | wxALIGN_RIGHT, 
 		10);
 	
 
@@ -460,7 +483,10 @@ void DupFinderDlg3::DeleteOrphanedHeaders()
 	}
 }
 
-
+void DupFinderDlg3::OnCancel(wxCommandEvent &WXUNUSED(event))
+{
+	Close();
+}
 
 
 
