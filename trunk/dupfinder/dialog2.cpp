@@ -49,7 +49,7 @@ END_EVENT_TABLE()
 DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
 	wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
 	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), 
-	bStarted(false), parent(_parent), ffi(_ffi), sortedbysize(*_ffi.pFilesBySize)
+	ffi(_ffi), sortedbysize(*_ffi.pFilesBySize), bStarted(false), parent(_parent)
 {
 	
 }
