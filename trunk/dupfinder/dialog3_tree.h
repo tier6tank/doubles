@@ -65,6 +65,8 @@ public:
 
 	void DeleteOrphanedHeaders();
 
+	void OnCancel(wxCommandEvent &);
+
 private:
 
 	findfileinfo &ffi;

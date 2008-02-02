@@ -313,11 +313,11 @@ void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 	}
 	*/
 
-	DupFinderDlg2 *progress = new DupFinderDlg2(ffi, this);
-	
-	
 	this->Hide();
+	DupFinderDlg2 *progress = new DupFinderDlg2(ffi, this);	
+
 	progress->Show();
+	wxTheApp->SetTopWindow(progress);
 
 }
 
