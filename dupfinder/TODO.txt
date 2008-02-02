@@ -88,12 +88,13 @@ TODO/IDEAS:
 + checkbox with don't confirm delete done.
 + delete key (done)
 + remove list from DeleteFiles
-- Display whether restricted or not(red) "restricted to ...."
++ Display whether restricted or not(red) "restricted to ...." done.
 + context menu restrict
 - revising all that cleaning up/memory problems associated with fileinfo
 - reimplement the search for duplicate files algorithm, so that i have no problems with deleting
   a fileinfo object twice!
 - add a note please no short filesnames?!?
 - reimplement a double listed files remove algorithm!
-- instead of CleanUp full return to dialog1 function
-- checkbox: store currently displayed / all results!
++ instead of CleanUp full return to dialog1 function done.
++ checkbox: store currently displayed / all results! no checkbox, but store always displayed list
+- hiding some functions (private)

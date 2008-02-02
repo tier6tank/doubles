@@ -98,7 +98,6 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *dirsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
-	wxStaticBoxSizer *storesizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Store results"));
 
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
@@ -124,20 +123,11 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
-
-	/* savesizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Store results in a file: ")), 
-		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
-		10); */
-
 	savesizer->Add(
-		wReverse = new wxCheckBox(this, ID_REVERSE, _T("&Reverse order (small files first)")),
+		new wxStaticText(this, wxID_STATIC, _T("Store the upper list to a file: ")), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
-
-	// savesizer->AddStretchSpacer(1);
 
 	savesizer->Add(
 		new wxButton(this, ID_STORE, _T("&Store")), 
@@ -190,7 +180,7 @@ void DupFinderDlg3::CreateControls() {
 		wxEXPAND | wxBOTTOM, 
 		10);
 
-	storesizer->Add(
+	resultssizer->Add(
 		savesizer, 
 		0, 
 		wxBOTTOM | wxEXPAND, 
@@ -199,12 +189,6 @@ void DupFinderDlg3::CreateControls() {
 	topsizer->Add(
 		resultssizer, 
 		1, 
-		wxTOPLEFTRIGHT | wxEXPAND, 
-		10);
-
-	topsizer->Add(
-		storesizer, 
-		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
@@ -329,8 +313,6 @@ void DupFinderDlg3::DisplayResults() {
 
 void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 {
-	bool bReverse = wReverse->GetValue();
-
 	wxFileDialog * fdlg = new wxFileDialog(this, _T("Save as..."), _T(""), 
 		_T("results.txt"), _T("Textfiles (*.txt)|*.txt|All files (*.*)|*.*"), 
 		wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -338,8 +320,22 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 	if(fdlg->ShowModal() == wxID_OK) {
 		wxFile outfile;
 		if(outfile.Create(fdlg->GetPath(), true)) {
-			// use the old (primarily thought for console output) function
-			PrintResults(*ffi.pFilesBySize, outfile, bReverse);
+			int count, i;
+			count = wResultList->GetItemCount();
+
+			for(i = 0; i < count; i++) {
+				wxString *data = (wxString *)wResultList->GetItemData(i);
+				wxString tmp;
+				if(data) {
+					tmp.Printf(_T("  \"%s\"\r\n"), wResultList->GetItemText(i));
+				}
+				else {
+					// header item
+					tmp.Printf(_T("- %s\r\n"), wResultList->GetItemText(i));
+				}
+				outfile.Write(tmp);
+			}
+			outfile.Close();
 		}
 	}
 
@@ -549,8 +545,7 @@ void DupFinderDlg3::DeleteFiles()
 void DupFinderDlg3::ReturnToParent() {
 
 	Hide();
-	parent->CleanUp();
-	parent->Show();
+	parent->ReturnToMe();
 	Destroy();
 }
 
