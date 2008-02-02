@@ -59,6 +59,10 @@ public:
 
 	void DeleteFiles();
 
+	void GetSelectedFilenameCount(int &count);
+	int GetFirstSelectedFilename();
+	int GetNextSelectedFilename(int i);
+
 private:
 
 	findfileinfo &ffi;

@@ -189,7 +189,7 @@ void DupFinderDlg3::DisplayResults() {
 
 	if(ffi.pFilesBySize->size() == 0) {
 		wxMessageBox(_T("There are no double files! "), _T("DupFinder"), 
-			 wxOK | wxICON_INFORMATION);
+			 wxOK | wxICON_INFORMATION, this);
 
 		ReturnToParent();
 	}
@@ -229,7 +229,7 @@ void DupFinderDlg3::OpenDir(long i) {
 	if(data) {
 		wxFileName filename = *data;
 
-		wxString path = filename.GetPathWithSep();
+		wxString path = wxString(_T("file:///")) + filename.GetPathWithSep();
 
 		::wxLaunchDefaultBrowser(path);
 	}
@@ -244,24 +244,27 @@ void DupFinderDlg3::OpenFile(long i) {
 
 void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 {
+	wxMenu * popupmenu = new wxMenu();
+
 	if(event.GetData() != 0) {
-		wxMenu * popupmenu = new wxMenu();
+		
 		
 		popupmenu->Append(ID_OPENFILE, _T("&Open"));
 		popupmenu->Append(ID_OPENDIR, _T("O&pen containing folder"));
 		popupmenu->AppendSeparator();
-		popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
-		popupmenu->AppendSeparator();
-		popupmenu->Append(ID_DELETE, _T("&Delete"));
-		/* not implemented yet
-		popupmenu->Append(ID_HARDLINK, _T("Create &hardlink"));
-		popupmenu->Append(ID_SOFTLINK, _T("Create &symbolic link));
-		*/
-		
-		wResultList->PopupMenu(popupmenu);
-
-		delete popupmenu; 
 	}
+	
+	popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
+	popupmenu->AppendSeparator();
+	popupmenu->Append(ID_DELETE, _T("&Delete"));
+	/* not implemented yet
+	popupmenu->Append(ID_HARDLINK, _T("Create &hardlink"));
+	popupmenu->Append(ID_SOFTLINK, _T("Create &symbolic link));
+	*/
+		
+	wResultList->PopupMenu(popupmenu);
+
+	delete popupmenu; 
 }
 
 
@@ -281,23 +284,59 @@ void DupFinderDlg3::OnOpenDir(wxCommandEvent &WXUNUSED(event))
 	}
 }
 
+void DupFinderDlg3::GetSelectedFilenameCount(int &count)
+{
+	int i;
+
+	count = 0;
+	for(i = wResultList->GetFirstSelected(); i != -1; i = wResultList->GetNextSelected(i)) {
+		if(wResultList->GetItemData(i)) {
+			count++;
+		}
+	}
+
+}
+
+int DupFinderDlg3::GetFirstSelectedFilename()
+{
+	int i;
+	for(i = wResultList->GetFirstSelected(); i != -1; i = wResultList->GetNextSelected(i)) {
+		if(wResultList->GetItemData(i)) {
+			break;
+		}
+	}
+	return i;
+}
+
+int DupFinderDlg3::GetNextSelectedFilename(int i)
+{
+	for(i = wResultList->GetNextSelected(i); i != -1; i = wResultList->GetNextSelected(i)) {
+		if(wResultList->GetItemData(i)) {
+			break;
+		}
+	}
+	return i;
+}
+
 void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 {
 	wxString filename, tmp;
-	int i, j, count;
+	int i, count, lastselected;
 	
-	count = wResultList->GetSelectedItemCount();
+	GetSelectedFilenameCount(count);
+	
+	if(count == 0) return;
 
 	if(count > 1) {
-		for(i = wResultList->GetFirstSelected(), j = 0; i != -1; i = wResultList->GetNextSelected(i), j++) {
+		for(i = GetFirstSelectedFilename(); i != -1; i = GetNextSelectedFilename(i)) {
 			tmp.Printf(_T("\"%s\"%s"), 
 				((wxString *)wResultList->GetItemData(i))->c_str(), 
-				j == count-1 ? _T("") : _T(" ") );
+				i == lastselected ? _T("") : _T(" ") );
 			filename.Append(tmp);
 		}
 	}
 	else {
-		filename = *(wxString *)wResultList->GetItemData(wResultList->GetFirstSelected());
+		filename = *(wxString *)wResultList->GetItemData(GetFirstSelectedFilename());
 	}
 
 	wxTextDataObject * wxfile = new wxTextDataObject(filename);
@@ -322,7 +361,7 @@ void DupFinderDlg3::DeleteFiles()
 	wxString filename;
 	int result;
 
-	count = wResultList->GetSelectedItemCount();
+	GetSelectedFilenameCount(count);
 
 	if(count == 0) { return; }
 
@@ -330,7 +369,7 @@ void DupFinderDlg3::DeleteFiles()
 
 		if(count == 1) {
 			tmp.Printf(_T("Do you really want to delete \n\"%s?\" "), 
-				((wxString *)wResultList->GetItemData(wResultList->GetFirstSelected()))->c_str() );
+				( (wxString *)wResultList->GetItemData(GetFirstSelectedFilename()) )->c_str() );
 		}
 		else {
 			tmp.Printf(_T("Do you really want to delete these %i files? "), count);
@@ -344,7 +383,7 @@ void DupFinderDlg3::DeleteFiles()
 
 	if(result == wxYES) {
 
-		i = wResultList->GetFirstSelected();
+		i = GetFirstSelectedFilename();
 		while(i != -1) {
 
 			filename = *(wxString *)wResultList->GetItemData(i);
@@ -352,8 +391,9 @@ void DupFinderDlg3::DeleteFiles()
 			bool bResult = wxRemoveFile(filename);
 
 			if(bResult) {
-				wResultList->DeleteItem(i);
-				i = wResultList->GetFirstSelected();
+				int deletei = i;
+				i = GetNextSelectedFilename(i);
+				wResultList->DeleteItem(deletei);
 			}
 			else {
 				if(deletionfail.find(filename) == deletionfail.end()) {
@@ -361,7 +401,7 @@ void DupFinderDlg3::DeleteFiles()
 				}
 
 				// choose another list item
-				i = wResultList->GetNextSelected(i);
+				i = GetNextSelectedFilename(i);
 			}
 		}
 		set<wxString>::iterator it;
