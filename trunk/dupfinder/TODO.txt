@@ -81,10 +81,11 @@ TODO/IDEAS:
 - storing current user preferences (checkboxes, size, ...)?
 - instead of completely removing only move to trash
 - synchronization "show messages" checkbox <-> message window
-- open containing folder is not working in linux (perhaps with backslash at the end?)
++ open containing folder is not working in linux (perhaps with backslash at the end?) works with leading file:///
 + change modal dialog boxes to not modal dialogboxes done.
 + delete marked instead of the item over which it was and filenames done.
 ! dynamic cast where possible (Log targets, FindWindow, ...)
-- checkbox with don't confirm delete
++ checkbox with don't confirm delete done.
 + delete key (done)
+- remove list from DeleteFiles
 
