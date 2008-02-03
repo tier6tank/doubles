@@ -43,6 +43,7 @@ enum {
 	ID_APPLYDIR, 
 	ID_DIRNAME, 
 	ID_RESTRICTINFO, 
+	ID_GETDIR, 
 
 	// menu
 	ID_OPENFILE, 
@@ -67,6 +68,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_BUTTON(ID_SHOWALL, 		DupFinderDlg3::OnShowAll)
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg3::OnApplyDir)
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg3::OnDlgChange)
+	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg3::OnGetDir)
 	// Menu
 	EVT_MENU(ID_OPENFILE, 		DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_OPENDIR, 		DupFinderDlg3::OnOpenDir)
@@ -135,10 +137,12 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFT | wxRIGHT, 
 		10);
 
-	dirsizer->Add(
+	savesizer->AddStretchSpacer(1);
+
+	savesizer->Add(
 		wConfDelete = new wxCheckBox(this, ID_CONFDELETE, _T("&Confirm delete")), 
 		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		wxTOPLEFT | wxRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirsizer->Add(
@@ -151,6 +155,12 @@ void DupFinderDlg3::CreateControls() {
 		wDirName = new wxTextCtrl(this, ID_DIRNAME, _T(""), 
 			wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER), 
 		1, 
+		wxTOPLEFT, 
+		10);
+
+	dirsizer->Add(
+		new wxButton(this, ID_GETDIR, _T("&...")), 
+		0, 
 		wxTOPLEFT, 
 		10);
 
@@ -680,6 +690,23 @@ void DupFinderDlg3::UpdateView() {
 
 }
 		
+void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
+	wxDirDialog dirch(this);
+
+	dirch.SetWindowStyle(wxDD_DIR_MUST_EXIST);
+
+	if(bRestrict) {
+		dirch.SetPath(RestrictToDir.GetPath());
+	} else {
+		dirch.SetPath(wDirName->GetValue());
+	}
+
+	int ret = dirch.ShowModal();
+
+	if(ret == wxID_OK) {
+		wDirName->SetValue(dirch.GetPath());
+	}
+}
 
 
 

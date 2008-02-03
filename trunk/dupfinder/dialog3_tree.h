@@ -81,6 +81,8 @@ public:
 
 	void OnDlgChange(wxCommandEvent &);
 
+	void OnGetDir(wxCommandEvent &);
+
 private:
 
 	findfileinfo ffi;
