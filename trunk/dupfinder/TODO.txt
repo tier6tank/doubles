@@ -100,3 +100,6 @@ TODO/IDEAS:
 - hiding some functions (private)
 - creating delete findfileinfo function in dbl.cpp?
 - hardlinks / softlinks where supported
+- including the right header (or remove it completely)
+- shortening long filename in restriction info?
+- what about a program icon?
