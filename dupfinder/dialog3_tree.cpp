@@ -451,17 +451,17 @@ int DupFinderDlg3::GetNextSelectedFilename(int i)
 void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 {
 	wxString filename, tmp;
-	int i, count, lastselected;
+	int i, j, count;
 	
 	GetSelectedFilenameCount(count);
 	
 	if(count == 0) return;
 
 	if(count > 1) {
-		for(i = GetFirstSelectedFilename(); i != -1; i = GetNextSelectedFilename(i)) {
+		for(i = GetFirstSelectedFilename(), j = 0; i != -1; i = GetNextSelectedFilename(i), j++) {
 			tmp.Printf(_T("\"%s\"%s"), 
 				((wxString *)wResultList->GetItemData(i))->c_str(), 
-				i == lastselected ? _T("") : _T(" ") );
+				j == count-1 ? _T("") : _T(" ") );
 			filename.Append(tmp);
 		}
 	}
@@ -655,7 +655,7 @@ void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::UpdateView() {
 	wxString dirname = wDirName->GetValue();
-	wxSize curclientsize;
+	wxSize cs1, cs2;
 
 	// correct dir must be entered
 	FindWindow(ID_APPLYDIR)->Enable(
@@ -671,9 +671,12 @@ void DupFinderDlg3::UpdateView() {
 
 	GetSizer()->Show(wRestrictInfo, bRestrict, true);
 	GetSizer()->Layout();
-	curclientsize = GetClientSize();
+	cs1 = GetClientSize();
 	GetSizer()->SetSizeHints(this);
-	GetSizer()->SetDimension(0, 0, curclientsize.GetWidth(), curclientsize.GetHeight());
+	cs2 = GetClientSize();
+	GetSizer()->SetDimension(0, 0, 
+		max(cs1.GetWidth(), cs2.GetWidth()), 
+		max(cs1.GetHeight(), cs2.GetHeight()));
 
 }
 		
