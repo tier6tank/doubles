@@ -98,3 +98,5 @@ TODO/IDEAS:
 + instead of CleanUp full return to dialog1 function done.
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
 - hiding some functions (private)
+- creating delete findfileinfo function in dbl.cpp?
+- hardlinks / softlinks where supported

@@ -655,21 +655,25 @@ void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::UpdateView() {
 	wxString dirname = wDirName->GetValue();
+	wxSize curclientsize;
 
 	// correct dir must be entered
 	FindWindow(ID_APPLYDIR)->Enable(
 		wxFileName::DirExists(dirname));
 
 	// show restriction info
-
-	GetSizer()->Show(wRestrictInfo, bRestrict, true);
-	GetSizer()->Layout();
-
+	
 	wxString tmp;
 	tmp.Printf(_T("Showing only files in %s and their duplicates! "), 
 		RestrictToDir.GetFullPath().c_str() );
 
 	wRestrictInfo->SetLabel(tmp);
+
+	GetSizer()->Show(wRestrictInfo, bRestrict, true);
+	GetSizer()->Layout();
+	curclientsize = GetClientSize();
+	GetSizer()->SetSizeHints(this);
+	GetSizer()->SetDimension(0, 0, curclientsize.GetWidth(), curclientsize.GetHeight());
 
 }
 		
