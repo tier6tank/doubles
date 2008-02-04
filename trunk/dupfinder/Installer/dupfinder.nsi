@@ -56,7 +56,7 @@ Section "Main"
 	${OrIf} $R0 == "98" 
 	${OrIf} $R0 == "ME" 
 		File "/oname=dupf.exe" ..\gcc\dupf.exe
-		File "/oname=dupfgui.exe" ..\gcc\dupf.exe
+		File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
 	${Else}
 		File "/oname=dupf.exe" ..\gccu\dupf.exe
 		File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
