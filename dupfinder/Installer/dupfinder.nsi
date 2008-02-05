@@ -90,7 +90,7 @@ Section "Start Menu shortcuts"
 		; command.com does not support what i want
 	${Else}
 		CreateShortCut "$SMPROGRAMS\DupFinder\Console mode DupFinder (type dupf).lnk" \
-			"$SYSDIR\cmd.exe" '/K cd "$INSTDIR"'  "cmd.exe" 0 
+			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
 	${Endif}
 
 
