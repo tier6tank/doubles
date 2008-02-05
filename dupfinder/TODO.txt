@@ -103,3 +103,4 @@ TODO/IDEAS:
 - including the right header (or remove it completely)
 - shortening long filename in restriction info?
 - what about a program icon?
+- foreground/background/pause as in 7-zip

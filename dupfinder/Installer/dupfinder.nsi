@@ -50,7 +50,7 @@ Section "Main"
 	Pop $R0
 
 	File "/oname=readme.txt" "..\readme.txt"
-	File "/oname=readme.txt" "..\license.txt"
+	File "/oname=license.txt" "..\license.txt"
 	; supporting unicode ?
 	${If} $R0 == "95" 
 	${OrIf} $R0 == "98" 
@@ -80,6 +80,7 @@ Section "Start Menu shortcuts"
 	CreateDirectory "$SMPROGRAMS\DupFinder"
 	CreateShortCut "$SMPROGRAMS\DupFinder\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
 	CreateShortCut "$SMPROGRAMS\DupFinder\DupFinder.lnk" "$INSTDIR\dupfgui.exe" "" "$INSTDIR\dupfgui.exe" 0
+	CreateShortCut "$SMPROGRAMS\DupFinder\Readme.lnk" "$INSTDIR\readme.txt"
 
 	Call GetWindowsVersion
 	Pop $R0
@@ -89,7 +90,7 @@ Section "Start Menu shortcuts"
 		; command.com does not support what i want
 	${Else}
 		CreateShortCut "$SMPROGRAMS\DupFinder\Console mode DupFinder (type dupf).lnk" \
-			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
+			"$SYSDIR\cmd.exe" '/K cd "$INSTDIR"'  "cmd.exe" 0 
 	${Endif}
 
 
@@ -108,7 +109,10 @@ Section "Uninstall"
 
 	Delete $INSTDIR\uninstall.exe
 
-	Delete $SMPROGRAMS\DupFinder\*.*
+	Delete "$SMPROGRAMS\DupFinder\Uninstall.lnk"
+	Delete "$SMPROGRAMS\DupFinder\DupFinder.lnk"
+	Delete "$SMPROGRAMS\DupFinder\Readme.lnk"
+	Delete "$SMPROGRAMS\DupFinder\Console mode DupFinder (type dupf).lnk"
 
 	RMDir "$SMPROGRAMS\DupFinder"
 	RMDir "$INSTDIR"
