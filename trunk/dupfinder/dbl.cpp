@@ -161,6 +161,10 @@ public:
 	{
 		if(guii) { 
 			guii->theApp->Yield();
+			while(guii->bPause && guii->bContinue) {
+				wxMilliSleep(10);
+				guii->theApp->Yield();
+			}
 			if(!guii->bContinue) {
 				return wxDIR_STOP;
 			}
@@ -247,7 +251,6 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 		// _ftprintf(stderr, _T("\n"));
 		if(guii) {
 			if(!guii->bContinue) {
-				wxLogMessage(_T("Aborting. "));
 				return;
 			}
 		}
@@ -872,10 +875,15 @@ bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 	while(true) {
 
 		if(guii) {
+			wxTheApp->Yield();
+			while(guii->bPause && guii->bContinue) {
+				wxMilliSleep(10);
+				wxTheApp->Yield();
+			}
 			if(!guii->bContinue) {
 				return false;
 			}
-			wxTheApp->Yield();
+			
 		}
 		for(i = 0; i < 2; i++) {
 			usingbuffer[i] = 
