@@ -103,4 +103,6 @@ TODO/IDEAS:
 - including the right header (or remove it completely)
 - shortening long filename in restriction info?
 - what about a program icon?
-- foreground/background/pause as in 7-zip
+- foreground/background as in 7-zip 
++ pause as in 7-zip has it now. 
+- again: reducing memory consumption (circa 200 MB with circa 803,000 files)

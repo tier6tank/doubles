@@ -95,6 +95,7 @@ struct guiinfo {
 	bool bContinue;
 	wxApp * theApp;
 	wxStaticText *cfiles;
+	bool bPause;
 
 	// vars for step 2
 	wxStaticText *wSpeed;

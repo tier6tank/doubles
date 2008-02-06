@@ -34,7 +34,8 @@ enum {
 	ID_PROGRESS, 
 	ID_SPEED, 
 	ID_STEP1, 
-	ID_STEP2
+	ID_STEP2, 
+	ID_PAUSE
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
@@ -44,6 +45,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_IDLE(			DupFinderDlg2::OnIdle)
 	EVT_BUTTON(wxID_CANCEL, 	DupFinderDlg2::OnCancel)
 	EVT_CHECKBOX(ID_SHOWMESSAGES, 	DupFinderDlg2::OnShowMessages)
+	EVT_BUTTON(ID_PAUSE, 		DupFinderDlg2::OnPause)
 END_EVENT_TABLE()
 
 DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
@@ -192,6 +194,12 @@ void DupFinderDlg2::CreateControls()
 		10); 
 
 	controls->Add(
+		wPause = new wxButton(this, ID_PAUSE, _T("&Pause")), 
+		0, 
+		wxTOPLEFT | wxALIGN_RIGHT, 
+		10);
+
+	controls->Add(
 		new wxButton(this, wxID_CANCEL, _T("&Cancel")), 
 		0, 
 		wxTOPLEFTRIGHT | wxALIGN_RIGHT, 
@@ -257,6 +265,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		guii.out = wDirName;
 		guii.nfiles = wnFiles;
 		guii.bContinue = true;
+		guii.bPause = false;
 		guii.theApp = wxTheApp;
 		guii.cfiles = wcFiles;
 
@@ -306,7 +315,12 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 }
 
 void DupFinderDlg2::OnCancel(wxCommandEvent &WXUNUSED(event)) {
-	guii.bContinue = false;
+	int result = wxMessageBox(_T("Do you really want to cancel? "), 
+		_T("Confirmation"), wxYES_NO | wxICON_QUESTION, this);
+
+	if(result == wxYES) {
+		guii.bContinue = false;
+	}
 	// no EndModal / Destroy here!
 }
 
@@ -333,6 +347,36 @@ void DupFinderDlg2::RestoreLogTarget() {
 	wxLog::SetActiveTarget(NULL);
 	delete logw;
 }
+
+void DupFinderDlg2::OnPause(wxCommandEvent &WXUNUSED(event)) {
+	
+	if(guii.bPause) {
+		// continue with process
+		wPause->SetLabel(_T("&Pause"));
+		
+	} else {
+
+		wPause->SetLabel(_T("C&ontinue"));
+
+	}
+
+
+	guii.bPause = !guii.bPause;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

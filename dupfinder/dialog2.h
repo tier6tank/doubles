@@ -45,6 +45,8 @@ public:
 	void ReturnToStart();
 
 	void RestoreLogTarget();
+
+	void OnPause(wxCommandEvent &);
 	
 private:
 
@@ -52,6 +54,8 @@ private:
 	multiset_fileinfosize &sortedbysize;
 
 	bool bStarted;
+
+	wxButton *wPause;
 
 	wxTextCtrl * wDirName;
 	wxStaticText *wnFiles;
