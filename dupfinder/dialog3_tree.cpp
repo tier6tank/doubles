@@ -21,6 +21,7 @@
 #include "stdinc.h"
 
 #include "dialog3.h"
+#include "os_cc_specific.h"
 
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, findfileinfo &_ffi) 
 	: wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
@@ -242,9 +243,9 @@ void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
 }
 
 void DupFinderDlg3::DisplayResults() {
-	multiset_fileinfosize_it it;
-	list<fileinfoequal>::iterator it2;
-	list<fileinfo>::iterator it3;
+	multiset_fileinfosize::const_iterator it;
+	list<fileinfoequal>::const_iterator it2;
+	list<fileinfo>::const_iterator it3;
 	wxFont font, boldfont;
 	int item;
 
@@ -259,7 +260,7 @@ void DupFinderDlg3::DisplayResults() {
 	ClearList();
 
 	for(it = ffi.pFilesBySize->begin(); it != ffi.pFilesBySize->end(); it++) {
-		for(it2 = (*it)->equalfiles.begin(); it2 != (*it)->equalfiles.end(); it2++) {
+		for(it2 = it->equalfiles.begin(); it2 != it->equalfiles.end(); it2++) {
 			bool bDisplay;
 
 			if(bRestrict) {
@@ -293,7 +294,7 @@ void DupFinderDlg3::DisplayResults() {
 
 				wxString tmp;
 				tmp.Printf(_T("%u equal files of size %") wxLongLongFmtSpec _T("u"), 
-					it2->files.size(), (*it)->size.GetValue());
+					it2->files.size(), it->size.GetValue());
 
 				item = wResultList->InsertItem(wResultList->GetItemCount()+1, tmp);
 
