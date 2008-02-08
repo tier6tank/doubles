@@ -1,3 +1,6 @@
+Date : 2008/2/8 13:01
+Added Close method to File class for explicitely releasing unneeded memory
+
 Date : 2008/2/8 11:46
 First version of a file class with reference counting
 

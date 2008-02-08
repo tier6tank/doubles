@@ -41,7 +41,7 @@ void File::init() {
 }
 
 File::~File() {
-	File::Release(data);
+	ReleaseData();
 }
 
 File::File(const File & rhs) {
@@ -51,14 +51,14 @@ File::File(const File & rhs) {
 
 File & File::operator = (const File &rhs) {
 	if(&rhs != this) {
-		File::Release(data);
+		ReleaseData();
 		data = rhs.data;
 		data->rcount++;
 	}
 	return *this;
 }
 
-void File::Release(filedata *data) {
+void File::ReleaseData() {
 	assert(data);
 	assert(data->rcount >= 1);
 
@@ -67,14 +67,10 @@ void File::Release(filedata *data) {
 	if(data->rcount == 0) {
 		// delete object
 
-		if(data->extdata) {
-			data->extdata->file.Close();
-			delete [] data->extdata->firstbytes;
-			delete data->extdata;
-		}
+		ReleaseExtData();
 
 		delete data;
-	}	
+	}
 }
 
 bool File::Open() {
@@ -118,9 +114,21 @@ bool File::Seek(const wxULongLong &pos) {
 	return new_pos != wxInvalidOffset;
 }
 
+void File::Close() {
+	ReleaseExtData();
+	init();
+}
 
-
-
+void File::ReleaseExtData()
+{
+	if(data->extdata) {
+		if(data->extdata->file.IsOpened()) {
+			data->extdata->file.Close();
+		}
+		delete [] data->extdata->firstbytes;
+		delete data->extdata;
+	}
+}
 
 
 
