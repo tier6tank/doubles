@@ -1,3 +1,7 @@
+Date : 2008/2/8 15:21
+Thanks to a hint of the mingw-mailing list: 
+removed unconst, added mutable attributes to fileinfosize
+
 Date : 2008/2/8 13:01
 Added Close method to File class for explicitely releasing unneeded memory
 
