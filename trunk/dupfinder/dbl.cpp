@@ -132,7 +132,7 @@ public:
 
 			
 			if(it2 != ffi->pFilesBySize->end()) {
-				unconst(*it2).files.push_back(f);
+				it2->files.push_back(f);
 			}
 			else {
 				// the next line actually is not needed
@@ -292,7 +292,6 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 			it2tmp = it2;
 			it2++;
 
-			// erase(unconst(*it2tmp).files.front());
 			ffi.pFilesBySize->erase(it2tmp);
 			bDeleted = true;
 
@@ -423,7 +422,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 			fileinfoequal fiq;
 			list<File>::iterator ittmp;
 			bool bEqual;
-			for(it = unconst(*it2).files.begin(); it != it2->files.end(); /*it++*/) {
+			for(it = it2->files.begin(); it != it2->files.end(); /*it++*/) {
 				bFirstDouble = true;
 				it3 = it;
 				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
@@ -445,10 +444,10 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 							fiq.files.clear();
 							fiq.files.push_back(*it);
 							fiq.files.push_back(*it3);
-							unconst(*it2).equalfiles.push_back(fiq);
+							it2->equalfiles.push_back(fiq);
 						}
 						else {
-							unconst(*it2).equalfiles.back().files.push_back(*it3);
+							it2->equalfiles.back().files.push_back(*it3);
 						}
 
 						nDoubleFiles++;
@@ -458,7 +457,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 						ittmp = it3;
 						it3++;
 						ittmp->Close();
-						unconst(*it2).files.erase(ittmp);
+						it2->files.erase(ittmp);
 					}
 
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
@@ -482,16 +481,16 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				unconst(*it2).files.front().Close();
-				unconst(*it2).files.pop_front();
-				it = unconst(*it2).files.begin();
+				it2->files.front().Close();
+				it2->files.pop_front();
+				it = it2->files.begin();
 			}
 		} /* if size > 1 */
 		/* Close files */
-		for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
+		for(it = it2->files.begin(); it != it2->files.end(); it++) {
 			it->Close();
 		} 
-		unconst(*it2).files.clear();
+		it2->files.clear();
 	}
 
 #ifdef BENCHMARK

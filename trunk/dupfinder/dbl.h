@@ -33,8 +33,12 @@ struct fileinfoequal
 struct fileinfosize
 {
 	wxULongLong size;
-	list<File> files;
-	list<fileinfoequal> equalfiles;
+	// mutable because set iterators are always const
+	// but files and equalfiles are not influencing the 
+	// order of a set (size is the only relevant member for 
+	// ordering), so it's save to declare them mutable
+	mutable list<File> files;
+	mutable list<fileinfoequal> equalfiles;
 };
 
 
