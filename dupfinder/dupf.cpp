@@ -32,7 +32,7 @@ DECLARE_MAIN
 	multiset_fileinfosize sortedbysize;
 	findfileinfo ffi;
 
-	list<fileinfo>::iterator it, it3;
+	list<File>::iterator it, it3;
 	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
 	list<pathinfo>::iterator it5;

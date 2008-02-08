@@ -22,8 +22,9 @@
 #ifndef __DBL_H_123
 #define __DBL_H_123
 
-#define BASEBUFSIZE 512
+#include "file.h"
 
+/*
 struct filedata
 {
 	unsigned long nFirstBytes;
@@ -38,17 +39,18 @@ struct fileinfo
 	wxString name;
 	filedata *data;
 };
+*/
 
 struct fileinfoequal
 {
-	list<fileinfo> files;
+	list<File> files;
 };
 
 
 struct fileinfosize
 {
 	wxULongLong size;
-	list<fileinfo> files;
+	list<File> files;
 	list<fileinfoequal> equalfiles;
 };
 
@@ -106,11 +108,12 @@ struct guiinfo {
 /// prototypes
 
 
-bool	comparefiles0(fileinfo &, fileinfo &);
-bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
+// bool	comparefiles0(fileinfo &, fileinfo &);
+// bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
+bool 	comparefiles2(File &, File &, guiinfo * = NULL);
 wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
-void	erase(fileinfo &);
+// void	erase(fileinfo &);
 
 void	FindFiles(findfileinfo &, guiinfo * = NULL);
 void	GetEqualFiles(multiset_fileinfosize &, guiinfo * = NULL);

@@ -25,6 +25,7 @@ using namespace std;
 #include "dbl.h"
 #include "largeint.h"
 #include "ulargeint.h"
+#include "file.h"
 
 /********* options ************/
 
@@ -65,7 +66,7 @@ wxULongLong __nSectorsRead = 0;
 wxULongLong __nFilesOpened = 0;
 
 #else /* if !defined(BENCHMARK) */
-#define comparefiles comparefiles1
+#define comparefiles comparefiles2
 #endif /* defined(BENCHMARK) */
 
 #define REFRESH_INTERVAL 1 /* in seconds */
@@ -109,7 +110,8 @@ public:
 	virtual wxDirTraverseResult OnFile(const wxString & filename)
 	{
 		STARTTIME(__OnFile);
-		fileinfo fi;
+		// fileinfo fi;
+		File f;
 		fileinfosize fis;
 		multiset_fileinfosize_it it2;
 		wxULongLong size;
@@ -121,20 +123,21 @@ public:
 		if(size != wxInvalidSize && size > pi->nMaxFileSizeIgnore) {
 			// init structure
 			STARTTIME(__insert);
-			fi.name = filename;
-			fi.data = NULL;
+			// fi.name = filename;
+			// fi.data = NULL;
+			f.SetName(filename);
 
 			fis.size = size;
 			it2 = ffi->pFilesBySize->find(fis);
 
 			
 			if(it2 != ffi->pFilesBySize->end()) {
-				unconst(*it2).files.push_back(fi);
+				unconst(*it2).files.push_back(f);
 			}
 			else {
 				// the next line actually is not needed
 				fis.size = size;
-				fis.files.push_back(fi);
+				fis.files.push_back(f);
 				ffi->pFilesBySize->insert(fis);
 			}
 			STOPTIME(__insert);
@@ -219,7 +222,7 @@ public:
 void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 {
 	fileinfosize fis;
-	list<fileinfo>::iterator it;
+	list<File>::iterator it;
 	multiset_fileinfosize_it it2;
 	bool bDeleted;
 	wxULongLong nFiles;
@@ -289,7 +292,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 			it2tmp = it2;
 			it2++;
 
-			erase(unconst(*it2tmp).files.front());
+			// erase(unconst(*it2tmp).files.front());
 			ffi.pFilesBySize->erase(it2tmp);
 			bDeleted = true;
 
@@ -312,7 +315,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 
 void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 {
-	list<fileinfo>::iterator it, it3;
+	list<File>::iterator it, it3;
 	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
 	int sizeN;
@@ -418,7 +421,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 			bool bDeleted3;
 			bool bFirstDouble;
 			fileinfoequal fiq;
-			list<fileinfo>::iterator ittmp;
+			list<File>::iterator ittmp;
 			bool bEqual;
 			for(it = unconst(*it2).files.begin(); it != it2->files.end(); /*it++*/) {
 				bFirstDouble = true;
@@ -454,7 +457,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
-						erase(*ittmp);
+						// erase(*ittmp);
 						unconst(*it2).files.erase(ittmp);
 					}
 
@@ -479,15 +482,15 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				erase(unconst(*it2).files.front());
+				// erase(unconst(*it2).files.front());
 				unconst(*it2).files.pop_front();
 				it = unconst(*it2).files.begin();
 			}
 		}
 		/* delete all temporary firstbytes-arrays */
-		for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
+		/* for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
 			erase(*it);
-		}
+		} */
 		unconst(*it2).files.clear();	
 	}
 
@@ -553,7 +556,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
 {
-	list<fileinfo>::const_iterator it, it3;
+	list<File>::const_iterator it, it3;
 	multiset_fileinfosize::const_iterator it2;
 	multiset_fileinfosize::const_reverse_iterator rit2;
 	list<fileinfoequal>::const_iterator it4;
@@ -577,7 +580,7 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 			bReverse ? it4 != rit2->equalfiles.end() : it4 != it2->equalfiles.end(); 
 			it4++) {
 			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
-				(*it4).files.size(), 
+				it4->files.size(), 
 				bReverse ? rit2->size.GetValue() : it2->size.GetValue());
 			if(bConOut) {
 				fOutput.Write(Buffer.ToAscii(), Buffer.Length());
@@ -588,8 +591,8 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 			else {
 				fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8 : (wxMBConv &)wxConvUTF8);
 			}
-			for(it = (*it4).files.begin(); it != (*it4).files.end(); it++) {
-				Buffer.Printf(_T("  \"%s\"\r\n"), (*it).name.c_str());
+			for(it = it4->files.begin(); it != it4->files.end(); it++) {
+				Buffer.Printf(_T("  \"%s\"\r\n"), it->GetName().c_str());
 				if(bConOut) {
 					fOutput.Write(Buffer.ToAscii(), Buffer.Length());
 					if(!Buffer.IsAscii()) {
@@ -624,7 +627,7 @@ void	deleteline(int n) {
 	}
 }
 
-void	erase(fileinfo &fi) {
+/* void	erase(fileinfo &fi) {
 	// make it so, that it can be easily and 
 	// with no mistakes be deleted twice !
 	if(fi.data) {
@@ -644,7 +647,7 @@ void	erase(fileinfo &fi) {
 	}
 	delete fi.data;
 	fi.data = NULL;
-}
+} */
 
 #if defined(BENCHMARK) || defined(TEST)
 
@@ -723,6 +726,8 @@ End:	if(F1) fclose(F1);
 
 #endif /* defined(BENCHMARK) || defined(TEST) */
 
+#ifdef ____notdefined
+
 wxULongLong roundup(const wxULongLong &a, int b)
 {
 	wxULongLong c;
@@ -732,11 +737,9 @@ wxULongLong roundup(const wxULongLong &a, int b)
 
 bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
 #if !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK)
-	const size_t BUFSIZE = BASEBUFSIZE << 7;
-	const unsigned long MAXFIRSTBYTES = BASEBUFSIZE << 7;
 	static char *b[2] = {NULL, NULL };
-	if(b[0] == NULL) { b[0] = new char[BUFSIZE]; }
-	if(b[1] == NULL) { b[1] = new char[BUFSIZE]; }
+	if(b[0] == NULL) { b[0] = new char[File::GetBufSize()]; }
+	if(b[1] == NULL) { b[1] = new char[File::GetBufSize()]; }
 #else
 	size_t BUFSIZE = __BufSize;
 	unsigned int MAXFIRSTBYTES = __MaxFirstBytes;
@@ -1010,6 +1013,70 @@ End:
 	return bResult;
 }
 
+#endif
+
+
+
+bool	comparefiles2(File &f1, File &f2, guiinfo *guii) {
+	bool bResult;
+	static char *b1, *b2;
+	if(b1 == NULL) { b1 = new char[File::GetBufSize()]; }
+	if(b2 == NULL) { b2 = new char[File::GetBufSize()]; }
+	int BUFSIZE = File::GetBufSize();
+	int n1, n2;
+
+	// seek to the beginning
+	if( !f1.Seek(wxULongLong(0)) ) {
+		return false;
+	}
+	if( !f2.Seek(wxULongLong(0)) ) {
+		return false;
+	}
+
+	while(1) {
+		if(guii) {
+			guii->theApp->Yield();
+			while(guii->bPause && guii->bContinue) {
+				wxMilliSleep(10);
+				guii->theApp->Yield();
+			}
+			if(!guii->bContinue) {
+				return false;
+			}
+		}
+
+		n1 = n2 = BUFSIZE;
+		bool br1, br2;
+
+		br1 = f1.Read(b1, n1);
+		br2 = f2.Read(b2, n2);
+
+#ifdef BENCHMARK
+		__nBytesRead += n1;
+		__nBytesRead += n2;
+		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
+		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
+#endif
+
+		if(n1 != n2 || !br1 || !br2) {
+			bResult = false;
+			goto End;
+		}
+
+		if(memcmp(b1, b2, n1) != 0) {
+			bResult = false;
+			goto End;
+		}
+
+		if(n1 < BUFSIZE)
+			break;
+
+	}
+
+	bResult = true;
+
+End:	return bResult;
+}
 
 
 

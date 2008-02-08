@@ -245,7 +245,7 @@ void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
 void DupFinderDlg3::DisplayResults() {
 	multiset_fileinfosize::const_iterator it;
 	list<fileinfoequal>::const_iterator it2;
-	list<fileinfo>::const_iterator it3;
+	list<File>::const_iterator it3;
 	wxFont font, boldfont;
 	int item;
 
@@ -271,7 +271,7 @@ void DupFinderDlg3::DisplayResults() {
 				for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
 					wxFileName cur;	
 
-					cur = it3->name;
+					cur = it3->GetName();
 
 					// a great speed gain by not using wxPATH_NORM_LONG
 					// on windows, but short filesnames are not supported
@@ -307,8 +307,8 @@ void DupFinderDlg3::DisplayResults() {
 				wResultList->SetItemData(item, 0);
 
 				for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
-					item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->name);
-					wxString *itemdata = new wxString(it3->name);
+					item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->GetName());
+					wxString *itemdata = new wxString(it3->GetName());
 					wResultList->SetItemData(item, (long)itemdata);
 				}
 			}
