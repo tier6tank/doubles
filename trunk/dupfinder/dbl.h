@@ -24,23 +24,6 @@
 
 #include "file.h"
 
-/*
-struct filedata
-{
-	unsigned long nFirstBytes;
-	unsigned long nMaxFirstBytes;
-	char* firstbytes;
-	wxFile *pFile;
-	bool error;
-};
-
-struct fileinfo
-{
-	wxString name;
-	filedata *data;
-};
-*/
-
 struct fileinfoequal
 {
 	list<File> files;
@@ -113,7 +96,6 @@ struct guiinfo {
 bool 	comparefiles2(File &, File &, guiinfo * = NULL);
 wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
-// void	erase(fileinfo &);
 
 void	FindFiles(findfileinfo &, guiinfo * = NULL);
 void	GetEqualFiles(multiset_fileinfosize &, guiinfo * = NULL);

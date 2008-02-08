@@ -457,7 +457,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
-						// erase(*ittmp);
+						ittmp->Close();
 						unconst(*it2).files.erase(ittmp);
 					}
 
@@ -482,16 +482,16 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				// erase(unconst(*it2).files.front());
+				unconst(*it2).files.front().Close();
 				unconst(*it2).files.pop_front();
 				it = unconst(*it2).files.begin();
 			}
-		}
-		/* delete all temporary firstbytes-arrays */
-		/* for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
-			erase(*it);
-		} */
-		unconst(*it2).files.clear();	
+		} /* if size > 1 */
+		/* Close files */
+		for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
+			it->Close();
+		} 
+		unconst(*it2).files.clear();
 	}
 
 #ifdef BENCHMARK
@@ -626,28 +626,6 @@ void	deleteline(int n) {
 		_ftprintf(stderr, _T("\b"));
 	}
 }
-
-/* void	erase(fileinfo &fi) {
-	// make it so, that it can be easily and 
-	// with no mistakes be deleted twice !
-	if(fi.data) {
-		if(fi.data->firstbytes) {
-			delete [] fi.data->firstbytes;
-		}
-		// fi.data->firstbytes = NULL;
-		// fi.data->nFirstBytes = fi.data->nMaxFirstBytes = 0;
-		
-		if(fi.data->pFile) {
-			if(fi.data->pFile->IsOpened()) {
-				fi.data->pFile->Close(); 
-			}
-			delete fi.data->pFile;
-		}
-		fi.data->pFile = NULL;
-	}
-	delete fi.data;
-	fi.data = NULL;
-} */
 
 #if defined(BENCHMARK) || defined(TEST)
 

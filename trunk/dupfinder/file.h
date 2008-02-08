@@ -45,6 +45,8 @@ public:
 
 	static int GetBufSize() { return File::BUFSIZE; }
 
+	void Close();
+
 private:
 	struct extfiledata {
 		unsigned long nFirstBytes;
@@ -61,7 +63,8 @@ private:
 	};
 
 
-	static void Release(filedata *);
+	void ReleaseData();
+	void ReleaseExtData();
 	bool Open();
 
 	void init();
