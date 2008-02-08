@@ -88,6 +88,8 @@ DupFinderDlg::~DupFinderDlg() {
 		
 		delete pit;
 	}
+	
+	delete ffi.pFilesBySize;
 }
 
 void DupFinderDlg::CreateControls()
@@ -519,43 +521,11 @@ void DupFinderDlg::ReturnToMe()
 	Show();
 }
 
+
 void DupFinderDlg::CleanUp()
 {
-	multiset_fileinfosize_it it;
-	list<fileinfo>::iterator it2, it4;
-	list<fileinfoequal>::iterator it3;
-	multiset_fileinfosize &sortedbysize = *ffi.pFilesBySize;
-
-	// set<filedata *> deleted;
-
-	// delete sortedbysize
-	// are there memory leaks if i don't delete 
-	// the equalfiles-list?
-	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
-		for(it2 = unconst(*it).files.begin(); 
-			it2 != it->files.end();
-			it2++) {
-			/* if(it2->data) {
-				deleted.insert(it2->data);
-			} */
-			erase(*it2);
-		}
-		// memory leaks, memory leaks, memory leaks.....
-		/* for(it3 = (*it)->equalfiles.begin(); 
-			it3 != (*it)->equalfiles.end();
-			it3++) {
-			for(it4 = it3->files.begin(); 
-				it4 != it3->files.end();
-				it4++) {
-				if(deleted.find(it4->data) != deleted.end()) {
-					erase (*it4);
-				}
-			}
-		} */
-
-	}
-
-	sortedbysize.clear();
+	// that should do it
+	ffi.pFilesBySize->clear();
 }
 
 

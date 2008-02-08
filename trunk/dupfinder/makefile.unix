@@ -58,8 +58,8 @@ opt := $(opt) $(dbg)
 nopchopt := $(nopchopt) $(dbg)
 
 libs = `wx-config $(wxconfigopt) --libs`
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h
-headersgui = dbl.h os_cc_specific.h dupfgui.h dialog1.h dialog2.h dialog3.h
+headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
+headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h
 
 all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
@@ -67,16 +67,17 @@ all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 $(outdir): 
 	-@mkdir $(outdir)
 
-$(outdir)/$(name): $(outdir)/stdinc.h.gch $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o
-	g++ $(opt) -o "$(outdir)/$(name)" $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(libs) 
+$(outdir)/$(name): $(outdir)/stdinc.h.gch $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(outdir)/file.o
+	g++ $(opt) -o "$(outdir)/$(name)" $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(outdir)/file.o $(libs) 
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(name)
 endif
 
 $(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o
+	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o
 	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(libs)
+		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o \
+		$(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(namegui)
 endif
@@ -89,6 +90,9 @@ $(outdir)/dupf.o: dupf.cpp $(headersgui)
 
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
 	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
+
+$(outdir)/file.o: file.cpp $(headers)
+	g++ $(opt) -c -o $(outdir)/file.o file.cpp
 
 $(outdir)/stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
