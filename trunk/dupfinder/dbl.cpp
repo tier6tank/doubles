@@ -92,7 +92,7 @@ LARGE_INTEGER fileread;
 class AddFileToList : public wxDirTraverser
 {
 public:
-	AddFileToList(findfileinfo * pInfo, pathinfo *ppi, wxULongLong &_nFiles, 
+	AddFileToList(findfileinfo * pInfo, const pathinfo *ppi, wxULongLong &_nFiles, 
 		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), 
 		bDirChanged(true), nFiles(_nFiles) {
 #ifdef PROFILE
@@ -111,7 +111,6 @@ public:
 		STARTTIME(__OnFile);
 		fileinfo fi;
 		fileinfosize fis;
-		fileinfosize *pfis;
 		multiset_fileinfosize_it it2;
 		wxULongLong size;
 		STARTTIME(__findsize);
@@ -126,17 +125,17 @@ public:
 			fi.data = NULL;
 
 			fis.size = size;
-			it2 = ffi->pFilesBySize->find(&fis);
+			it2 = ffi->pFilesBySize->find(fis);
 
 			
 			if(it2 != ffi->pFilesBySize->end()) {
-				(*it2)->files.push_back(fi);
+				unconst(*it2).files.push_back(fi);
 			}
 			else {
-				pfis = new fileinfosize; 
-				pfis->size = size;
-				pfis->files.push_back(fi);
-				ffi->pFilesBySize->insert(pfis);
+				// the next line actually is not needed
+				fis.size = size;
+				fis.files.push_back(fi);
+				ffi->pFilesBySize->insert(fis);
 			}
 			STOPTIME(__insert);
 		}
@@ -195,7 +194,7 @@ public:
 
 private:
 	findfileinfo *ffi;
-	pathinfo *pi;
+	const pathinfo *pi;
 	time_t tlast;
 	
 	guiinfo *guii;
@@ -226,7 +225,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 	wxULongLong nFiles;
 	wxULongLong nDroppedFiles;
 	list<pathinfo> &paths = ffi.paths;
-	list<pathinfo>::iterator it3;
+	list<pathinfo>::const_iterator it3;
 
 #ifdef PROFILE
 	LARGE_INTEGER __all = {0, 0};
@@ -282,16 +281,15 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 	nDroppedFiles = 0;
 
 	for(it2 = ffi.pFilesBySize->begin(); it2 != ffi.pFilesBySize->end(); bDeleted ? it2 : it2++) {
-		if((*it2)->files.size() > 1) {
+		if(it2->files.size() > 1) {
 			bDeleted = false;
-			nFiles += (*it2)->files.size();
+			nFiles += it2->files.size();
 		}
 		else { 
 			it2tmp = it2;
 			it2++;
 
-			erase((*it2tmp)->files.front());
-			delete *it2tmp;
+			erase(unconst(*it2tmp).files.front());
 			ffi.pFilesBySize->erase(it2tmp);
 			bDeleted = true;
 
@@ -394,14 +392,14 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 	nSortedBySizeLen = sortedbysize.size();
 	
 	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
-		// printf("size %" I64 ": %i file(s) \n", (*it2).size.QuadPart, (*it2).files.size());
+		// printf("size %" I64 ": %i file(s) \n", it2->size.QuadPart, it2->files.size());
 		sizeN++;
 		tnow = time(NULL);
 		if(tnow - tlast >= REFRESH_INTERVAL || bStart == true) {
 			bStart = false; // at the beginning information should also be displayed!
 			if(guii) {
 				output.Printf(_T("size %i/%i (%") wxLongLongFmtSpec _T("u bytes)"), 
-					sizeN, nSortedBySizeLen, (*it2)->size.GetValue() );
+					sizeN, nSortedBySizeLen, it2->size.GetValue() );
 				guii->wProgress->SetLabel(output);
 				guii->wSpeed->SetLabel(_T("--"));
 			}
@@ -409,23 +407,23 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				deleteline(output.Length());
 				output.Printf(_T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
 					/*" %i kb/s" */, 
-					sizeN, nSortedBySizeLen, (*it2)->files.size(), (*it2)->size.GetValue() /*, 0*/);
+					sizeN, nSortedBySizeLen, it2->files.size(), it2->size.GetValue() /*, 0*/);
 
 				_ftprintf(stderr, _T("%s"), output.c_str());
 			}
 			tlast = tnow;	
 		}
-		assert((*it2)->files.size() > 1);
-		if((*it2)->files.size() > 1) { /* in fact, this isn't neccesarry any more */
+		assert(it2->files.size() > 1);
+		if(it2->files.size() > 1) { /* in fact, this isn't neccesarry any more */
 			bool bDeleted3;
 			bool bFirstDouble;
 			fileinfoequal fiq;
 			list<fileinfo>::iterator ittmp;
 			bool bEqual;
-			for(it = (*it2)->files.begin(); it != (*it2)->files.end(); /*it++*/) {
+			for(it = unconst(*it2).files.begin(); it != it2->files.end(); /*it++*/) {
 				bFirstDouble = true;
 				it3 = it;
-				for(it3++; it3 != (*it2)->files.end(); bDeleted3 ? it3 : it3++) {
+				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
 					bEqual = comparefiles(*it, *it3, guii);
 
@@ -444,20 +442,20 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 							fiq.files.clear();
 							fiq.files.push_back(*it);
 							fiq.files.push_back(*it3);
-							(*it2)->equalfiles.push_back(fiq);
+							unconst(*it2).equalfiles.push_back(fiq);
 						}
 						else {
-							(*it2)->equalfiles.back().files.push_back(*it3);
+							unconst(*it2).equalfiles.back().files.push_back(*it3);
 						}
 
 						nDoubleFiles++;
-						sumsize += (*it2)->size;
+						sumsize += it2->size;
 						
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
 						erase(*ittmp);
-						(*it2)->files.erase(ittmp);
+						unconst(*it2).files.erase(ittmp);
 					}
 
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
@@ -470,7 +468,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				if(bFirstDouble) {
 					bool bNotEqual = true;
 					__it3 = it;
-					for(__it3++; __it3 != (*it2)->files.end(); __it3++) {
+					for(__it3++; __it3 != it2->files.end(); __it3++) {
 						bEqual = comparefiles0(*it, *__it3);
 						if(bEqual) {
 							bNotEqual = false;
@@ -481,16 +479,16 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				erase((*it2)->files.front());
-				(*it2)->files.pop_front();
-				it = (*it2)->files.begin();
+				erase(unconst(*it2).files.front());
+				unconst(*it2).files.pop_front();
+				it = unconst(*it2).files.begin();
 			}
 		}
 		/* delete all temporary firstbytes-arrays */
-		for(it = (*it2)->files.begin(); it != (*it2)->files.end(); it++) {
+		for(it = unconst(*it2).files.begin(); it != it2->files.end(); it++) {
 			erase(*it);
 		}
-		(*it2)->files.clear();	
+		unconst(*it2).files.clear();	
 	}
 
 #ifdef BENCHMARK
@@ -555,10 +553,10 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
 {
-	list<fileinfo>::iterator it, it3;
-	multiset_fileinfosize_it it2;
-	multiset_fileinfosize_rit rit2;
-	list<fileinfoequal>::iterator it4;
+	list<fileinfo>::const_iterator it, it3;
+	multiset_fileinfosize::const_iterator it2;
+	multiset_fileinfosize::const_reverse_iterator rit2;
+	list<fileinfoequal>::const_iterator it4;
 	wxString Buffer;
 	// bConOut because output to console does NOT support unicode/utf-8/... in windows (but it does in unix! )
 	wxPlatformInfo platform;
@@ -570,17 +568,17 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 
 	for(
 		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();
-		bReverse ? rit2 != sortedbysize.rend() : it2 != sortedbysize.end();
+		bReverse ? rit2 != ((const multiset_fileinfosize &)sortedbysize).rend() : it2 != sortedbysize.end();
 		rit2++, it2++) {
 
 
 		for(
-			bReverse ? it4 = (*rit2)->equalfiles.begin() : it4 = (*it2)->equalfiles.begin();
-			bReverse ? it4 != (*rit2)->equalfiles.end() : it4 != (*it2)->equalfiles.end(); 
+			bReverse ? it4 = rit2->equalfiles.begin() : it4 = it2->equalfiles.begin();
+			bReverse ? it4 != rit2->equalfiles.end() : it4 != it2->equalfiles.end(); 
 			it4++) {
 			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
 				(*it4).files.size(), 
-				bReverse ? (*rit2)->size.GetValue() : (*it2)->size.GetValue());
+				bReverse ? rit2->size.GetValue() : it2->size.GetValue());
 			if(bConOut) {
 				fOutput.Write(Buffer.ToAscii(), Buffer.Length());
 				if(!Buffer.IsAscii()) {

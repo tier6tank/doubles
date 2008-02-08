@@ -126,6 +126,15 @@ typedef union _LARGE_INTEGER {
 
 #endif /* !defined(_WIN32) */
 
+// that is because of mingw of which the iterators of set are always pointing to const 
+// objects, event if using iterator, not const_iterator!
+// nevertheless not a pretty hack
+template <class T> T &unconst(const T& object) {
+	return const_cast<T &>(object);
+}
+
+
+
 
 
 

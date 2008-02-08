@@ -54,7 +54,7 @@ struct fileinfosize
 
 
 struct less_fileinfosize : public less<fileinfosize> {
-	bool operator () (const fileinfosize *a, const fileinfosize *b) const {
+	bool operator () (const fileinfosize &a, const fileinfosize &b) const {
 		// the commented code does not work because i don't get bReverse from somewhere, 
 		// so now bReverse is used in PrintResults
 
@@ -62,14 +62,14 @@ struct less_fileinfosize : public less<fileinfosize> {
 		//	return a.size < b.size;
 		// else {
 		// bigger because i want to have BIG files first by default!
-		return a->size > b->size;
+		return a.size > b.size;
 		// }
 	}
 };
 	
-typedef multiset<fileinfosize *, less_fileinfosize> multiset_fileinfosize;
-typedef multiset<fileinfosize *, less_fileinfosize>::iterator multiset_fileinfosize_it;
-typedef multiset<fileinfosize *, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
+typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
+typedef multiset<fileinfosize, less_fileinfosize>::iterator multiset_fileinfosize_it;
+typedef multiset<fileinfosize, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
 
 struct pathinfo
 {

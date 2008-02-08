@@ -249,11 +249,6 @@ DECLARE_MAIN
 	
 	PrintResults(sortedbysize, fOutput, bReverse);
 
-	// clean release memory
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
-		delete *it2;
-	}
-	
 	sortedbysize.clear();
 
 

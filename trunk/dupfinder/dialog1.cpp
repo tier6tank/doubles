@@ -22,6 +22,7 @@
 #include "stdinc.h"
 #include "dialog1.h"
 #include "dialog2.h"
+#include "os_cc_specific.h"
 
 
 enum {
@@ -531,8 +532,8 @@ void DupFinderDlg::CleanUp()
 	// are there memory leaks if i don't delete 
 	// the equalfiles-list?
 	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
-		for(it2 = (*it)->files.begin(); 
-			it2 != (*it)->files.end();
+		for(it2 = unconst(*it).files.begin(); 
+			it2 != it->files.end();
 			it2++) {
 			/* if(it2->data) {
 				deleted.insert(it2->data);
@@ -552,7 +553,6 @@ void DupFinderDlg::CleanUp()
 			}
 		} */
 
-		delete *it;
 	}
 
 	sortedbysize.clear();
