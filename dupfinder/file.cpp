@@ -93,11 +93,13 @@ bool File::Open() {
 
 
 bool File::Read(char *buffer, int &ncount) {
-	if(!Open()) {
-		return false;
-	}
+	assert(data->extdata);
 
 	assert(ncount == File::BUFSIZE);
+
+	if(!data->extdata->file.IsOpened()) {
+		return false;
+	}
 
 	ncount = data->extdata->file.Read(buffer, ncount);
 
@@ -105,7 +107,9 @@ bool File::Read(char *buffer, int &ncount) {
 }
 
 bool File::Seek(const wxULongLong &pos) {
-	if(!Open()) {
+	assert(data->extdata);
+
+	if(!data->extdata->file.IsOpened()) {
 		return false;
 	}
 

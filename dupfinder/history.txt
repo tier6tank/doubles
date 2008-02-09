@@ -1,3 +1,7 @@
+Date : 2008/2/8 19:46
+Made Open public, and removed internal calls
+Changed program name from DupFinder to Duplicate Files Finder (esp in installation script)
+
 Date : 2008/2/8 15:21
 Thanks to a hint of the mingw-mailing list: 
 removed unconst, added mutable attributes to fileinfosize
