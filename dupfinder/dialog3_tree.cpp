@@ -246,6 +246,7 @@ void DupFinderDlg3::DisplayResults() {
 	multiset_fileinfosize::const_iterator it;
 	list<fileinfoequal>::const_iterator it2;
 	list<File>::const_iterator it3;
+	bool bHaveFont = false;
 	wxFont font, boldfont;
 	int item;
 
@@ -256,6 +257,9 @@ void DupFinderDlg3::DisplayResults() {
 		ReturnToParent();
 		return;
 	}
+
+	// disable all repaint until the end of the function
+	wResultList->Freeze();
 
 	ClearList();
 
@@ -298,9 +302,12 @@ void DupFinderDlg3::DisplayResults() {
 
 				item = wResultList->InsertItem(wResultList->GetItemCount()+1, tmp);
 
-				boldfont = font = wResultList->GetItemFont(item);
-				boldfont.SetWeight(wxFONTWEIGHT_BOLD);
-				boldfont.SetUnderlined(true);
+				if(!bHaveFont) {
+					boldfont = font = wResultList->GetItemFont(item);
+					boldfont.SetWeight(wxFONTWEIGHT_BOLD);
+					boldfont.SetUnderlined(true);
+					bHaveFont = true;
+				}
 			
 				wResultList->SetItemFont(item, boldfont);
 
@@ -319,6 +326,9 @@ void DupFinderDlg3::DisplayResults() {
 	if(wResultList->GetItemCount() == 0) {
 		wResultList->InsertItem(0, _T("No items. "));
 	}
+
+	// enable repaint
+	wResultList->Thaw();
 
 }
 
@@ -681,14 +691,21 @@ void DupFinderDlg3::UpdateView() {
 	wRestrictInfo->SetLabel(tmp);
 
 	GetSizer()->Show(wRestrictInfo, bRestrict, true);
-	GetSizer()->Layout();
-	cs1 = GetClientSize();
-	GetSizer()->SetSizeHints(this);
-	cs2 = GetClientSize();
-	GetSizer()->SetDimension(0, 0, 
-		max(cs1.GetWidth(), cs2.GetWidth()), 
-		max(cs1.GetHeight(), cs2.GetHeight()));
 
+	GetSizer()->Layout();
+
+	cs1 = GetClientSize();
+	cs2 = GetSizer()->GetMinSize();
+
+	this->SetSizeHints(GetBestSize());
+
+	SetClientSize(
+		max(cs1.GetWidth(), cs2.GetWidth()), 
+		max(cs1.GetHeight(), cs2.GetHeight()) );
+
+	GetSizer()->SetDimension(0, 0, 
+		GetClientSize().GetWidth(), 
+		GetClientSize().GetHeight());
 }
 		
 void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
