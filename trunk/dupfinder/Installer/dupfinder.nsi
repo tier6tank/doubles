@@ -20,13 +20,13 @@
 !include GetWindowsVersion.nsh
 !include LogicLib.nsh
 
-Name "DupFinder"
+Name "Duplicate Files Finder"
 
 OutFile "DupFinderSetup.exe"
 
-InstallDir $PROGRAMFILES\DupFinder
+InstallDir "$PROGRAMFILES\Duplicate Files Finder"
 
-InstallDirRegKey HKLM "Software\DupFinder" "Install_Dir"
+InstallDirRegKey HKLM "Software\Duplicate Files Finder" "Install_Dir"
 
 ; Pages:
 
@@ -64,23 +64,23 @@ Section "Main"
 	File "/oname=mingwm10.dll" C:\mingw\bin\mingwm10.dll
 
 	; Store Installation dir
-	WriteRegStr HKLM SOFTWARE\DupFinder "Install_dir" "$INSTDIR"
+	WriteRegStr HKLM "SOFTWARE\Duplicate Files Finder" "Install_dir" "$INSTDIR"
 
 	; Uninstall keys
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DupFinder" "DisplayName" "DupFinder"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DupFinder" "UninstallString" '"$INSTDIR\uninstall.exe"'
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DupFinder" "NoModify" "1"
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DupFinder" "NoRepair" "1"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder" "DisplayName" "Duplicate Files Finder"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder" "UninstallString" '"$INSTDIR\uninstall.exe"'
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder" "NoModify" "1"
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder" "NoRepair" "1"
 	WriteUninstaller "uninstall.exe"
 
 SectionEnd
 
 Section "Start Menu shortcuts"
 
-	CreateDirectory "$SMPROGRAMS\DupFinder"
-	CreateShortCut "$SMPROGRAMS\DupFinder\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-	CreateShortCut "$SMPROGRAMS\DupFinder\DupFinder.lnk" "$INSTDIR\dupfgui.exe" "" "$INSTDIR\dupfgui.exe" 0
-	CreateShortCut "$SMPROGRAMS\DupFinder\Readme.lnk" "$INSTDIR\readme.txt"
+	CreateDirectory "$SMPROGRAMS\Duplicate Files Finder"
+	CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+	CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Duplicate Files Finder.lnk" "$INSTDIR\dupfgui.exe" "" "$INSTDIR\dupfgui.exe" 0
+	CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Readme.lnk" "$INSTDIR\readme.txt"
 
 	Call GetWindowsVersion
 	Pop $R0
@@ -89,7 +89,7 @@ Section "Start Menu shortcuts"
 	${OrIf} $R0 == 'ME'
 		; command.com does not support what i want
 	${Else}
-		CreateShortCut "$SMPROGRAMS\DupFinder\Console mode DupFinder (type dupf).lnk" \
+		CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Text mode only (type dupf).lnk" \
 			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
 	${Endif}
 
@@ -98,8 +98,8 @@ SectionEnd
 
 Section "Uninstall"
 
-	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\DupFinder"
-	DeleteRegKey HKLM SOFTWARE\DupFinder
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder"
+	DeleteRegKey HKLM "SOFTWARE\Duplicate Files Finder"
 	
 	Delete $INSTDIR\readme.txt
 	Delete $INSTDIR\license.txt
@@ -109,12 +109,9 @@ Section "Uninstall"
 
 	Delete $INSTDIR\uninstall.exe
 
-	Delete "$SMPROGRAMS\DupFinder\Uninstall.lnk"
-	Delete "$SMPROGRAMS\DupFinder\DupFinder.lnk"
-	Delete "$SMPROGRAMS\DupFinder\Readme.lnk"
-	Delete "$SMPROGRAMS\DupFinder\Console mode DupFinder (type dupf).lnk"
+	Delete "$SMPROGRAMS\Duplicate Files Finder\*.*"
 
-	RMDir "$SMPROGRAMS\DupFinder"
+	RMDir "$SMPROGRAMS\Duplicate Files Finder"
 	RMDir "$INSTDIR"
 
 SectionEnd

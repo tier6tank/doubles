@@ -106,3 +106,4 @@ TODO/IDEAS:
 - foreground/background as in 7-zip 
 + pause as in 7-zip has it now. 
 - again: reducing memory consumption (circa 200 MB with circa 803,000 files)
+- installer nice AI

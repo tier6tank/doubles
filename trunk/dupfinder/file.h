@@ -45,6 +45,7 @@ public:
 
 	static int GetBufSize() { return File::BUFSIZE; }
 
+	bool Open();
 	void Close();
 
 private:
@@ -65,7 +66,6 @@ private:
 
 	void ReleaseData();
 	void ReleaseExtData();
-	bool Open();
 
 	void init();
 

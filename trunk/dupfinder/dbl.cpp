@@ -1002,6 +1002,13 @@ bool	comparefiles2(File &f1, File &f2, guiinfo *guii) {
 	int BUFSIZE = File::GetBufSize();
 	int n1, n2;
 
+	if(!f1.Open()) {
+		return false;
+	}
+	if(!f2.Open()) {
+		return false;
+	}
+
 	// seek to the beginning
 	if( !f1.Seek(wxULongLong(0)) ) {
 		return false;
