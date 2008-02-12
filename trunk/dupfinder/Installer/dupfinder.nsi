@@ -87,7 +87,8 @@ Section "Start Menu shortcuts"
 	${If} $R0 == '95'
 	${OrIf} $R0 == '98'
 	${OrIf} $R0 == 'ME'
-		; command.com does not support what i want
+		CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Text mode only (type dupf).lnk" \
+			"$WINDIR\command.com" '/K "cd $INSTDIR"'  "cmd.exe" 0 
 	${Else}
 		CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Text mode only (type dupf).lnk" \
 			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
