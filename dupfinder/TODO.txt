@@ -108,3 +108,5 @@ TODO/IDEAS:
 - again: reducing memory consumption (circa 200 MB with circa 803,000 files)
 - installer nice AI
 - wrapping / shortening text which appears when restricting view
+- batch file for windows me dupf console mode
+- rename program (dupfinder -> Duplicate Files Finder)

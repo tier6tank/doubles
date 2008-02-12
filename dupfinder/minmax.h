@@ -1,4 +1,3 @@
-
 /******************************************************************************
     dupfinder - search for duplicate files
     Copyright (C) 2007-2008 Matthias Boehm
@@ -19,33 +18,10 @@
 
 ******************************************************************************/
 
-#ifndef __STDINC_H_010987
-#define __STDINC_H_010987
 
-#include <wx/wx.h>
-#include <wx/dir.h>
-#include <wx/filename.h>
-#include <wx/file.h>
-#include <wx/log.h>
-#include <wx/listctrl.h>
-#include <wx/aboutdlg.h>
-#include <wx/clipbrd.h>
-#include <cstdio>
-#include <cassert>
-#include <ctime>
-#include <cmath>
-#include <list>
-#include <set>
-#include <strstream>
-#include "minmax.h"
-#include "os_cc_specific_includes.h"
+#ifndef __MINMAX_H
+#define __MINMAX_H
 
-using namespace std;
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
-
+#define min(a,b) ((a) < (b) ? (a) : (b))
 
 #endif
-

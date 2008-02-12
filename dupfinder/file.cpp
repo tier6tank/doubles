@@ -22,8 +22,8 @@
 #include "file.h"
 #include "dbl.h"
 
-const int File::MAXFIRSTBYTES = BASEBUFSIZE << 7;
-const int File::BUFSIZE = BASEBUFSIZE << 7;
+const unsigned int File::MAXCACHESIZE = BASEBUFSIZE << 8;
+const unsigned int File::BUFSIZE = BASEBUFSIZE << 7;
 
 File::File(){
 	init();
@@ -38,6 +38,7 @@ void File::init() {
 	data = new filedata;
 	data->extdata = NULL;
 	data->rcount = 1;
+	assert(File::MAXCACHESIZE % File::BUFSIZE == 0);
 }
 
 File::~File() {
@@ -73,15 +74,23 @@ void File::ReleaseData() {
 	}
 }
 
-bool File::Open() {
+unsigned int File::RoundUpToBufSize(unsigned int value) {
+	return value % BUFSIZE == 0 ? value : (value / BUFSIZE + 1) *BUFSIZE;
+}
+
+bool File::Open(const wxULongLong &size) {
 	bool bResult;
 
 	if(!data->extdata) {
 		data->extdata = new extfiledata;
 
-		data->extdata->firstbytes = NULL;
-		data->extdata->nFirstBytes = 0;
-		data->extdata->nMaxFirstBytes = 0;
+		unsigned int maxcachesize = RoundUpToBufSize(min(size.GetValue(), File::MAXCACHESIZE));
+		data->extdata->cache= new char [maxcachesize];
+		data->extdata->maxcachesize = maxcachesize;
+		data->extdata->cachesize = 0;
+		data->extdata->pos = 0;
+		data->extdata->size = size;
+		data->extdata->bChangeToDiskRead = true;
 		
 		bResult = data->extdata->file.Open(data->name);
 	}
@@ -92,7 +101,7 @@ bool File::Open() {
 }
 
 
-bool File::Read(char *buffer, int &ncount) {
+bool File::Read(char **buffer, unsigned int &ncount) {
 	assert(data->extdata);
 
 	assert(ncount == File::BUFSIZE);
@@ -101,19 +110,56 @@ bool File::Read(char *buffer, int &ncount) {
 		return false;
 	}
 
-	ncount = data->extdata->file.Read(buffer, ncount);
+	if(data->extdata->pos < data->extdata->cachesize) {
+		ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
+		*buffer = data->extdata->cache+data->extdata->pos;
+	}
+	else {
+		/* data->extdata->pos >= data->extdata->cachesize */
 
-	return ncount != wxInvalidOffset;
+		bool bWriteToCache = data->extdata->pos < data->extdata->maxcachesize;
+		if(bWriteToCache) {
+			*buffer = data->extdata->cache + data->extdata->pos;
+			assert(data->extdata->maxcachesize - data->extdata->pos >= ncount);
+		}
+
+		if(data->extdata->bChangeToDiskRead) {
+			data->extdata->pos = data->extdata->file.Seek(data->extdata->pos);
+			if(data->extdata->pos == wxInvalidOffset) {
+				return false;
+			}
+			data->extdata->bChangeToDiskRead = false;
+		}
+		ncount = data->extdata->file.Read(*buffer, ncount);
+
+		if((int)ncount == wxInvalidOffset) {
+			return false;
+		}
+
+		if(bWriteToCache) {
+			data->extdata->cachesize += ncount;
+		}
+	}
+
+	data->extdata->pos += ncount;
+
+	return true;
 }
 
-bool File::Seek(const wxULongLong &pos) {
+bool File::Restart() {
 	assert(data->extdata);
 
 	if(!data->extdata->file.IsOpened()) {
 		return false;
 	}
 
-	wxFileOffset new_pos = data->extdata->file.Seek((wxFileOffset)pos.GetValue());
+	wxFileOffset new_pos = data->extdata->file.Seek(0);
+
+	if(new_pos != wxInvalidOffset) {
+		data->extdata->pos = new_pos;
+	}
+
+	data->extdata->bChangeToDiskRead = true;
 
 	return new_pos != wxInvalidOffset;
 }
@@ -129,7 +175,7 @@ void File::ReleaseExtData()
 		if(data->extdata->file.IsOpened()) {
 			data->extdata->file.Close();
 		}
-		delete [] data->extdata->firstbytes;
+		delete [] data->extdata->cache;
 		delete data->extdata;
 	}
 }

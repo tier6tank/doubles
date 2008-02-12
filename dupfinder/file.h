@@ -23,6 +23,9 @@
 
 #define BASEBUFSIZE 512
 
+
+// File class
+// important: this class is always assuming *sequential* read!!!
 class File
 {
 public:
@@ -36,24 +39,27 @@ public:
 	void SetName(const wxString & _name) { data->name = _name; }
 	wxString GetName() const { return data->name; }
 
-	// bool IsOk();
 
-	// void Close();
-
-	bool Read(char *, int &);
-	bool Seek(const wxULongLong &);
+	// Read - replaces buffer with static buffer if needed
+	// else writes into given buffer
+	bool Read(char **, unsigned int &);
+	bool Restart();
 
 	static int GetBufSize() { return File::BUFSIZE; }
 
-	bool Open();
+	// need to know the size of the file (cached)
+	bool Open(const wxULongLong &);
 	void Close();
 
 private:
 	struct extfiledata {
-		unsigned long nFirstBytes;
-		unsigned long nMaxFirstBytes;
-		char* firstbytes;
+		char *cache;
+		unsigned int maxcachesize;
+		unsigned int cachesize;
 		wxFile file;
+		wxFileOffset pos;
+		wxULongLong size;
+		bool bChangeToDiskRead;
 	};
 
 	struct filedata
@@ -67,10 +73,12 @@ private:
 	void ReleaseData();
 	void ReleaseExtData();
 
+	unsigned int RoundUpToBufSize(unsigned int);
+
 	void init();
 
-	static const int MAXFIRSTBYTES;
-	static const int BUFSIZE;
+	static const unsigned int MAXCACHESIZE;
+	static const unsigned int BUFSIZE;
 
 	filedata *data;
 
