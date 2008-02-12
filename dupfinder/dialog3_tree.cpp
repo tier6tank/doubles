@@ -1,5 +1,5 @@
 /*
- *  dupfinder - search for duplicate files
+ *  Duplicate Files Finder - search for duplicate files
  *  Copyright (C) 2007-2008 Matthias Boehm
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #include "os_cc_specific.h"
 
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, findfileinfo &_ffi) 
-	: wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize, 
+	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi), parent(_parent), 
 		RestrictToDir(_T("")), bRestrict(false)
 {
@@ -251,7 +251,7 @@ void DupFinderDlg3::DisplayResults() {
 	int item;
 
 	if(ffi.pFilesBySize->size() == 0) {
-		wxMessageBox(_T("There are no double files! "), _T("DupFinder"), 
+		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
 			 wxOK | wxICON_INFORMATION, this);
 
 		ReturnToParent();

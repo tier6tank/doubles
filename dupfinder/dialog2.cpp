@@ -1,5 +1,5 @@
 /*
- *  dupfinder - search for duplicate files
+ *  Duplicate Files Finder - search for duplicate files
  *  Copyright (C) 2007-2008 Matthias Boehm
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 END_EVENT_TABLE()
 
 DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
-	wxDialog(NULL, -1, _T("DupFinder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
+	wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
 	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), 
 	ffi(_ffi), sortedbysize(*_ffi.pFilesBySize), bStarted(false), parent(_parent)
 {

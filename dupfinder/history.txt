@@ -1,3 +1,7 @@
+Date : 2008/2/12 17:37
+Replaced all DupFinder by Duplicate Files Finder
+removed old header from stdinc.h
+
 Date : 2008/2/12 17:22
 Fixed memory leak in File class
 

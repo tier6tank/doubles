@@ -90,17 +90,17 @@ TODO/IDEAS:
 + remove list from DeleteFiles
 + Display whether restricted or not(red) "restricted to ...." done.
 + context menu restrict
-- revising all that cleaning up/memory problems associated with fileinfo
-- reimplement the search for duplicate files algorithm, so that i have no problems with deleting
-  a fileinfo object twice!
++ revising all that cleaning up/memory problems associated with fileinfo (class File)
++ reimplement the search for duplicate files algorithm, so that i have no problems with deleting
+  a fileinfo object twice! done (File class).
 - add a note please no short filesnames?!?
 - reimplement a double listed files remove algorithm!
 + instead of CleanUp full return to dialog1 function done.
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
-- hiding some functions (private)
-- creating delete findfileinfo function in dbl.cpp?
++ hiding some functions (private) out of time
++ creating delete findfileinfo function in dbl.cpp? out of time
 - hardlinks / softlinks where supported
-- including the right header (or remove it completely)
++ including the right header (or remove it completely) done.
 - shortening long filename in restriction info?
 - what about a program icon?
 - foreground/background as in 7-zip 
@@ -108,5 +108,5 @@ TODO/IDEAS:
 - again: reducing memory consumption (circa 200 MB with circa 803,000 files)
 - installer nice AI
 - wrapping / shortening text which appears when restricting view
-- batch file for windows me dupf console mode
-- rename program (dupfinder -> Duplicate Files Finder)
++ batch file for windows me dupf console mode done.
++ rename program (dupfinder -> Duplicate Files Finder) done.
