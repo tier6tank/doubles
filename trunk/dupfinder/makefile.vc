@@ -71,11 +71,11 @@ $(outdir):
 
 $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\file.obj
-	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:$(wxdir)\lib\vc_lib
+	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\vc_lib"
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj
-	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:$(wxdir)\lib\vc_lib
+	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\vc_lib"
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
 	cl $(opt) -c dbl.cpp

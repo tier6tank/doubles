@@ -1,4 +1,3 @@
-
 /******************************************************************************
     dupfinder - search for duplicate files
     Copyright (C) 2007-2008 Matthias Boehm
@@ -19,33 +18,82 @@
 
 ******************************************************************************/
 
-#ifndef __STDINC_H_010987
-#define __STDINC_H_010987
+#ifndef _FileTest_H_123
+#define _FileTest_H_123
 
-#include <wx/wx.h>
-#include <wx/dir.h>
-#include <wx/filename.h>
-#include <wx/file.h>
-#include <wx/log.h>
-#include <wx/listctrl.h>
-#include <wx/aboutdlg.h>
-#include <wx/clipbrd.h>
-#include <cstdio>
-#include <cassert>
-#include <ctime>
-#include <cmath>
-#include <list>
-#include <set>
-#include <strstream>
-#include "minmax.h"
-#include "os_cc_specific_includes.h"
+#define BASEBUFSIZE 512
 
-using namespace std;
+class FileTest
+{
+public:
+	FileTest();
+	FileTest(const wxString &);
+	~FileTest();
 
-#ifdef __BORLANDC__
-#pragma hdrstop
+	FileTest(const FileTest &);
+	FileTest & operator = (const FileTest &);
+
+	void SetName(const wxString & _name) { data->name = _name; }
+	wxString GetName() const { return data->name; }
+
+	bool Read(char *, int &);
+
+	static int GetBufSize() { return FileTest::BUFSIZE; }
+
+	bool Open();
+	void Close();
+
+	FileTest & FileTest::operator  =(const File &f ) {
+		SetName(f.GetName());
+		return *this;
+	}
+
+private:
+	struct extFileTestdata {
+		wxFile FileTest;
+	};
+
+	struct FileTestdata
+	{
+		int rcount;
+		extFileTestdata *extdata;
+		wxString name;
+	};
+
+
+	void ReleaseData();
+	void ReleaseExtData();
+
+	void init();
+
+	static const int BUFSIZE;
+
+	FileTestdata *data;
+
+};
+
 #endif
 
 
-#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -30,9 +30,10 @@ using namespace std;
 /********* options ************/
 
 // #define BENCHMARK
-// #define TEST
 // #define PROFILE
-// #define BENCHMARKBUFSIZE
+// for testing
+// #define TEST
+// #define RANDOM_NOISE
 
 /********* further, of the upper dependent options **********/
 
@@ -334,11 +335,37 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 #endif /* defined(BENCHMARKBUFSIZE) */
 #endif /* defined(BENCHMARK) */
 #ifdef TEST
-	list<fileinfo>::iterator __it3;
-	list<fileinfo>::iterator __it5, __it;
+	list<File>::iterator __it3;
+	list<File>::iterator __it5, __it;
 	multiset_fileinfosize_it __it2;
 	list<fileinfoequal>::iterator __it4;
 #endif /*defined(TEST) */
+
+#ifdef RANDOM_NOISE
+	{
+		srand(time(NULL));
+		const int randmax = 10000;
+		for(int i = 0; i < randmax; i++) {
+			int j, k;
+			list<File>::iterator st1, st2;
+			int a, b;
+			a = rand() % sortedbysize.size();
+			for(it2 = sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
+			b = rand() % it2->files.size();
+			for(k = 0, it = it2->files.begin(); k < b; k++, it++) { }
+			st1 = it;
+			a = rand() % sortedbysize.size();
+			for(it2 = sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
+			b = rand() % it2->files.size();
+			for(k = 0, it = it2->files.begin(); k < b; k++, it++) {}
+			st2 = it;
+
+			wxString tmp = st2->GetName();
+			st2->SetName(st1->GetName());
+			st1->SetName(tmp);
+		}
+	}
+#endif /* RANDOM_NOISE */
 	
 
 	
@@ -427,7 +454,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				it3 = it;
 				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
-					bEqual = comparefiles(*it, *it3, guii);
+					bEqual = comparefiles(*it, *it3, it2->size, guii);
 
 					if(guii) {
 						if(!guii->bContinue) {
@@ -536,14 +563,14 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 #ifdef TEST
 	for(__it2 = sortedbysize.begin(); __it2 != sortedbysize.end(); __it2++) {
-		for(__it4 = (*__it2)->equalfiles.begin(); __it4 != (*__it2)->equalfiles.end(); __it4++) {
-			for(__it = (*__it4).files.begin(); __it != (*__it4).files.end(); __it++) {
+		for(__it4 = __it2->equalfiles.begin(); __it4 != __it2->equalfiles.end(); __it4++) {
+			for(__it = __it4->files.begin(); __it != __it4->files.end(); __it++) {
 				__it5 = __it;
-				for(__it5++; __it5 != (*__it4).files.end(); __it5++) {
+				for(__it5++; __it5 != __it4->files.end(); __it5++) {
 					if(!comparefiles0((*__it), (*__it5))) {
 						_ftprintf(stderr, _T("Error: %s != %s\n"), 
-							(*__it).name.c_str(), 
-							(*__it5).name.c_str());
+							__it->GetName().c_str(), 
+							__it5->GetName().c_str());
 					}
 				}
 			}
@@ -626,381 +653,20 @@ void	deleteline(int n) {
 	}
 }
 
-#if defined(BENCHMARK) || defined(TEST)
+#ifdef TEST
 
-bool	comparefiles0(fileinfo &f1, fileinfo &f2) {
-	FILE *F1, *F2;
-	bool bResult;
-	const size_t BUFSIZE = BASEBUFSIZE << 5;
-	char b1[BUFSIZE], b2[BUFSIZE];
-	size_t n1, n2;
-	size_t i;
+#include "filetest.h"
+#include "filetest.cpp"
 
-	F1 = NULL;
-	F2 = NULL;
-	_tfopen_s(&F1, f1.name, _T("rb"));
-
-	if(F1) {
-
-#ifdef BENCHMARK
-		__nFilesOpened++;
-#endif
-
-		_tfopen_s(&F2, f2.name, _T("rb"));
-		
-		if(!F2) {
-			f2.data->error = true;
-			bResult = false;
-			goto End;
-		}
-#ifdef BENCHMARK
-		else {
-			__nFilesOpened++;
-		}
-#endif
-	}
-	else {
-		f1.data->error = true;
-		bResult = false;
-		goto End;
-	}
-
-
-	while(1) {
-		n1 = fread(b1, 1, BUFSIZE, F1);
-		n2 = fread(b2, 1, BUFSIZE, F2);
-#ifdef BENCHMARK
-		__nBytesRead += n1;
-		__nBytesRead += n2;
-		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
-		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
-#endif
-
-		if(n1 != n2 || ferror(F1) || ferror(F2)) {
-			bResult = false;
-			goto End;
-		}
-
-		for(i = 0; i < n1; i++) {
-			if(b1[i] != b2[i]) {
-				bResult = false;
-				goto End;
-			}
-			/* later exchange by md5 - algorithm!!!! */
-		}
-
-		if(n1 < BUFSIZE)
-			break;
-
-	}
-
-	bResult = true;
-
-End:	if(F1) fclose(F1);
-	if(F2) fclose(F2);
-	return bResult;
-}
-
-#endif /* defined(BENCHMARK) || defined(TEST) */
-
-#ifdef ____notdefined
-
-wxULongLong roundup(const wxULongLong &a, int b)
-{
-	wxULongLong c;
-	c = (a / b + (a % b != 0 ? 1 : 0)) * b;
-	return c;
-}
-
-bool	comparefiles1(fileinfo &f1, fileinfo &f2, guiinfo *guii) {
-#if !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK)
-	static char *b[2] = {NULL, NULL };
-	if(b[0] == NULL) { b[0] = new char[File::GetBufSize()]; }
-	if(b[1] == NULL) { b[1] = new char[File::GetBufSize()]; }
-#else
-	size_t BUFSIZE = __BufSize;
-	unsigned int MAXFIRSTBYTES = __MaxFirstBytes;
-	char *b[2] = { __b[0], __b[1] };
-#endif /* !defined(BENCHMARKBUFSIZE) || !defined(BENCHMARK) */
-
-	fileinfo *pfi[2] = {&f1, &f2 };
-	char *pbuf[2];
-	ssize_t n[2];
-	wxULongLong nOffset[2];
-	bool usingbuffer[2], writetofirstbytes[2];
-	bool bResult;
-	int i;
-	bool seeked[2];
-	wxULongLong nBytesRead = 0, nPrevBytesRead = 0;
-	wxString output;
-	time_t tstart, tcurrent;
-	
-	assert(MAXFIRSTBYTES % BUFSIZE == 0);
-
-	/* 
-	while (1) {
-		proc buffer exists and contains valid data
-			return false if buffer does not exist
-			return true if nOffset < nFirstBytes
-			n[i] = nFirstBytes - nOffset
-		end proc
-	
-		proc roundup 
-			if filesize % BUFSIZE == 0 
-				return filesize/BUFSIZE;
-			else 
-				return filesize/BUFSIZE+1;
-			endif
-		end proc
-
-		set seeked := false
-			
-		for each file {
-			if buffer exists at current offset and contains valid data
-				usingbuffer := true
-			end if
-			
-			if unsingbuffer then
-				point at buffer, set n[i] to remaining bytes
-			else 
-				if not file was opened before 
-					open file
-					set maxfirstbytes = min(MAXFIRSTBYTES, roundup(filesize)*BUFSIZE)
-					create memory for firstbytes of size maxfirstbytes
-				else if not seeked [we have reached the end of FIRSTBYTES]
-					set offset into file
-					seeked := true
-				end
-
-				if buffer+nOffset is smaller than maxfirstbytes, 
-					that is when there is still place in pfirstbytes 
-					set buffer to firstbytes+offset
-				else
-					set buffer to normal buffer
-				end
-
-				read file into buffer
-			end
-
-			increase offset by n[i]
-
-			if nOffset[i] > pfi[i].nOffset 
-				add checksum to n[i] to pfi[i].checksum
-				add n[i] to pfi[i].nOffset
-			end if
-
-			** if not usingbuffer
-				calculate checksum of current buffer and size
-			endif **
-
-		}
-
-		if n[0] != n[1] 
-			result =false;
-			exit;
-		end
-
-		if checksums don't equal and all is read from disk
-			result = false;
-			exit;
-		end
-
-		compare buffers
-
-		if compare-result is false
-			result = false;
-			exit;
-		end
-
-		if n[0] < BUFSIZE
-			result = true;
-			exit
-		end
-	}
-	*/
-
-	for(i = 0; i < 2; i++) {
-		if(!pfi[i]->data) {
-			pfi[i]->data = new filedata;
-			// pfi[i]->data->size = size;
-			pfi[i]->data->nFirstBytes = 0;
-			pfi[i]->data->nMaxFirstBytes = 0;
-			pfi[i]->data->firstbytes = NULL;
-			pfi[i]->data->pFile = new wxFile();
-			pfi[i]->data->error = false;
-		}
-	}
-
-
-	// do not try to open files unneccessarily often
-	// assume that if a file could once not be opened, 
-	// it will never be opened (makes the results also 
-	// more reliable)
-	if(pfi[0]->data->error || pfi[1]->data->error) {
-		bResult = false;
-		goto End;
-	}
-
-	tstart = time(NULL);
-
-	// _ftprintf(stderr, _T("%s <-> %s\n"), pfi[0]->name, pfi[1]->name);
-	
-	for(i = 0; i < 2; i++) {
-		nOffset[i] = 0;
-		seeked[i] = false;
-	}
-
-	while(true) {
-
-		if(guii) {
-			wxTheApp->Yield();
-			while(guii->bPause && guii->bContinue) {
-				wxMilliSleep(10);
-				wxTheApp->Yield();
-			}
-			if(!guii->bContinue) {
-				return false;
-			}
-			
-		}
-		for(i = 0; i < 2; i++) {
-			usingbuffer[i] = 
-				pfi[i]->data->firstbytes && nOffset[i] < pfi[i]->data->nFirstBytes;
-
-			if(usingbuffer[i]) {
-				assert(!nOffset[i].GetHi());
-				pbuf[i] = pfi[i]->data->firstbytes + nOffset[i].GetLo();
-				/* (int)nOffset[i].QuadPart works, because nOffset[i].QuadPart < pfi[i]->data->nFirstBytes 
-				   look up, but nevertheless not very nice, perhaps convert all integers 
-				   to ULARGE_INTEGER (better also with big files)? */
-				n[i] = min(pfi[i]->data->nFirstBytes - (unsigned long)nOffset[i].GetLo(), (unsigned long)BUFSIZE);
-			}
-			else {
-				if(!pfi[i]->data->pFile->IsOpened()) {
-					bool bOpenResult;
-					STARTTIME(disk);
-					STARTTIME(fileopen);
-					bOpenResult = pfi[i]->data->pFile->Open(pfi[i]->name);
-					STOPTIME(fileopen);
-					STOPTIME(disk);
-#ifdef BENCHMARK
-					__nFilesOpened++;
-#endif /* BENCHMARK */
-					if(!bOpenResult) {
-						pfi[i]->data->error = true;
-						bResult = false;
-						goto End;
-					}
-					pfi[i]->data->nMaxFirstBytes = (unsigned long)min(wxULongLong(MAXFIRSTBYTES).GetValue(), 
-						roundup(pfi[i]->data->pFile->Length(), BUFSIZE).GetValue());
-					pfi[i]->data->firstbytes = new char[pfi[i]->data->nMaxFirstBytes];
-					pfi[i]->data->nFirstBytes = 0;
-				}
-				else if(!seeked[i]) {
-					wxFileOffset pos;
-					STARTTIME(disk);
-					STARTTIME(fileseek);
-					pos = pfi[i]->data->pFile->Seek((wxFileOffset)nOffset[i].GetValue());
-					STOPTIME(fileseek);
-					STOPTIME(disk);
-					if(pos == wxInvalidOffset) {
-						pfi[i]->data->error = true;
-						bResult = false;
-						goto End;
-					}
-					seeked[i] = true;
-				}
-
-				writetofirstbytes[i] = nOffset[i] < pfi[i]->data->nMaxFirstBytes;
-
-				if(writetofirstbytes[i]) {
-					assert(!nOffset[i].GetHi());
-					pbuf[i] = pfi[i]->data->firstbytes+nOffset[i].GetLo();
-				}
-				else {
-					pbuf[i] = b[i];
-				}
-
-				assert(pbuf[i]);
-				STARTTIME(disk);
-				STARTTIME(fileread);
-				n[i] = pfi[i]->data->pFile->Read(pbuf[i], BUFSIZE);
-				STOPTIME(fileread);
-				STOPTIME(disk);
-				if(n[i] == wxInvalidOffset) {
-					pfi[i]->data->error = true;
-					bResult = false;
-					goto End;
-				} 
-				nBytesRead += n[i];
-#ifdef BENCHMARK
-				__nBytesRead += n[i];
-				__nSectorsRead += n[i]/BASEBUFSIZE + (n[i] % BASEBUFSIZE != 0 ? 1 : 0);
-#endif /* BENCHMARK */
-				if(writetofirstbytes[i]) {
-					pfi[i]->data->nFirstBytes += n[i];
-				}
-			}
-
-			nOffset[i] += n[i];
-
-		} /* for(i = 0; i < 2; i++) */
-	
-		if(n[0] != n[1]) {
-			bResult = false;
-			goto End;
-		}
-
-		if(memcmp(pbuf[0], pbuf[1], n[0]) != 0) {
-			bResult = false;
-			goto End;
-		}
-
-		if((size_t)n[0] < BUFSIZE) {
-			bResult = true;
-			goto End;
-		}
-
-
-		tcurrent = time(NULL);
-		if(tcurrent - tstart >= REFRESH_INTERVAL) {
-			// display status
-			if(guii) {
-				output.Printf(_T(" %.2f mb/sec"), 
-					(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
-				guii->wSpeed->SetLabel(output);
-
-			}
-			else {
-				deleteline(output.Length());
-				output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
-				_ftprintf(stderr, _T("%s"), output.c_str());
-
-			}
-
-			nPrevBytesRead = nBytesRead;
-			tstart = tcurrent;
-		}
-		
-
-	} /* while(true) */
-
-End:
-	deleteline(output.Length());
-	return bResult;
-}
-
-#endif
-
-
-
-bool	comparefiles2(File &f1, File &f2, guiinfo *guii) {
+bool	comparefiles0(File &_f1, File &_f2) {
 	bool bResult;
 	static char *b1, *b2;
-	if(b1 == NULL) { b1 = new char[File::GetBufSize()]; }
-	if(b2 == NULL) { b2 = new char[File::GetBufSize()]; }
-	int BUFSIZE = File::GetBufSize();
+	if(b1 == NULL) { b1 = new char[FileTest::GetBufSize()]; }
+	if(b2 == NULL) { b2 = new char[FileTest::GetBufSize()]; }
+	int BUFSIZE = FileTest::GetBufSize();
 	int n1, n2;
+	FileTest f1, f2;
+	f1 = _f1; f2 = _f2;
 
 	if(!f1.Open()) {
 		return false;
@@ -1009,26 +675,7 @@ bool	comparefiles2(File &f1, File &f2, guiinfo *guii) {
 		return false;
 	}
 
-	// seek to the beginning
-	if( !f1.Seek(wxULongLong(0)) ) {
-		return false;
-	}
-	if( !f2.Seek(wxULongLong(0)) ) {
-		return false;
-	}
-
 	while(1) {
-		if(guii) {
-			guii->theApp->Yield();
-			while(guii->bPause && guii->bContinue) {
-				wxMilliSleep(10);
-				guii->theApp->Yield();
-			}
-			if(!guii->bContinue) {
-				return false;
-			}
-		}
-
 		n1 = n2 = BUFSIZE;
 		bool br1, br2;
 
@@ -1057,9 +704,117 @@ bool	comparefiles2(File &f1, File &f2, guiinfo *guii) {
 
 	}
 
+	f1.Close();
+	f2.Close();
+
 	bResult = true;
 
 End:	return bResult;
+}
+
+
+#endif /* TEST */
+
+bool	comparefiles2(File &f1, File &f2, const wxULongLong &size, guiinfo *guii) {
+	bool bResult;
+	static char *b1, *b2;
+	char *pb1, *pb2;
+	if(b1 == NULL) { b1 = new char[File::GetBufSize()]; }
+	if(b2 == NULL) { b2 = new char[File::GetBufSize()]; }
+	unsigned int BUFSIZE = File::GetBufSize();
+	unsigned int n1, n2;
+	wxULongLong nBytesRead = 0, nPrevBytesRead = 0;
+	wxString output;
+	time_t tstart, tcurrent;
+
+	if(!f1.Open(size)) {
+		return false;
+	}
+	if(!f2.Open(size)) {
+		return false;
+	}
+
+	// seek to the beginning
+	if( !f1.Restart() ) {
+		return false;
+	}
+	if( !f2.Restart() ) {
+		return false;
+	}
+
+	tstart = time(NULL);
+
+	while(1) {
+		if(guii) {
+			guii->theApp->Yield();
+			while(guii->bPause && guii->bContinue) {
+				wxMilliSleep(10);
+				guii->theApp->Yield();
+			}
+			if(!guii->bContinue) {
+				return false;
+			}
+		}
+
+		n1 = n2 = BUFSIZE;
+		bool br1, br2;
+
+		pb1 = b1;
+		pb2 = b2;
+
+		br1 = f1.Read(&pb1, n1);
+		br2 = f2.Read(&pb2, n2);
+
+		nBytesRead += n1;
+		nBytesRead += n2;
+
+#ifdef BENCHMARK
+		__nBytesRead += n1;
+		__nBytesRead += n2;
+		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
+		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
+#endif
+
+		if(n1 != n2 || !br1 || !br2) {
+			bResult = false;
+			goto End;
+		}
+
+		if(memcmp(pb1, pb2, n1) != 0) {
+			bResult = false;
+			goto End;
+		}
+
+		if(n1 < BUFSIZE)
+			break;
+
+		tcurrent = time(NULL);
+		if(tcurrent - tstart >= REFRESH_INTERVAL) {
+			// display status
+			if(guii) {
+				output.Printf(_T(" %.2f mb/sec"), 
+					(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
+				guii->wSpeed->SetLabel(output);
+
+			}
+			else {
+				deleteline(output.Length());
+				output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
+				_ftprintf(stderr, _T("%s"), output.c_str());
+
+			}
+
+			nPrevBytesRead = nBytesRead;
+			tstart = tcurrent;
+		}
+		
+
+	}
+
+	bResult = true;
+
+End:	deleteline(output.Length());
+	return bResult;
 }
 
 

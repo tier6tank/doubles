@@ -95,9 +95,9 @@ struct guiinfo {
 /// prototypes
 
 
-// bool	comparefiles0(fileinfo &, fileinfo &);
+bool	comparefiles0(File &, File &);
 // bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
-bool 	comparefiles2(File &, File &, guiinfo * = NULL);
+bool 	comparefiles2(File &, File &, const wxULongLong &, guiinfo * = NULL);
 wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
 
