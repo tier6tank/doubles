@@ -1,5 +1,5 @@
 /*
- *  dupfinder - search for duplicate files
+ *  Duplicate Files Finder - search for duplicate files
  *  Copyright (C) 2007-2008 Matthias Boehm
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ END_EVENT_TABLE()
 
 
 DupFinderDlg::DupFinderDlg(wxWindow * parent) 
-	: wxDialog(parent, -1, _T("DupFinder"), 
+	: wxDialog(parent, -1, _T("Duplicate Files Finder"), 
 		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
 
 	CreateControls();
@@ -502,11 +502,12 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.AddDeveloper(_T("Matthias Boehm"));
 	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
 	info.SetDescription(_T("Find duplicate files"));
-	info.SetName(_T("DupFinder"));
-	info.SetVersion(_T("gui 0.20"));
+	info.SetName(_T("Duplicate Files Finder"));
+	info.SetVersion(_T("gui 0.21"));
 	
 #ifdef __MINGW32_VERSION
-	wxMessageBox(_T("DupFinder gui 0.20\nFind duplicate files\n\nCopyright Matthias Boehm 2008"));
+	wxMessageBox(_T("Duplicate Files Finder gui version 0.21\n")
+		_T("Find duplicate files\n\nCopyright Matthias Boehm 2008"));
 #else
 	// mingw has problems with this
 	wxAboutBox(info);

@@ -1,6 +1,5 @@
-
 /******************************************************************************
-    dupfinder - search for duplicate files
+    Duplicate Files Finder - search for duplicate files
     Copyright (C) 2007-2008 Matthias Boehm
 
     This program is free software; you can redistribute it and/or modify
@@ -36,7 +35,6 @@
 #include <cmath>
 #include <list>
 #include <set>
-#include <strstream>
 #include "minmax.h"
 #include "os_cc_specific_includes.h"
 

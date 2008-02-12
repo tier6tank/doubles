@@ -1,5 +1,5 @@
 /*
- *  dupfinder - search for duplicate files
+ *  Duplicate Files Finder - search for duplicate files
  *  Copyright (C) 2007-2008 Matthias Boehm
  *
  *  This program is free software; you can redistribute it and/or modify
