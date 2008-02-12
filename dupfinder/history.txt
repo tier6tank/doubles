@@ -1,3 +1,6 @@
+Date : 2008/2/12 16:52
+Installer creates now shortcut to command line program as well on win 95/98/me. 
+
 Date : 2008/2/8 20:33
 Re-sizing of result dialog works now to 100%
 
