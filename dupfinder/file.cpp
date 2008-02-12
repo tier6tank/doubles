@@ -166,7 +166,6 @@ bool File::Restart() {
 
 void File::Close() {
 	ReleaseExtData();
-	init();
 }
 
 void File::ReleaseExtData()
@@ -178,6 +177,7 @@ void File::ReleaseExtData()
 		delete [] data->extdata->cache;
 		delete data->extdata;
 	}
+	data->extdata = NULL;
 }
 
 
