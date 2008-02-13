@@ -1,3 +1,8 @@
+Date : 2008/2/13 15:48
+updated installer (win 95 family related)
+moved some TEST code out of dbl.cpp
+Readme notice
+
 Date : 2008/2/12 20:22
 updated TODO
 warning of non displayable unicode characters only if there are really unicode characters
