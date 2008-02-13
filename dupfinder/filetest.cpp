@@ -19,7 +19,7 @@
 ******************************************************************************/
 
 #include "stdinc.h"
-#include "FileTest.h"
+#include "filetest.h"
 #include "dbl.h"
 
 const int FileTest::BUFSIZE = BASEBUFSIZE << 7;
@@ -114,6 +114,60 @@ void FileTest::ReleaseExtData()
 		}
 		delete data->extdata;
 	}
+}
+
+bool	comparefiles0(File &_f1, File &_f2) {
+	bool bResult;
+	static char *b1, *b2;
+	if(b1 == NULL) { b1 = new char[FileTest::GetBufSize()]; }
+	if(b2 == NULL) { b2 = new char[FileTest::GetBufSize()]; }
+	int BUFSIZE = FileTest::GetBufSize();
+	int n1, n2;
+	FileTest f1, f2;
+	f1 = _f1; f2 = _f2;
+
+	if(!f1.Open()) {
+		return false;
+	}
+	if(!f2.Open()) {
+		return false;
+	}
+
+	while(1) {
+		n1 = n2 = BUFSIZE;
+		bool br1, br2;
+
+		br1 = f1.Read(b1, n1);
+		br2 = f2.Read(b2, n2);
+
+#ifdef BENCHMARK
+		__nBytesRead += n1;
+		__nBytesRead += n2;
+		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
+		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
+#endif
+
+		if(n1 != n2 || !br1 || !br2) {
+			bResult = false;
+			goto End;
+		}
+
+		if(memcmp(b1, b2, n1) != 0) {
+			bResult = false;
+			goto End;
+		}
+
+		if(n1 < BUFSIZE)
+			break;
+
+	}
+
+	f1.Close();
+	f2.Close();
+
+	bResult = true;
+
+End:	return bResult;
 }
 
 

@@ -57,6 +57,10 @@ Section "Main"
 	${OrIf} $R0 == "ME" 
 		File "/oname=dupf.exe" ..\gcc\dupf.exe
 		File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
+
+		FileOpen $1 $INSTDIR\dupfcon.bat w
+		FileWrite $1 `cd "$INSTDIR"`
+		FileClose $1
 	${Else}
 		File "/oname=dupf.exe" ..\gccu\dupf.exe
 		File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
@@ -88,7 +92,7 @@ Section "Start Menu shortcuts"
 	${OrIf} $R0 == '98'
 	${OrIf} $R0 == 'ME'
 		CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Text mode only (type dupf).lnk" \
-			"$WINDIR\command.com" '/K "cd $INSTDIR"'  "cmd.exe" 0 
+			"$WINDIR\command.com" '/K "$INSTDIR\dupfcon.bat"'  "cmd.exe" 0 
 	${Else}
 		CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Text mode only (type dupf).lnk" \
 			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
@@ -107,6 +111,15 @@ Section "Uninstall"
 	Delete $INSTDIR\dupf.exe
 	Delete $INSTDIR\dupfgui.exe
 	Delete $INSTDIR\mingwm10.dll
+
+	Call un.GetWindowsVersion
+	Pop $R0
+	${If} $R0 == '95'
+	${OrIf} $R0 == '98'
+	${OrIf} $R0 == 'ME'
+		Delete $INSTDIR\dupfcon.bat
+	${Endif}
+
 
 	Delete $INSTDIR\uninstall.exe
 

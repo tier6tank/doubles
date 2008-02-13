@@ -67,7 +67,8 @@ For building the program with borland c++, type the following:
 The compiled files are stored under bcc[u][d]. 
 
 
-For building the program with mingw, type the following:
+For building the program with mingw, type the following (on the windows 
+command line, not on msys or another unix emulation shell!):
 
 	mingw32-make -f makefile.gcc [debug=0/1] [unicode=0/1]
 
