@@ -503,10 +503,10 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
 	info.SetDescription(_T("Find duplicate files"));
 	info.SetName(_T("Duplicate Files Finder"));
-	info.SetVersion(_T("gui 0.21"));
+	info.SetVersion(_T("gui 0.30"));
 	
 #ifdef __MINGW32_VERSION
-	wxMessageBox(_T("Duplicate Files Finder gui version 0.21\n")
+	wxMessageBox(_T("Duplicate Files Finder gui version 0.30\n")
 		_T("Find duplicate files\n\nCopyright Matthias Boehm 2008"));
 #else
 	// mingw has problems with this
