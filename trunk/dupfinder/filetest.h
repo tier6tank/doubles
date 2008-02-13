@@ -43,7 +43,7 @@ public:
 	bool Open();
 	void Close();
 
-	FileTest & FileTest::operator  =(const File &f ) {
+	FileTest & operator  =(const File &f ) {
 		SetName(f.GetName());
 		return *this;
 	}
