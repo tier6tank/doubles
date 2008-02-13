@@ -580,6 +580,46 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 }
 
+static bool IsAscii(const wxString &string) 
+{
+#if !(defined( _UNICODE) || defined(UNICODE))
+	(void)string;
+	return true;
+#else
+	int size = string.Length();
+	int i;
+
+	for(i = 0; i < size; i++) {
+		if((wchar_t) string[i] > 255) {
+			return false;
+		}
+	}
+	return true;
+#endif
+}
+
+const char * ToAscii(const wxString &string)
+{
+#if !(defined( _UNICODE) || defined(UNICODE))
+	return string.c_str();
+#else
+	int i, size = string.Length();
+	char *result = new char[size+1];
+
+	for(i = 0; i < size; i++) {
+		if(string[i] > 255) {
+			result[i] = '?';
+		}
+		else {
+			result[i] = string[i];
+		}
+	}
+	result[i] = 0;
+
+	return result;
+#endif
+}
+
 void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
 {
 	list<File>::const_iterator it, it3;
@@ -609,8 +649,8 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 				it4->files.size(), 
 				bReverse ? rit2->size.GetValue() : it2->size.GetValue());
 			if(bConOut) {
-				fOutput.Write(Buffer.ToAscii(), Buffer.Length());
-				if(!Buffer.IsAscii()) {
+				fOutput.Write(ToAscii(Buffer), Buffer.Length());
+				if(!IsAscii(Buffer)) {
 					bDisplayWarning = true;
 				}
 			}
@@ -620,8 +660,8 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 			for(it = it4->files.begin(); it != it4->files.end(); it++) {
 				Buffer.Printf(_T("  \"%s\"\r\n"), it->GetName().c_str());
 				if(bConOut) {
-					fOutput.Write(Buffer.ToAscii(), Buffer.Length());
-					if(!Buffer.IsAscii()) {
+					fOutput.Write(ToAscii(Buffer), Buffer.Length());
+					if(!IsAscii(Buffer)) {
 						bDisplayWarning = true;
 					}
 				}
