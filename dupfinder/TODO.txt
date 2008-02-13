@@ -35,18 +35,18 @@ TODO/IDEAS:
 - delete unneccessary (unix) includes
 + perhaps setting error flag if any error on that file is encountered 
 + add progress display for sorting files by size (not necessary any more)
-- display speed in kbytes/second
++ display speed in kbytes/second done (mb/sec)
 + somehow reduce memory consumption done via filedata
-- display option: -o ordered by directory
++ display option: -o ordered by directory implmented in gui version
 - need a close look to signed/unsigned int32/int64 types
 - time display under linux does not work properly
 + add option -h for hidden files? done. 
 + instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
 - status info at the end of the output, not at the beginning, where it cannot be read easily most often
 - do a lot of cleanup (e.g. those old BENCHMARK and TEST things)
-- warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters)
++ warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters) done.
 - reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
-- increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk)
++ increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk) outdated
 - does time(NULL) reduce speed? 
 + size n/n display at once and at first done.
 - option (break on (fatal) errors or not)
@@ -62,15 +62,15 @@ TODO/IDEAS:
 - think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size
 - create manifest file
 - create configure/automake/autoconf system for unix
-- installer for windows
-- removing this *** wxUSE_STD_IOSTREAM again
++ installer for windows done.
+- removing this *** wxUSE_STD_IOSTREAM again (not complete yet)
 + create clear <dirlist> button done.
 + considered ??? files seems to be right
-- heap corruption when canceling in windows! (still there?)
++ heap corruption when canceling in windows! (still there?) outdated.
 ! checking that there are no double &<> in dialog boxes (sticky todo)
-- fixing those massive memory leaks which occur when interrupted (via bContinue = false)
++ fixing those massive memory leaks which occur when interrupted (via bContinue = false) done via File
 - supporting unix unicode build
-- ALL memory cleanup with gui (nearly impossible?) perhaps struct to class?
++ ALL memory cleanup with gui (nearly impossible?) perhaps struct to class? outdated
 - instead of yielding creating a new thread?
 + context menu (delete, create hard-/symlink, open folder) done
 + context menu Ctrl+C (copy) done
@@ -110,3 +110,6 @@ TODO/IDEAS:
 - wrapping / shortening text which appears when restricting view
 + batch file for windows me dupf console mode done.
 + rename program (dupfinder -> Duplicate Files Finder) done.
+- fixing this bug where whole os (windows) crashes (will be very difficult, because i have no idea
+  why it is there - but: it is propably too much memory consumption...)
+- writing .bat file with cd $INSTDIR instruction when installing on 95/98/me

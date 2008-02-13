@@ -1,3 +1,7 @@
+Date : 2008/2/12 20:22
+updated TODO
+warning of non displayable unicode characters only if there are really unicode characters
+
 Date : 2008/2/12 17:37
 Replaced all DupFinder by Duplicate Files Finder
 removed old header from stdinc.h
