@@ -620,7 +620,16 @@ void DupFinderDlg3::OnCancel(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnApplyDir(wxCommandEvent &WXUNUSED(event))
 {
-	RestrictViewTo(wDirName->GetValue());
+	wxString dirname = wDirName->GetValue();
+
+	if(!wxFileName::DirExists(dirname)) {
+		wxMessageBox(_T("Error: Directory does not exist. ")
+		_T("\nPlease enter a valid directory. "), _T("Error"), 
+		wxOK | wxICON_ERROR);
+		return;
+	}
+
+	RestrictViewTo(dirname);
 	DisplayResults();
 }
 
@@ -675,20 +684,16 @@ void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 }
 
 void DupFinderDlg3::UpdateView() {
-	wxString dirname = wDirName->GetValue();
 	wxSize cs1, cs2;
-
-	// correct dir must be entered
-	FindWindow(ID_APPLYDIR)->Enable(
-		wxFileName::DirExists(dirname));
-
-	// show restriction info
 	
 	wxString tmp;
 	tmp.Printf(_T("Showing only files in %s and their duplicates! "), 
 		RestrictToDir.GetFullPath().c_str() );
 
 	wRestrictInfo->SetLabel(tmp);
+
+	// if there are spaces...
+	wRestrictInfo->Wrap(wRestrictInfo->GetSize().GetWidth());
 
 	GetSizer()->Show(wRestrictInfo, bRestrict, true);
 

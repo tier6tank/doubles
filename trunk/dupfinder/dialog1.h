@@ -74,6 +74,7 @@ private:
 	wxTextCtrl *wMinSize;
 	wxCheckBox *wMaskEnable;
 	wxTextCtrl *wMask;
+	wxTextCtrl *wMaxSize;
 
 	findfileinfo ffi;
 

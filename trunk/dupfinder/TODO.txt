@@ -24,7 +24,6 @@ TODO/IDEAS:
   Nevertheless a call to sscaf_s (if occuring) with an "%s" format argument would very propably leed into trouble, so i must not
   use this!
 - playing a bit with some compiling options (especcially optimization for gcc!)
-- internationalization
 + replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
 - add to statistcs sum of bytes read, average speed
 + need a faster container than list for testing for double scanning of directories. done (using set). 
@@ -58,8 +57,6 @@ TODO/IDEAS:
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
 - it should be easy to implement a "do not add double files" algorithm (list->set!)
 + fix div by zero errors (not fixed, but disappeared)
-- adding MAXimal size of files option? but what for...
-- think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size
 - create manifest file
 - create configure/automake/autoconf system for unix
 + installer for windows done.
@@ -99,17 +96,28 @@ TODO/IDEAS:
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
 + hiding some functions (private) out of time
 + creating delete findfileinfo function in dbl.cpp? out of time
-- hardlinks / softlinks where supported
 + including the right header (or remove it completely) done.
 - shortening long filename in restriction info?
 - what about a program icon?
 - foreground/background as in 7-zip 
 + pause as in 7-zip has it now. 
 - again: reducing memory consumption (circa 200 MB with circa 803,000 files)
-- installer nice AI
-- wrapping / shortening text which appears when restricting view
 + batch file for windows me dupf console mode done.
 + rename program (dupfinder -> Duplicate Files Finder) done.
 - fixing this bug where whole os (windows) crashes (will be very difficult, because i have no idea
   why it is there - but: it is propably too much memory consumption...)
-- writing .bat file with cd $INSTDIR instruction when installing on 95/98/me
++ writing .bat file with cd $INSTDIR instruction when installing on 95/98/me. done. 
+
+- installer nice AI
+- wrapping / shortening text which appears when restricting view
+- hardlinks / softlinks where supported
+- display files only in dir ---> and its subdirs???? (even possible?)
++ think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size: is minimal size always
++ adding MAXimal size of files option? but what for... done.
++ Add button always enabled (UpdateView changes??) done (also in dialog 3)
+- Speed display always, not only for large files
+- Treating 0-bytes sized files as double files (option?)
+- internationalization
+- make dll (with dup.cpp code)
+- on clicking a list item display the information in the controls below?
++ Wrap function!!! does only work with spaced text

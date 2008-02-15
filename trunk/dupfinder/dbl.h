@@ -63,7 +63,8 @@ typedef multiset<fileinfosize, less_fileinfosize>::reverse_iterator multiset_fil
 struct pathinfo
 {
 	wxString path;
-	wxULongLong nMaxFileSizeIgnore;
+	wxULongLong nMinSize;
+	wxULongLong nMaxSize; // if 0, no max size
 	bool bGoIntoSubDirs;
 	bool bSearchHidden;
 	wxString Mask;

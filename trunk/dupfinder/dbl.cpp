@@ -120,8 +120,17 @@ public:
 		// slow
 		size = wxFileName::GetSize(filename);
 		STOPTIME(__findsize);
+		const bool bIncludeZeroFiles = false; // later make an option out of this?
 		
-		if(size != wxInvalidSize && size > pi->nMaxFileSizeIgnore) {
+		bool bFitsMinSize = size >= pi->nMinSize;
+		bool bFitsMaxSize = size <= pi->nMaxSize || pi->nMaxSize == 0;
+
+		assert(pi->nMaxSize >= pi->nMinSize || pi->nMaxSize == 0);
+		
+		if(size != wxInvalidSize && 
+			(size != 0 || bIncludeZeroFiles) &&
+			bFitsMinSize &&
+			bFitsMaxSize) {
 			// init structure
 			STARTTIME(__insert);
 			// fi.name = filename;
