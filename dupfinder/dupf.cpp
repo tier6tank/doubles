@@ -72,15 +72,15 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("dupf: Finds duplicate files\n"));
 		_ftprintf(stderr, _T("Copyright (c) Matthias Boehm 2007-2008\n\n"));
 		_ftprintf(stderr, _T("dupf [GENERAL OPTIONS] Path1 [PATH-OPTIONS] [Path2 [PATH-OPTIONS]] ...\n\n"));
-		_ftprintf(stderr, _T("General options: \n\n"));
-		_ftprintf(stderr, _T("-r  : small files first (default is big files first)\n"));
-		_ftprintf(stderr, _T("-o x: Print results to file x (e.g. if the output to stdout is useless \n"));
-		_ftprintf(stderr, _T("      because of unicode characters) \n"));
+		_ftprintf(stderr, _T("General options  : \n\n"));
+		_ftprintf(stderr, _T("-r   | --reverse  : small files first (default is big files first)\n"));
+		_ftprintf(stderr, _T("-o x | --out x    : Print results to file x\n"));
 		_ftprintf(stderr, _T("\nOptions for each path: \n\n"));
-		_ftprintf(stderr, _T("-i x: Ignore files with size lower or equal to x (in bytes)\n"));
-		_ftprintf(stderr, _T("-n  : do not recurse into subdirectories\n"));
-		_ftprintf(stderr, _T("-h  : include hidden files in search (default: off)\n"));
-		_ftprintf(stderr, _T("-m x: limit your search to those files which match the file mask\n"));
+		_ftprintf(stderr, _T("       --min x    : Ignore files smaller than x (in bytes)\n"));
+		_ftprintf(stderr, _T("       --max x    : Ignore files larger than x (in bytes)\n"));
+		_ftprintf(stderr, _T("-n   | --norecurse: do not recurse into subdirectories\n"));
+		_ftprintf(stderr, _T("-h   | --hidden   : include hidden files in search (default: off)\n"));
+		_ftprintf(stderr, _T("-m   | --mask x   : limit your search to those files which match the file mask\n"));
 		return 1;
 	}
 
@@ -91,11 +91,13 @@ DECLARE_MAIN
 
 	// get general options
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
-		if(_tcscmp(argv[i], _T("-r")) == 0) {
+		if(_tcscmp(argv[i], _T("-r")) == 0
+			|| _tcscmp(argv[i], _T("--reverse")) == 0) {
 			bReverse = true;
 			nOptions += 1;
 		}
-		else if(_tcscmp(argv[i], _T("-o")) == 0) {
+		else if(_tcscmp(argv[i], _T("-o")) == 0 ||
+			_tcscmp(argv[i], _T("--out")) == 0) {
 			bool bResult;
 			if(!argv[i+1]) {
 				_ftprintf(stderr, _T("Error: Filename expected! \n"));
@@ -111,7 +113,7 @@ DECLARE_MAIN
 		} else {
 			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
 			return 1;
-		}			
+		}
 	}
 
 	if(argc-nOptions <= 0) {
@@ -122,33 +124,55 @@ DECLARE_MAIN
 	for(/*i*/; i < argc; ) {
 		pathinfo pi;
 		pi.path = argv[i];
-		pi.nMaxFileSizeIgnore = 0;
+		pi.nMinSize = 0;
+		pi.nMaxSize = 0;
 		pi.bGoIntoSubDirs = true;
 		pi.bSearchHidden = false;
 		pi.Mask = wxEmptyString;
 
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
-			if(_tcscmp(argv[i], _T("-i")) == 0) {
+			if(_tcscmp(argv[i], _T("--min")) == 0) {
 				if(argv[i+1]) {
-					ULARGE_INTEGER _nMaxFileSizeIgnore;
-					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxFileSizeIgnore.QuadPart) == 0) {
-						_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+					ULARGE_INTEGER _nMinSize;
+					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMinSize.QuadPart) == 0) {
+						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
 						return 1;
 					}
-					pi.nMaxFileSizeIgnore = _nMaxFileSizeIgnore.QuadPart;
+					pi.nMinSize = _nMinSize.QuadPart;
 				} else {
-					_ftprintf(stderr, _T("Error in commandline: Number expected! \n"));
+					_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
 					return 1;
 				}
 				i++;
 			}
-			else if(_tcscmp(argv[i], _T("-n")) == 0) {
+			else if(_tcscmp(argv[i], _T("--max")) == 0) {
+				if(argv[i+1]) {
+					ULARGE_INTEGER _nMaxSize;
+					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxSize.QuadPart) == 0) {
+						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
+						return 1;
+					}
+					pi.nMaxSize = _nMaxSize.QuadPart;
+					if(pi.nMaxSize == 0) {
+						_ftprintf(stderr, _T("Warning: Ignore maximal size of 0. \n"));
+					}
+				}
+				else {
+					_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
+					return 1;
+				}
+				i++;
+			}
+			else if(_tcscmp(argv[i], _T("-n")) == 0 || 
+				_tcscmp(argv[i], _T("--norecurse")) == 0) {
 				pi.bGoIntoSubDirs = false;
 			}
-			else if(_tcscmp(argv[i], _T("-h")) == 0) {
+			else if(_tcscmp(argv[i], _T("-h")) == 0 ||
+				_tcscmp(argv[i], _T("--hidden")) == 0) {
 				pi.bSearchHidden = true;
 			}
-			else if(_tcscmp(argv[i], _T("-m")) == 0) {
+			else if(_tcscmp(argv[i], _T("-m")) == 0 ||
+				_tcscmp(argv[i], _T("--mask")) == 0) {
 				if(!argv[i+1]) {
 					_ftprintf(stderr, _T("Error: expression expected! \n"));
 					return 1;
@@ -160,6 +184,11 @@ DECLARE_MAIN
 				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
 				return 1;
 			}
+		}
+
+		if(pi.nMinSize > pi.nMaxSize && pi.nMaxSize != 0) {
+			_ftprintf(stderr, _T("Error: Maximal size must be greater than minimal size. \n"));
+			return 1;
 		}
 		ffi.paths.push_back(pi);
 	}

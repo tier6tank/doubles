@@ -1,4 +1,11 @@
-Date : 2008/2/13 15:48
+Date : 2008/2/15 16:01
+UI changes to UpdateView: Add (dialog1) and Apply (dialog3) button
+always enabled
+Maximal file size restriction added
+Minimal file size is now really MINIMAL filesize
+Long options added
+
+Date : 2008/2/13 15:48 -- dupfinder 0.30
 updated installer (win 95 family related)
 moved some TEST code out of dbl.cpp
 Readme notice

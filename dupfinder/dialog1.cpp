@@ -37,7 +37,8 @@ enum {
 	ID_MASKENABLE, 
 	ID_MASK, 
 	ID_MINSIZE, 
-	ID_RMALL
+	ID_RMALL, 
+	ID_MAXSIZE
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
@@ -112,14 +113,14 @@ void DupFinderDlg::CreateControls()
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
-			wxString(_T("Step 1: \nEnter the directories for search and parameters for each diretory: ")) ), 
+			wxString(_T("Step 1: \nEnter the directories to search in and parameters for each diretory: ")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );
 
 	dirsizer->Add(
 		wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
-			wxSize(wxDefaultSize.GetWidth(), 200), wxBORDER_SUNKEN | wxLC_REPORT), 
+			wxSize(wxDefaultSize.GetWidth(), 280), wxBORDER_SUNKEN | wxLC_REPORT), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -150,19 +151,32 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow2->Add( 
-		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files")), 
+		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files") ), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow2->Add(
-		new wxStaticText(this, wxID_STATIC, _T("M&inimal file size: ")), 
+		new wxStaticText(this, wxID_STATIC, _T("M&inimal \nfile size: ") ), 
 		0,
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow2->Add(
 		wMinSize = new wxTextCtrl(this, ID_MINSIZE, _T(""), wxDefaultPosition, 
+			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
+		1, 
+		wxTOPLEFT, 
+		10);
+
+	dirrow2->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Ma&ximal \nfile size: ")), 
+		0, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow2->Add(
+		wMaxSize = new wxTextCtrl(this, ID_MAXSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
 		wxTOPLEFT | wxRIGHT, 
@@ -263,8 +277,10 @@ void DupFinderDlg::InitControls() {
 	wDirList->InsertColumn(1, _T("Subdirs"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(2, _T("Hidden"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 250);
-	wDirList->InsertColumn(4, _T("Min size"), wxLIST_FORMAT_LEFT, 60);
-	wDirList->InsertColumn(5, _T("Mask"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(4, _T("Mask"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(5, _T("Min size"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(6, _T("Max size"), wxLIST_FORMAT_LEFT, 60);
+
 	
 	// set focus
 	wDirName->SetFocus();
@@ -280,12 +296,14 @@ void DupFinderDlg::UpdateView() {
 	// add button only enabled if there's a (valid) dir in 
 	// dir text control and there is a valid number/no number
 	// in minsize field
+	// this functionality is disabled (it's not that nice)
 
-	wxString dir = wDirName->GetValue();
+	/* wxString dir = wDirName->GetValue();
 
 	FindWindow(ID_ADDDIR)->Enable(
 		wxFileName::DirExists(dir)  && wMinSize->GetValue().IsNumber()
 	);
+	*/
 
 	// remove button only if there is a selection 
 	// in the dir list
@@ -370,11 +388,14 @@ static wxULongLong_t StrToULongLong(const wxString & str) {
 void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	pathinfo pi;
 	wxULongLong_t minsize;
+	wxULongLong_t maxsize;
 	bool bResult;
 	
 	pi.path = wDirName->GetValue();
 
 	if(!wxFileName::DirExists(pi.path)) {
+		wxMessageBox(_T("Please enter a valid path! "), _T("Error"), 
+			wxOK | wxICON_ERROR, this);
 		return;
 	}
 
@@ -388,8 +409,22 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 		// or b) we are using mingw
 		minsize = StrToULongLong(wMinSize->GetValue());
 	}
+
+	bResult = wMaxSize->GetValue().ToULongLong(&maxsize);
+	if(!bResult) {
+		maxsize = StrToULongLong(wMaxSize->GetValue());
+	}
+
+	if(minsize > maxsize && maxsize != 0) {
+		wxMessageBox(_T("The maximal size must not be greater than the minimal size! "), 
+			_T("Error"), 
+			wxOK | wxICON_ERROR, this);
+		return;
+	}
 	
-	pi.nMaxFileSizeIgnore = minsize;
+	pi.nMinSize = minsize;
+	pi.nMaxSize = maxsize; 
+
 	pi.bGoIntoSubDirs = wRecursive->GetValue();
 	pi.bSearchHidden = wHidden->GetValue();
 	pi.Mask = wMaskEnable->GetValue() ? wMask->GetValue() : wxString(_T(""));
@@ -402,17 +437,19 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 void DupFinderDlg::AddDir(const pathinfo &pi)
 {
-	wxListItem c1, c2, c3, c4, c5;
+	wxListItem c1, c2, c3, c4, c5, c6;
 	// c1.SetColumn(0); // don't set column, else you will get strange assert messages
 	c2.SetColumn(1);
 	c3.SetColumn(2);
 	c4.SetColumn(3);
 	c5.SetColumn(4);
+	c6.SetColumn(5);
 	c1.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_DATA);
 	c2.SetMask(wxLIST_MASK_TEXT);
 	c3.SetMask(wxLIST_MASK_TEXT);
 	c4.SetMask(wxLIST_MASK_TEXT);
 	c5.SetMask(wxLIST_MASK_TEXT);
+	c6.SetMask(wxLIST_MASK_TEXT);
 	
 	ffi.paths.push_back(pi);
 
@@ -421,8 +458,10 @@ void DupFinderDlg::AddDir(const pathinfo &pi)
 	c1.SetText(pi.bGoIntoSubDirs ? _T("x") : _T(""));
 	c2.SetText(pi.bSearchHidden ? _T("x") : _T(""));
 	c3.SetText(pi.path);
-	c4.SetText(pi.nMaxFileSizeIgnore.ToString());
-	c5.SetText(pi.Mask);
+	c4.SetText(pi.Mask);
+	c5.SetText(pi.nMinSize.ToString());
+	c6.SetText(pi.nMaxSize == 0 ? _T("") : pi.nMaxSize.ToString());
+
 
 	// wDirList->InsertItem(0, _T("tmp"));	
 
@@ -431,6 +470,7 @@ void DupFinderDlg::AddDir(const pathinfo &pi)
 	wDirList->SetItem(c3);
 	wDirList->SetItem(c4);
 	wDirList->SetItem(c5);
+	wDirList->SetItem(c6);
 
 }
 
