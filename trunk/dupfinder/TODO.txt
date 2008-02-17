@@ -129,3 +129,4 @@ TODO/IDEAS:
 + delete processed files (deleted/symlinked) from internal list!!!!!!!!! done.
 - do some actions (hard-/softlink) on more than one file?
 - add to result dialog "display files which match mask ..."
+- +/- button on headers in result dialog (and dblclick)!!
