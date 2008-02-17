@@ -798,7 +798,6 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	}
 
 	bool bStickyError, bError, bFatalError = false;
-	fileinfoequal *group = target_data->mygroup;
 	// list<File>::iterator it
 	int i;
 	list<int> remove_me;
@@ -812,7 +811,7 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 
 	bStickyError = false;
 	// for(it = group->files.begin(); it != group->files.end(); bDeleted ? it : it++) {
-	for(i; wResultList->GetItemData(i); i++) { 
+	for((void)i; wResultList->GetItemData(i); i++) { 
 		bError = false;
 		if(i != focus) {
 			ItemData *data = dynamic_cast<ItemData *>((ItemData *)wResultList->GetItemData(i));

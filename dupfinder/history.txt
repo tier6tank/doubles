@@ -1,3 +1,7 @@
+Date : 2008/2/17 17:20
+Fix for borland to compile
+Warning fix
+
 Date : 2008/2/17 14:30
 Made hardlinks working also in windows
 
@@ -7,6 +11,7 @@ now used (in linux!!!!), not the focused item)
 moved some code from dbl.cpp to dupf.cpp where it belongs to
 removed some stuff from os_cc_specific.c (typedefs [DWORD etc.])
 Added hardlink and symlink support!
+Fixed bug with reappearing files (which were deleted/symlinked)
 
 Date : 2008/2/15 16:01
 UI changes to UpdateView: Add (dialog1) and Apply (dialog3) button

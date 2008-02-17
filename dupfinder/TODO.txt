@@ -130,3 +130,6 @@ TODO/IDEAS:
 - do some actions (hard-/softlink) on more than one file?
 - add to result dialog "display files which match mask ..."
 - +/- button on headers in result dialog (and dblclick)!!
+- supporting watcom compiler
+- replacing list.size() == 0 by list.empty()!
+- removing some seperators of popup menu
