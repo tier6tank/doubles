@@ -460,7 +460,9 @@ void DupFinderDlg::AddDir(const pathinfo &pi)
 	c3.SetText(pi.path);
 	c4.SetText(pi.Mask);
 	c5.SetText(pi.nMinSize.ToString());
-	c6.SetText(pi.nMaxSize == 0 ? _T("") : pi.nMaxSize.ToString());
+	wxString tmp1 = wxEmptyString;
+	wxString tmp2 = pi.nMaxSize.ToString();
+	c6.SetText(pi.nMaxSize == 0 ? tmp1 : tmp2);
 
 
 	// wDirList->InsertItem(0, _T("tmp"));	
