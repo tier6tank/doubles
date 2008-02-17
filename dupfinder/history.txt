@@ -1,6 +1,7 @@
 Date : 2008/2/17 17:20
 Fix for borland to compile
 Warning fix
+Added watcom makefile (though it does not compile yet)
 
 Date : 2008/2/17 14:30
 Made hardlinks working also in windows
