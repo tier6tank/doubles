@@ -50,6 +50,8 @@ public:
 	void OnOpenDir(wxCommandEvent &);
 	void OnCopyFileName(wxCommandEvent &);
 	void OnDelete(wxCommandEvent &);
+	void OnSymLink(wxCommandEvent &);
+	void OnHardLink(wxCommandEvent &);
 
 	void OpenDir(long i);
 	void OpenFile(long i);
@@ -83,7 +85,10 @@ public:
 
 	void OnGetDir(wxCommandEvent &);
 
+	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);
+
 private:
+	static bool bHardLinkWarning;
 
 	findfileinfo ffi;
 

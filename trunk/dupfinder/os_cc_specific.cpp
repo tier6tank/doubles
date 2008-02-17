@@ -75,8 +75,24 @@ bool IsSymLinkSupported() {
 	return false;
 }
 
+bool CreateSymLink(const wxString &WXUNUSED(d1), const wxString &WXUNUSED(d2)) {
+	// don't even try it
+	return false;
+}
+
 bool IsHardLinkSupported() {
-	return true;
+	wxPlatformInfo pi;
+	// is the NT family the only one which supports 
+	// hardlinks? What about Microwindows, win CE?
+	if(!(pi.GetOperationSystemId() & wxOS_WINDOWS_NT)) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
+	CreateHardLink(oldpath.fn_str(), newpath.fn_str());
 }
 
 #endif
@@ -96,12 +112,22 @@ bool IsSymLink(const wxString &filename) {
 }
 
 bool IsSymLinkSupported() {
+	// this is not always true, e.g. if 
+	// there are filesystems mounted (e.g fat)
 	return true;
+}
 
+bool CreateSymLink(const wxString &oldpath, const wxString &newpath) {
+	return symlink(oldpath, newpath) == 0;
 }
 
 bool IsHardLinkSupported() {
+	// unix: yes!
 	return true;
+}
+
+bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
+	return link(oldpath, newpath) == 0;
 }
 
 #endif

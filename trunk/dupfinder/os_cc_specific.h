@@ -91,40 +91,12 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 // prototypes
 
 bool IsSymLink(const wxString &);
-
 bool IsSymLinkSupported();
-bool IsHardLinkSupported();
-
-bool CreateHardLink(const wxString &, const wxString &);
 bool CreateSymLink(const wxString &, const wxString &);
 
-#ifndef _WIN32
-
-typedef unsigned long DWORD, BOOL, *LPDWORD;
-typedef unsigned long long ULONGLONG;
-typedef DWORD HANDLE;
-typedef long LONG;
-typedef long long LONGLONG;
-#define MAX_PATH 260 //?????????????????????????????????
-
-/** attention: is that valid on all machines (little endian <-> high endian) ??? no! */
-typedef union _ULARGE_INTEGER { 
-    struct {
-        DWORD LowPart; 
-        DWORD HighPart; 
-    };
-    ULONGLONG QuadPart;
-} ULARGE_INTEGER; 
-
-typedef union _LARGE_INTEGER { 
-    struct {
-        DWORD LowPart; 
-        LONG HighPart; 
-    };
-    LONGLONG QuadPart;
-} LARGE_INTEGER; 
-
-#endif /* !defined(_WIN32) */
+// bool IsHardLink(const wxString &); 
+bool IsHardLinkSupported();
+bool CreateHardLink(const wxString &, const wxString &);
 
 
 

@@ -93,19 +93,14 @@ struct guiinfo {
 };
 
 
-/// prototypes
-
-
+// prototypes
 bool	comparefiles0(File &, File &);
 // bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
 bool 	comparefiles2(File &, File &, const wxULongLong &, guiinfo * = NULL);
-wxULongLong roundup(const wxULongLong &, int);
 void	deleteline(int);
 
 void	FindFiles(findfileinfo &, guiinfo * = NULL);
 void	GetEqualFiles(multiset_fileinfosize &, guiinfo * = NULL);
-void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
-void	RemoveDoubleFiles(findfileinfo &);
 
 
 
