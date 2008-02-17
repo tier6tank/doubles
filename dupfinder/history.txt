@@ -1,3 +1,6 @@
+Date : 2008/2/17 14:30
+Made hardlinks working also in windows
+
 Date : 2008/2/17 14:01
 Now focus is set in right click handler (so that the right clicked item is 
 now used (in linux!!!!), not the focused item)

@@ -768,8 +768,8 @@ void DupFinderDlg3::OnHardLink(wxCommandEvent & WXUNUSED(event)) {
 	int result;
 
 	if(bHardLinkWarning) {
-		result = wxMessageBox(_T("Hardlinks should be used with caution. Be aware that ")
-			_T("hardlinked files will reappear in the next search as duplicates.\n")
+		result = wxMessageBox(_T("Hardlinks should be used with caution. Also be aware that ")
+			_T("hardlinked files will reappear in the next search as duplicates. \n")
 			_T("Do you want to see this warning again? "), 
 			_T("Warning"), wxYES_NO | wxCANCEL | wxICON_WARNING, this);
 

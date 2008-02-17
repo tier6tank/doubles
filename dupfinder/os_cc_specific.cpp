@@ -84,7 +84,7 @@ bool IsHardLinkSupported() {
 	wxPlatformInfo pi;
 	// is the NT family the only one which supports 
 	// hardlinks? What about Microwindows, win CE?
-	if(!(pi.GetOperationSystemId() & wxOS_WINDOWS_NT)) {
+	if(!(pi.GetOperatingSystemId() & wxOS_WINDOWS_NT)) {
 		return false;
 	} else {
 		return true;
@@ -92,7 +92,7 @@ bool IsHardLinkSupported() {
 }
 
 bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
-	CreateHardLink(oldpath.fn_str(), newpath.fn_str());
+	return CreateHardLink(newpath.fn_str(), oldpath.fn_str(), NULL);
 }
 
 #endif
