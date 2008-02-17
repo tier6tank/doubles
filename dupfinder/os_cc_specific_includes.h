@@ -32,11 +32,12 @@
 #endif /* _Win32 */
 
 /* perhaps better if !defined(_WIN32) && defined(__GNUC__) ???? */
-#ifndef _WIN32
+#ifdef __UNIX__
 
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 #endif /* !defined(_WIN32) */
 

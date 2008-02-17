@@ -15,7 +15,6 @@ TODO/IDEAS:
   unicode output. done
 + adding option which determines if the small sized files or the large sized files are treated and displayed firstd. done
 + adding option for not going in subdirectories (done)
-- adding unicode support for linux/unix not necessary, but would be nice
 + removing clock_t from source, replacing it with time_t: that wasn't an error, it was my fault!
 + (correct cygwin-build lf/cr errors) related to "adding option -f <filename> " seems not to be possible
 + merging searching files and sorting files by size algorithms ? done, now that sortfilesbysize is that fast
@@ -52,7 +51,6 @@ TODO/IDEAS:
 - accelerating search algorithm (partially done by removing double-dir-algorithms)
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
-- exchange if !__WIN32 by if __UNIX__
 - make install for unix
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
 - it should be easy to implement a "do not add double files" algorithm (list->set!)
@@ -110,7 +108,7 @@ TODO/IDEAS:
 
 - installer nice AI
 - wrapping / shortening text which appears when restricting view
-- hardlinks / softlinks where supported
++ hardlinks / softlinks where supported softlinks yes. hardlinks with warning! 
 - display files only in dir ---> and its subdirs???? (even possible?)
 + think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size: is minimal size always
 + adding MAXimal size of files option? but what for... done.
@@ -121,3 +119,13 @@ TODO/IDEAS:
 - make dll (with dup.cpp code)
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
+- exchange if !__WIN32 by if __UNIX__
+- adding unicode support for linux/unix not necessary, but would be nice
+
++ IsSymLinkSupported should take volume argument or something like this not necessary
++ remove some things in os_cc_specific (e.g. DWORD, LONG, ...) done.
+- displaying info (size of all duplicates) in gui version as well
++ make filenames not reappear when View is updated!!!!!!!!! done.
++ delete processed files (deleted/symlinked) from internal list!!!!!!!!! done.
+- do some actions (hard-/softlink) on more than one file?
+- add to result dialog "display files which match mask ..."

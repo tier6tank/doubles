@@ -1,3 +1,10 @@
+Date : 2008/2/17 14:01
+Now focus is set in right click handler (so that the right clicked item is 
+now used (in linux!!!!), not the focused item)
+moved some code from dbl.cpp to dupf.cpp where it belongs to
+removed some stuff from os_cc_specific.c (typedefs [DWORD etc.])
+Added hardlink and symlink support!
+
 Date : 2008/2/15 16:01
 UI changes to UpdateView: Add (dialog1) and Apply (dialog3) button
 always enabled

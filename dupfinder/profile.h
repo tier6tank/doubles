@@ -25,6 +25,9 @@ LARGE_INTEGER __frequency;
 
 #if defined(_WIN32) && defined(PROFILE)
 
+#include "largeint.h"
+#include "ulargeint.h"
+
 #define INITPROFILE QueryPerformanceFrequency(&__frequency);
 
 #define STARTTIME(a) { LARGE_INTEGER __b1, __b2; QueryPerformanceCounter(&__b1); 

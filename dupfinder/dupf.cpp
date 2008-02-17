@@ -22,6 +22,7 @@
 #include "dbl.h"
 #include "os_cc_specific.h"
 #include "profile.h"
+#include "dupf.h"
 
 // int _tmain(int argc, _TCHAR *argv[]) 
 // {
@@ -133,12 +134,12 @@ DECLARE_MAIN
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
 			if(_tcscmp(argv[i], _T("--min")) == 0) {
 				if(argv[i+1]) {
-					ULARGE_INTEGER _nMinSize;
-					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMinSize.QuadPart) == 0) {
+					wxULongLong_t _nMinSize;
+					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMinSize) == 0) {
 						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
 						return 1;
 					}
-					pi.nMinSize = _nMinSize.QuadPart;
+					pi.nMinSize = _nMinSize;
 				} else {
 					_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
 					return 1;
@@ -147,12 +148,12 @@ DECLARE_MAIN
 			}
 			else if(_tcscmp(argv[i], _T("--max")) == 0) {
 				if(argv[i+1]) {
-					ULARGE_INTEGER _nMaxSize;
-					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxSize.QuadPart) == 0) {
+					wxULongLong_t _nMaxSize;
+					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxSize) == 0) {
 						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
 						return 1;
 					}
-					pi.nMaxSize = _nMaxSize.QuadPart;
+					pi.nMaxSize = _nMaxSize;
 					if(pi.nMaxSize == 0) {
 						_ftprintf(stderr, _T("Warning: Ignore maximal size of 0. \n"));
 					}
@@ -339,4 +340,105 @@ DECLARE_MAIN
 	
 	return 0;
 }
+
+
+static bool IsAscii(const wxString &string) 
+{
+#if !(defined( _UNICODE) || defined(UNICODE))
+	(void)string;
+	return true;
+#else
+	int size = string.Length();
+	int i;
+
+	for(i = 0; i < size; i++) {
+		if((wchar_t) string[i] > 255) {
+			return false;
+		}
+	}
+	return true;
+#endif
+}
+
+static const char * ToAscii(const wxString &string)
+{
+#if !(defined( _UNICODE) || defined(UNICODE))
+	return string.c_str();
+#else
+	int i, size = string.Length();
+	char *result = new char[size+1];
+
+	for(i = 0; i < size; i++) {
+		if(string[i] > 255) {
+			result[i] = '?';
+		}
+		else {
+			result[i] = string[i];
+		}
+	}
+	result[i] = 0;
+
+	return result;
+#endif
+}
+
+void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
+{
+	list<File>::const_iterator it, it3;
+	multiset_fileinfosize::const_iterator it2;
+	multiset_fileinfosize::const_reverse_iterator rit2;
+	list<fileinfoequal>::const_iterator it4;
+	wxString Buffer;
+	// bConOut because output to console does NOT support unicode/utf-8/... in windows (but it does in unix! )
+	wxPlatformInfo platform;
+	bool bConOut = (fOutput.GetKind() == wxFILE_KIND_TERMINAL) && 
+		(platform.GetOperatingSystemId() & wxOS_WINDOWS);
+	bool bDisplayWarning = false;
+
+	_ftprintf(stderr, _T("Printing the results...\n\n"));
+
+	for(
+		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();
+		bReverse ? rit2 != ((const multiset_fileinfosize &)sortedbysize).rend() : it2 != sortedbysize.end();
+		rit2++, it2++) {
+
+
+		for(
+			bReverse ? it4 = rit2->equalfiles.begin() : it4 = it2->equalfiles.begin();
+			bReverse ? it4 != rit2->equalfiles.end() : it4 != it2->equalfiles.end(); 
+			it4++) {
+			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
+				it4->files.size(), 
+				bReverse ? rit2->size.GetValue() : it2->size.GetValue());
+			if(bConOut) {
+				fOutput.Write(ToAscii(Buffer), Buffer.Length());
+				if(!IsAscii(Buffer)) {
+					bDisplayWarning = true;
+				}
+			}
+			else {
+				fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8 : (wxMBConv &)wxConvUTF8);
+			}
+			for(it = it4->files.begin(); it != it4->files.end(); it++) {
+				Buffer.Printf(_T("  \"%s\"\r\n"), it->GetName().c_str());
+				if(bConOut) {
+					fOutput.Write(ToAscii(Buffer), Buffer.Length());
+					if(!IsAscii(Buffer)) {
+						bDisplayWarning = true;
+					}
+				}
+				else {
+					fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8: (wxMBConv &)wxConvUTF8);
+				}
+			}
+		}
+	}
+
+	if(bDisplayWarning) {
+		_ftprintf(stderr, _T("\n--- WARNING --- \nThe output contains unicode characters which cannot be displayed correctly \n")
+			_T("on the console screen! \nIf you want to get the correct filenames, use the -o option! \n\n"));
+	}
+
+}
+
 
