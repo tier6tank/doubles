@@ -1,0 +1,11 @@
+
+AC_PREREQ(2.59)
+
+AC_INIT([dupfgui], [0.30] [ma_boehm@users.sourceforge.net])
+
+AM_INIT_AUTOMAKE([1.9 foreign])
+
+AC_PROG_CXX
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT

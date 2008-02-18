@@ -1,3 +1,6 @@
+Date : 2008/2/18 17:09
+Added (experimental, not working yet) Makefile.am and configure.in
+
 Date : 2008/2/17 17:20
 Fix for borland to compile
 Warning fix
