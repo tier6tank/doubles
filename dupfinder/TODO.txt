@@ -133,3 +133,8 @@ TODO/IDEAS:
 - supporting watcom compiler
 - replacing list.size() == 0 by list.empty()!
 - removing some seperators of popup menu
+- correct wxWidgets version number in configure.in
+- add precompiled headers to automake
+! Autotools
+- debug/non-debug version for automake
+- move all output files to extra dir 

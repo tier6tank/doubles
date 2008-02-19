@@ -1,3 +1,8 @@
+Date : 2008/2/19 11:22
+Auto* compiling way works now (thanks to a file
+borrowed from another project - acinclude.m4)
+fixed a little bug (creating links with the last group of items in the result list)
+
 Date : 2008/2/18 17:09
 Added (experimental, not working yet) Makefile.am and configure.in
 
