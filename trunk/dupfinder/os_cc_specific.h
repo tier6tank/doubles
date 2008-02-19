@@ -88,18 +88,33 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
 #endif /* defined(__MINGW32_VERSION) */
 
+struct FileData
+{
+	wxString name;
+	wxULongLong size;
+	// more is not needed
+};
+
+class wxExtDirTraverser : public wxDirTraverser
+{
+public:
+	virtual wxDirTraverseResult OnExtFile(const FileData &) {
+		return wxDIR_CONTINUE;
+	}
+	
+};
+
 // prototypes
 
 bool IsSymLink(const wxString &);
 bool IsSymLinkSupported();
 bool CreateSymLink(const wxString &, const wxString &);
 
-// bool IsHardLink(const wxString &); 
+// bool IsHardLink(const wxString &);  // currently not needed/ (supported (?))
 bool IsHardLinkSupported();
 bool CreateHardLink(const wxString &, const wxString &);
 
-
-
+void Traverse(const wxString &, const wxString &, int, wxExtDirTraverser &);
 
 
 

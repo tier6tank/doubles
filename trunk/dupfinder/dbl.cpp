@@ -27,6 +27,10 @@ using namespace std;
 
 /********* options ************/
 
+#ifndef FINDFILES_USE_WXWIDGETS
+// #define FINDFILES_USE_WXWIDGETS
+#endif
+
 // #define BENCHMARK
 // #define PROFILE
 // for testing
@@ -89,7 +93,7 @@ LARGE_INTEGER fileread;
 
 
 
-class AddFileToList : public wxDirTraverser
+class AddFileToList : public wxExtDirTraverser
 {
 public:
 	AddFileToList(findfileinfo * pInfo, const pathinfo *ppi, wxULongLong &_nFiles, 
@@ -106,7 +110,7 @@ public:
 		tlast = time(NULL);
 	}
 
-	virtual wxDirTraverseResult OnFile(const wxString & filename)
+	virtual wxDirTraverseResult OnFile(const wxString &filename, const wxULongLong *pSize)
 	{
 		if(IsSymLink(filename)) {
 			return UpdateInfo(NULL);
@@ -119,7 +123,11 @@ public:
 		wxULongLong size;
 		STARTTIME(__findsize);
 		// slow
-		size = wxFileName::GetSize(filename);
+		if(pSize == NULL) {
+			size = wxFileName::GetSize(filename);
+		} else {
+			size = *pSize;
+		}
 		STOPTIME(__findsize);
 		const bool bIncludeZeroFiles = false; // later make an option out of this?
 		
@@ -158,6 +166,15 @@ public:
 		nFiles++;
 
 		return UpdateInfo(NULL);
+	}
+
+	virtual wxDirTraverseResult OnFile(const wxString & filename)
+	{
+		return OnFile(filename, NULL);
+	}
+
+	virtual wxDirTraverseResult OnExtFile(const FileData &data) {
+		return OnFile(data.name, &data.size);
 	}
 
 	virtual wxDirTraverseResult OnDir(const wxString &dirname)
@@ -230,6 +247,16 @@ public:
 
 };
 
+static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString &mask, int flags) 
+{
+#ifdef FINDFILES_USE_WXWIDGETS
+	return root.Traverse(sink, mask, flags) != -1;
+#else
+	Traverse(root.GetName(), mask, flags, sink);
+	return true;
+#endif
+}
+
 void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 {
 	fileinfosize fis;
@@ -257,7 +284,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
-		dir.Traverse(traverser, it3->Mask, 
+		Traverse(dir, traverser, it3->Mask, 
 			wxDIR_FILES | (it3->bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
 			(it3->bSearchHidden ? wxDIR_HIDDEN : 0));
 		STOPTIME(__all);
