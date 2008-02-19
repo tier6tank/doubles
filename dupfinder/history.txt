@@ -1,3 +1,7 @@
+Date : 2008/2/19 17:11
+Restored the old FindFiles function, and added option
+to choose between wxWidgets and my functions (Windows part)
+
 Date : 2008/2/19 11:22
 Auto* compiling way works now (thanks to a file
 borrowed from another project - acinclude.m4)

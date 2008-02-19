@@ -66,6 +66,112 @@ int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
 
 #ifdef _WIN32
 
+void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDirTraverser &sink) 
+{
+	WIN32_FIND_DATA fd;
+	wxString Dir;
+	wxString Search;
+	HANDLE hFind;
+	bool bNoEnd;
+	bool bEnd = false;
+
+	wxFileName tmp = wxFileName::DirName(RootDir);
+
+	Dir = tmp.GetPathWithSep();
+
+	// first search directories
+
+	if(flags & wxDIR_DIRS && !bEnd) {
+
+		Search = Dir;
+		Search.Append(_T("*"));
+
+		hFind = FindFirstFile(
+			Search, 
+			&fd);
+
+		if(hFind == INVALID_HANDLE_VALUE)
+			return;
+
+		do
+		{
+			if(!(_tcscmp(fd.cFileName, _T(".")) == 0 || 
+			   _tcscmp(fd.cFileName, _T("..")) == 0) || flags & wxDIR_DOTDOT) {
+				if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY 
+					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
+					wxString Down;
+					Down = Dir;
+					Down.Append(fd.cFileName);
+
+					wxDirTraverseResult result = sink.OnDir(Down);
+
+					if(result == wxDIR_STOP) {
+						bEnd = true;
+						break; 
+					}
+				
+					if(result != wxDIR_IGNORE) {
+						Traverse(Down, mask, flags, sink); 
+					}
+				}
+			}
+
+			bNoEnd = FindNextFile(hFind, &fd);
+
+		} while(bNoEnd);
+
+		FindClose(hFind);
+	}
+
+
+	// then search files
+
+	if(flags & wxDIR_FILES && !bEnd) {
+
+		Search = Dir;
+		if(mask == wxEmptyString) {
+			Search.Append(_T("*"));
+		} else {
+			Search.Append(mask);
+		}
+
+		hFind = FindFirstFile(
+			Search, 
+			&fd);
+
+		if(hFind == INVALID_HANDLE_VALUE) {
+			return;
+		}
+
+		do
+		{
+			if(!(_tcscmp(fd.cFileName, _T(".")) == 0 || 
+			   _tcscmp(fd.cFileName, _T("..")) == 0) || flags & wxDIR_DOTDOT) {
+				if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
+					FileData data;
+					data.name = Dir;
+					data.name.Append(fd.cFileName);
+					data.size = wxULongLong(fd.nFileSizeHigh, fd.nFileSizeLow);
+					
+					wxDirTraverseResult result = sink.OnExtFile(data);
+					
+					if(result == wxDIR_STOP) {
+						bEnd = true;
+						break;
+					}
+				}
+			}
+
+			bNoEnd = FindNextFile(hFind, &fd);
+	
+		} while(bNoEnd);
+
+		FindClose(hFind);
+	}
+
+}
+
 bool IsSymLink(const wxString &) {
 	// windows has no symlinks
 	return false;
@@ -99,6 +205,38 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 
 
 #if defined( __UNIX__ ) && !defined(_WIN32)
+
+void Traverse(const wxString &RootDir, const wxString &mask, int flags, for_each_file_func function, void *pData) 
+{
+	const _TCHAR * array[2] = { pRootDir, NULL };
+	FTS *hFind;
+	FTSENT *fe;
+	wxString FileName;
+	wxULongLong size;
+
+	errno = 0;
+	hFind = fts_open((_TCHAR *const*)array, FTS_PHYSICAL, NULL);
+
+	if(errno != 0) {
+		return;
+	}
+
+	do {
+		fe = fts_read(hFind);
+
+		if(fe != NULL) {
+			if(fe->fts_info == FTS_F) {
+				_tcscpy_s(ff.cFileName, MAX_PATH, fe->fts_path);
+				ff.size.QuadPart = fe->fts_statp->st_size;
+				// ff.bDirectory = fe->fts_info == FTS_D;
+				function(&ff, pData);
+			}
+		}
+
+	} while(fe != NULL);
+
+	fts_close(hFind);
+}
 
 bool IsSymLink(const wxString &filename) {
 	struct stat st;
