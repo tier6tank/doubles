@@ -45,10 +45,10 @@ TODO/IDEAS:
 + warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters) done.
 - reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
 + increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk) outdated
-- does time(NULL) reduce speed? 
++ does time(NULL) reduce speed? no.
 + size n/n display at once and at first done.
 - option (break on (fatal) errors or not)
-- accelerating search algorithm (partially done by removing double-dir-algorithms)
++ accelerating search algorithm (partially done by removing double-dir-algorithms). Restored old native algorithms
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
 - make install for unix
@@ -58,7 +58,7 @@ TODO/IDEAS:
 - create manifest file
 - create configure/automake/autoconf system for unix
 + installer for windows done.
-- removing this *** wxUSE_STD_IOSTREAM again (not complete yet)
++ removing this *** wxUSE_STD_IOSTREAM again (not complete yet)
 + create clear <dirlist> button done.
 + considered ??? files seems to be right
 + heap corruption when canceling in windows! (still there?) outdated.
@@ -66,7 +66,7 @@ TODO/IDEAS:
 + fixing those massive memory leaks which occur when interrupted (via bContinue = false) done via File
 - supporting unix unicode build
 + ALL memory cleanup with gui (nearly impossible?) perhaps struct to class? outdated
-- instead of yielding creating a new thread?
++ instead of yielding creating a new thread? no. Much simpler the way it is. 
 + context menu (delete, create hard-/symlink, open folder) done
 + context menu Ctrl+C (copy) done
 + About box in first dialog? done
@@ -92,10 +92,10 @@ TODO/IDEAS:
 - reimplement a double listed files remove algorithm!
 + instead of CleanUp full return to dialog1 function done.
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
-+ hiding some functions (private) out of time
-+ creating delete findfileinfo function in dbl.cpp? out of time
+- hiding some functions (private to file scope) 
++ creating delete findfileinfo function in dbl.cpp? out of date
 + including the right header (or remove it completely) done.
-- shortening long filename in restriction info?
++ shortening long filename in restriction info? Not important any more, because removed
 - what about a program icon?
 - foreground/background as in 7-zip 
 + pause as in 7-zip has it now. 
@@ -107,7 +107,7 @@ TODO/IDEAS:
 + writing .bat file with cd $INSTDIR instruction when installing on 95/98/me. done. 
 
 - installer nice AI
-- wrapping / shortening text which appears when restricting view
++ wrapping / shortening text which appears when restricting view. Out of date. 
 + hardlinks / softlinks where supported softlinks yes. hardlinks with warning! 
 + display files only in dir ---> and its subdirs???? (even possible?) yes, done.
 + think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size: is minimal size always
@@ -116,7 +116,7 @@ TODO/IDEAS:
 - Speed display always, not only for large files
 - Treating 0-bytes sized files as double files (option?)
 - internationalization
-- make dll (with dup.cpp code)
+- make dll (with dup.cpp code)?
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
 - exchange if !__WIN32 by if __UNIX__
@@ -131,13 +131,15 @@ TODO/IDEAS:
 + add to result dialog "display files which match mask ..." template added.
 - +/- button on headers in result dialog (and dblclick)!!
 ! supporting watcom compiler (not possible yet because of lack of STL library)
-- replacing list.size() == 0 by list.empty()!
++ replacing list.size() == 0 by list.empty()! done.
 ? removing some separators of popup menu
+--- automake
 - correct wxWidgets version number in configure.in
 - add precompiled headers to automake
 ! Autotools
 - debug/non-debug version for automake
 - move all output files to extra dir 
+--- end automake
 + coloring matching files in restricted view
 - coloring / ____masking___ out files in one interface
   replace subdirs by general ____mask___ or ___add___ this...

@@ -1,3 +1,8 @@
+Date : 2008/2/20 10:09
+Including zero length files now
+Showing the right number of files found in progress dialog
+Replaced *.size() == 0 by *.empty()
+
 Date : 2008/2/19 20:11
 Added coloring in restricted view
 Added "and subdirs" option
