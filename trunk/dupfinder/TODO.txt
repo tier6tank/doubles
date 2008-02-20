@@ -129,7 +129,7 @@ TODO/IDEAS:
 + delete processed files (deleted/symlinked) from internal list!!!!!!!!! done.
 + do some actions (hard-/softlink) on more than one file? not possible
 + add to result dialog "display files which match mask ..." template added.
-- +/- button on headers in result dialog (and dblclick)!!
+* +/- button on headers in result dialog (and dblclick)!!
 ! supporting watcom compiler (not possible yet because of lack of STL library)
 + replacing list.size() == 0 by list.empty()! done.
 ? removing some separators of popup menu
@@ -141,11 +141,11 @@ TODO/IDEAS:
 - move all output files to extra dir 
 --- end automake
 + coloring matching files in restricted view
-- coloring / ____masking___ out files in one interface
+* coloring / ____masking___ out files in one interface
   replace subdirs by general ____mask___ or ___add___ this...
 - layout dialog1 / dialog3, and making the Border system (wxLEFT etc. ) a bit more 
   overviewable, perhaps also aligning all elements vertically...
-- implement native searching routine also for unix
+* implement native searching routine also for unix
 - remove updateview from dialog3 
 ? more descriptive name for dialogs?
 - instead/additional to match mask "contain string"?
