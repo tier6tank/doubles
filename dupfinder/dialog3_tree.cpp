@@ -51,19 +51,22 @@ enum {
 	ID_STORE, 
 	ID_CONFDELETE, 
 	ID_SHOWALL, 
-	ID_APPLYDIR, 
+	ID_APPLY, 
 	ID_DIRNAME, 
-	ID_RESTRICTINFO, 
 	ID_GETDIR, 
+	ID_SUBDIRS, 
+	ID_RESTTODIR,
+	ID_RESTTOMASK, 
+	ID_MASK, 
 
 	// menu
-	ID_OPENFILE, 
-	ID_OPENDIR, 
-	ID_COPYFILENAME, 
-	ID_DELETE, 
-	ID_HARDLINK, 
-	ID_SYMLINK, 
-	ID_RESTTODIR, 
+	ID_MENU_OPENFILE, 
+	ID_MENU_OPENDIR, 
+	ID_MENU_COPYFILENAME, 
+	ID_MENU_DELETE, 
+	ID_MENU_HARDLINK, 
+	ID_MENU_SYMLINK, 
+	ID_MENU_RESTTODIR, 
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
@@ -75,19 +78,19 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_LIST_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnListItemRightClick)
 	EVT_LIST_KEY_DOWN(ID_RESULTLIST, DupFinderDlg3::OnListKeyDown)
 	EVT_BUTTON(wxID_CANCEL, 	DupFinderDlg3::OnCancel)
-	EVT_BUTTON(ID_APPLYDIR, 	DupFinderDlg3::OnApplyDir)
+	EVT_BUTTON(ID_APPLY, 		DupFinderDlg3::OnApply)
 	EVT_BUTTON(ID_SHOWALL, 		DupFinderDlg3::OnShowAll)
-	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg3::OnApplyDir)
+	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg3::OnApply)
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg3::OnDlgChange)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg3::OnGetDir)
 	// Menu
-	EVT_MENU(ID_OPENFILE, 		DupFinderDlg3::OnOpenFile)
-	EVT_MENU(ID_OPENDIR, 		DupFinderDlg3::OnOpenDir)
-	EVT_MENU(ID_RESTTODIR, 		DupFinderDlg3::OnRestToDir)
-	EVT_MENU(ID_COPYFILENAME, 	DupFinderDlg3::OnCopyFileName)
-	EVT_MENU(ID_DELETE, 		DupFinderDlg3::OnDelete)
-	EVT_MENU(ID_SYMLINK, 		DupFinderDlg3::OnSymLink)
-	EVT_MENU(ID_HARDLINK, 		DupFinderDlg3::OnHardLink)
+	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
+	EVT_MENU(ID_MENU_OPENDIR, 	DupFinderDlg3::OnOpenDir)
+	EVT_MENU(ID_MENU_RESTTODIR,	DupFinderDlg3::OnRestToDir)
+	EVT_MENU(ID_MENU_COPYFILENAME, 	DupFinderDlg3::OnCopyFileName)
+	EVT_MENU(ID_MENU_DELETE, 	DupFinderDlg3::OnDelete)
+	EVT_MENU(ID_MENU_SYMLINK, 	DupFinderDlg3::OnSymLink)
+	EVT_MENU(ID_MENU_HARDLINK, 	DupFinderDlg3::OnHardLink)
 END_EVENT_TABLE()
 
 void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event) 
@@ -106,7 +109,12 @@ void DupFinderDlg3::CreateControls() {
 	
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *savesizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *restrictsizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *restrictcontrolssizer = new wxBoxSizer(wxVERTICAL);
+	wxStaticBoxSizer *restrictdetailssizer = new wxStaticBoxSizer(wxVERTICAL, this, 
+		_T("Show only files and their duplicates..."));
 	wxBoxSizer *dirsizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *masksizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
 
@@ -115,16 +123,9 @@ void DupFinderDlg3::CreateControls() {
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. \nRight click on items on the list ")
-			_T("for a list of actions for marked files. ") ), 
+			_T("for a list of actions for marked files. ") )), 
 		0, 
 		wxTOPLEFT, 
-		10);
-
-	resultssizer->Add(
-		wRestrictInfo = new wxStaticText(this, ID_RESTRICTINFO, _T("no restrictions"), 
-			wxDefaultPosition, wxDefaultSize), 
-		0, 
-		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	resultssizer->Add(
@@ -156,7 +157,14 @@ void DupFinderDlg3::CreateControls() {
 		10);
 
 	dirsizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Show only files and their \nduplicates in directory: ")), 
+		wRestrictToDir = new wxRadioButton(this, ID_RESTTODIR, _T("... in directory: "), 
+			wxDefaultPosition, wxDefaultSize, wxRB_GROUP), 
+		0, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirsizer->Add(
+		wSubDirs = new wxCheckBox(this, ID_SUBDIRS, _T(" and its subdir's")), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -174,16 +182,49 @@ void DupFinderDlg3::CreateControls() {
 		wxTOPLEFT, 
 		10);
 
-	dirsizer->Add(
-		new wxButton(this, ID_APPLYDIR, _T("&Apply")), 
+	masksizer->Add(
+		wRestrictToMask = new wxRadioButton(this, ID_RESTTOMASK, _T("... which match that mask: ")), 
+		0, 
+		wxTOPLEFT | wxRIGHT, 
+		10);
+
+	masksizer->Add(
+		wMask = new wxTextCtrl(this, ID_MASK, _T("")), 
+		1, 
+		wxTOPLEFT | wxRIGHT, 
+		10);
+
+	restrictcontrolssizer->Add(
+		new wxButton(this, ID_APPLY, _T("&Apply")), 
 		0, 
 		wxTOPLEFT, 
 		10);
 
-	dirsizer->Add(
+	restrictcontrolssizer->Add(
 		new wxButton(this, ID_SHOWALL, _T("S&how all")), 
 		0, 
 		wxTOPLEFT | wxRIGHT, 
+		10);
+
+	restrictdetailssizer->Add(dirsizer, 
+		0, 
+		wxEXPAND, 
+		10);
+	restrictdetailssizer->Add(masksizer, 
+		0, 
+		wxEXPAND, 
+		10);
+
+	restrictsizer->Add(
+		restrictdetailssizer, 
+		1, 
+		wxEXPAND, 
+		10);
+
+	restrictsizer->Add(
+		restrictcontrolssizer, 
+		0, 
+		wxEXPAND, 
 		10);
 
 	controlssizer->AddStretchSpacer(1);
@@ -195,7 +236,7 @@ void DupFinderDlg3::CreateControls() {
 		10);
 
 	resultssizer->Add(
-		dirsizer, 
+		restrictsizer, 
 		0, 
 		wxEXPAND | wxBOTTOM, 
 		10);
@@ -209,7 +250,7 @@ void DupFinderDlg3::CreateControls() {
 	topsizer->Add(
 		resultssizer, 
 		1, 
-		wxTOPLEFTRIGHT | wxEXPAND, 
+		wxTOP | wxEXPAND, 
 		10);
 
 	topsizer->Add(
@@ -218,7 +259,7 @@ void DupFinderDlg3::CreateControls() {
 		wxEXPAND  | wxALIGN_RIGHT, 
 		10);
 
-	topsizer->Hide(wRestrictInfo, true);
+	// topsizer->Hide(wRestrictInfo, true);
 
 	wResultList->InsertColumn(0, _T(""), wxLIST_FORMAT_LEFT, 1000);
 
@@ -227,7 +268,7 @@ void DupFinderDlg3::CreateControls() {
 	SetSizer(topsizer);
 	topsizer->SetSizeHints(this);
 
-	wRestrictInfo->SetForegroundColour(wxColor(_T("#FF0000")));
+	// wRestrictInfo->SetForegroundColour(wxColor(_T("#FF0000")));
 }
 
 void DupFinderDlg3::OnClose(wxCloseEvent &WXUNUSED(event)) {
@@ -248,6 +289,37 @@ void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
 		pSizer->SetDimension(0, 0, 
 			GetClientSize().GetWidth(), 
 			GetClientSize().GetHeight());
+	}
+}
+
+struct less_fileiterator : public less<list<File>::iterator > {
+	bool operator () (const list<File>::iterator &a, const list<File>::iterator &b) {
+		return a->GetName() < b->GetName();
+	}
+};
+
+bool DupFinderDlg3::IsMatching(const wxString & string)
+{
+	if(wRestrictToDir->GetValue()) {
+		wxFileName cur;	
+
+		cur = string;
+
+		// a great speed gain by not using wxPATH_NORM_LONG
+		// on windows, but short filesnames are not supported
+		cur.Normalize (
+			wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
+			cur.Normalize(wxPATH_NORM_CASE);
+
+		return (wSubDirs->GetValue() ? 
+			cur.GetPath().StartsWith(RestrictToDir.GetPath()) :
+			cur.GetPath() == RestrictToDir.GetPath());
+	}
+	else if(wRestrictToMask->GetValue()) {
+		
+	}
+	else {
+		assert(false);
 	}
 }
 
@@ -275,6 +347,7 @@ void DupFinderDlg3::DisplayResults() {
 	for(it = ffi.pFilesBySize->begin(); it != ffi.pFilesBySize->end(); it++) {
 		for(it2 = it->equalfiles.begin(); it2 != it->equalfiles.end(); it2++) {
 			bool bDisplay;
+			multiset<list<File>::iterator, less_fileiterator> matching;
 
 			if(bRestrict) {
 				// test if it should be displayed
@@ -282,20 +355,12 @@ void DupFinderDlg3::DisplayResults() {
 
 
 				for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
-					wxFileName cur;	
-
-					cur = it3->GetName();
-
-					// a great speed gain by not using wxPATH_NORM_LONG
-					// on windows, but short filesnames are not supported
-					cur.Normalize (
-						wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
-					cur.Normalize(wxPATH_NORM_CASE);
-
+					
 					// is in in the directory?
-					if(cur.GetPath() == RestrictToDir.GetPath()) {
+					if(IsMatching(it3->GetName()) ) {
 						bDisplay = true;
-						break;
+						matching.insert(it3);
+						// break;
 					}
 				}
 			}
@@ -326,6 +391,10 @@ void DupFinderDlg3::DisplayResults() {
 					item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->GetName());
 					ItemData *itemdata = new ItemData(it3, &*it2);
 					// wxString *itemdata = new wxString(it3->GetName());
+					// matching ??
+					if(matching.find(it3) != matching.end()) {
+						wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
+					}
 					wResultList->SetItemData(item, (long)itemdata);
 				}
 			}
@@ -412,18 +481,18 @@ void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 	if(event.GetData() != 0) {
 		bool bAddSep;	
 		
-		popupmenu->Append(ID_OPENFILE, _T("&Open"));
-		popupmenu->Append(ID_OPENDIR, _T("O&pen containing folder"));
+		popupmenu->Append(ID_MENU_OPENFILE, _T("&Open"));
+		popupmenu->Append(ID_MENU_OPENDIR, _T("O&pen containing folder"));
 		popupmenu->AppendSeparator();
-		popupmenu->Append(ID_RESTTODIR, _T("Sho&w only files in this folder"));
+		popupmenu->Append(ID_MENU_RESTTODIR, _T("Sho&w only files in this folder"));
 		popupmenu->AppendSeparator();
 		bAddSep = false;
 		if(IsSymLinkSupported()) {
-			popupmenu->Append(ID_SYMLINK, _T("C&reate symbolic links to this file"));
+			popupmenu->Append(ID_MENU_SYMLINK, _T("C&reate symbolic links to this file"));
 			bAddSep = true;
 		}
 		if(IsHardLinkSupported()) {
-			popupmenu->Append(ID_HARDLINK, _T("Create &hard links to this file"));
+			popupmenu->Append(ID_MENU_HARDLINK, _T("Create &hard links to this file"));
 			bAddSep = true;
 		}
 		if(bAddSep) {
@@ -431,9 +500,9 @@ void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 		}
 	}
 	
-	popupmenu->Append(ID_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
+	popupmenu->Append(ID_MENU_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
 	popupmenu->AppendSeparator();
-	popupmenu->Append(ID_DELETE, _T("&Delete"));
+	popupmenu->Append(ID_MENU_DELETE, _T("&Delete"));
 		
 	wResultList->PopupMenu(popupmenu);
 
@@ -645,19 +714,25 @@ void DupFinderDlg3::OnCancel(wxCommandEvent &WXUNUSED(event))
 
 
 
-void DupFinderDlg3::OnApplyDir(wxCommandEvent &WXUNUSED(event))
+void DupFinderDlg3::OnApply(wxCommandEvent &WXUNUSED(event))
 {
-	wxString dirname = wDirName->GetValue();
+	if(wRestrictToDir->GetValue()) {
+		wxString dirname = wDirName->GetValue();
 
-	if(!wxFileName::DirExists(dirname)) {
-		wxMessageBox(_T("Error: Directory does not exist. ")
-		_T("\nPlease enter a valid directory. "), _T("Error"), 
-		wxOK | wxICON_ERROR);
-		return;
+		if(!wxFileName::DirExists(dirname)) {
+			wxMessageBox(_T("Error: Directory does not exist. ")
+			_T("\nPlease enter a valid directory. "), _T("Error"), 
+			wxOK | wxICON_ERROR);
+			return;
+		}
+
+		RestrictViewToDir(dirname);
+	} else if(wRestrictToMask->GetValue()) {
+
 	}
-
-	RestrictViewTo(dirname);
-	DisplayResults();
+	else {
+		assert(false);
+	}
 }
 
 void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
@@ -667,13 +742,15 @@ void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 	UpdateView();
 }
 
-void DupFinderDlg3::RestrictViewTo(const wxString &dir) {
+void DupFinderDlg3::RestrictViewToDir(const wxString &dir) {
 	RestrictToDir = wxFileName::DirName(dir);
 	// get a little speed by not normalizing all
 	RestrictToDir.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
 	RestrictToDir.Normalize(wxPATH_NORM_CASE);
+	wDirName->SetValue(RestrictToDir.GetFullPath());
 	bRestrict = true;
 	UpdateView();
+	DisplayResults();
 }
 
 void DupFinderDlg3::ClearList() {
@@ -701,8 +778,7 @@ void DupFinderDlg3::OnRestToDir(wxCommandEvent & WXUNUSED(event))
 
 		wxString path = filename.GetPath();
 
-		RestrictViewTo(path);
-		DisplayResults();
+		RestrictViewToDir(path);
 	}
 }
 
@@ -712,6 +788,7 @@ void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 }
 
 void DupFinderDlg3::UpdateView() {
+	/*
 	wxSize cs1, cs2;
 	
 	wxString tmp;
@@ -739,6 +816,7 @@ void DupFinderDlg3::UpdateView() {
 	GetSizer()->SetDimension(0, 0, 
 		GetClientSize().GetWidth(), 
 		GetClientSize().GetHeight());
+	*/
 }
 		
 void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {

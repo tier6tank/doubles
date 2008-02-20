@@ -1,3 +1,9 @@
+Date : 2008/2/19 20:11
+Added coloring in restricted view
+Added "and subdirs" option
+Added (still useless) interface for 
+different types of restricting view
+
 Date : 2008/2/19 17:11
 Restored the old FindFiles function, and added option
 to choose between wxWidgets and my functions (Windows part)
