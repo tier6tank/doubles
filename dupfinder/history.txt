@@ -1,3 +1,8 @@
+Date : 2008/2/20 11:51
+Reformatted dialog 1 and dialog 3
+Added menu entry for restricting view to dir+subdirs
+Fitting all dialogs in 640x480
+
 Date : 2008/2/20 10:09
 Including zero length files now
 Showing the right number of files found in progress dialog

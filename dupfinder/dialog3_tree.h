@@ -78,6 +78,9 @@ public:
 	void ClearList();
 
 	void OnRestToDir(wxCommandEvent &);
+	void OnRestToSDir(wxCommandEvent &);
+	
+	void MenuRestToDir(bool);
 
 	void UpdateView();
 

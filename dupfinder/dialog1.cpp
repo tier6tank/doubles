@@ -97,30 +97,43 @@ void DupFinderDlg::CreateControls()
 {
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticBoxSizer *dirsizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Direc&tories"));
+	wxStaticBoxSizer *dirsizer = new wxStaticBoxSizer(wxVERTICAL, this, 
+		_T("Direc&tories"));
+
+	wxStaticBoxSizer *dirinfosizer = new wxStaticBoxSizer(wxVERTICAL, this, 
+		_T("Directory and search parameters"));
+
+	wxStaticBoxSizer *actionssizer = new wxStaticBoxSizer(wxVERTICAL, this, 
+		_T("Edit list"));
+
+	wxBoxSizer *infosizer = new wxBoxSizer(wxHORIZONTAL);
 
 	wxBoxSizer *dirrow1 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *dirrow2 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *dirrow3 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *dirrow4 = new wxBoxSizer(wxHORIZONTAL);
 
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 
 	const int wxTOPLEFT = wxLEFT | wxTOP;
 	const int wxTOPLEFTRIGHT = wxLEFT | wxTOP | wxRIGHT;
-	const int wxTOPRIGHT = wxRIGHT | wxTOP;
+	// const int wxTOPRIGHT = wxRIGHT | wxTOP;
 
 	/***************************** Dialog creation **********************************/
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
-			wxString(_T("Step 1: \nEnter the directories to search in and parameters for each diretory: ")) ), 
+			wxString(_T("Step 1: \nEnter each directory to search in ")
+				_T("and optional parameters, then click \"Add\" to ")
+				_T("add each to the list")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );
 
 	dirsizer->Add(
 		wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
-			wxSize(wxDefaultSize.GetWidth(), 280), wxBORDER_SUNKEN | wxLC_REPORT), 
+			/*wxSize(wxDefaultSize.GetWidth(), 180)*/
+			wxDefaultSize, wxBORDER_SUNKEN | wxLC_REPORT), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -135,29 +148,17 @@ void DupFinderDlg::CreateControls()
 		wDirName = new wxTextCtrl(this, ID_DIRNAME, _T(""), wxDefaultPosition, 
 			wxDefaultSize, wxTE_PROCESS_ENTER), 
 		1, 
-		wxTOPLEFT, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow1->Add(
 		new wxButton(this, ID_GETDIR, _T("&...")), 
 		0, 
-		wxTOPLEFT | wxRIGHT, 
+		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow2->Add(
-		wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("Include &subdirs")), 
-		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
-		10);
-
-	dirrow2->Add( 
-		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files") ), 
-		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
-		10);
-
-	dirrow2->Add(
-		new wxStaticText(this, wxID_STATIC, _T("M&inimal \nfile size: ") ), 
+		new wxStaticText(this, wxID_STATIC, _T("M&inimal\nfile size: ") ), 
 		0,
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -166,11 +167,11 @@ void DupFinderDlg::CreateControls()
 		wMinSize = new wxTextCtrl(this, ID_MINSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
-		wxTOPLEFT, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow2->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Ma&ximal \nfile size: ")), 
+		new wxStaticText(this, wxID_STATIC, _T("Ma&ximal\nfile size: ")), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -179,11 +180,11 @@ void DupFinderDlg::CreateControls()
 		wMaxSize = new wxTextCtrl(this, ID_MAXSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
-		wxTOPLEFT | wxRIGHT, 
+		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow3->Add(
-		wMaskEnable = new wxCheckBox(this, ID_MASKENABLE, _T("Search &mask: ")), 
+		wMaskEnable = new wxCheckBox(this, ID_MASKENABLE, _T("Filename &mask: ")), 
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -191,22 +192,34 @@ void DupFinderDlg::CreateControls()
 	dirrow3->Add(
 		wMask = new wxTextCtrl(this, ID_MASK, _T("")), 
 		1, 
-		wxTOPLEFT | wxBOTTOM, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow3->Add(
+	dirrow4->Add(
+		wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("Include &subdir's")), 
+		0, 
+		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow4->Add( 
+		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files") ), 
+		0, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	actionssizer->Add(
 		new wxButton(this, ID_ADDDIR, _T("&Add")), 
 		0, 
-		wxTOPLEFT | wxBOTTOM, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow3->Add(
+	actionssizer->Add(
 		new wxButton(this, ID_RMDIR, _T("&Remove")), 	
 		0, 
-		wxTOPLEFT | wxBOTTOM, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow3->Add(
+	actionssizer->Add(
 		new wxButton(this, ID_RMALL, _T("Rem&ove all")), 
 		0, 
 		wxTOPLEFTRIGHT | wxBOTTOM, 
@@ -232,24 +245,47 @@ void DupFinderDlg::CreateControls()
 		wxALIGN_RIGHT | wxLEFT, 
 		10);
 
-	dirsizer->Add(dirrow1, 
+	dirinfosizer->Add(dirrow1, 
 		0, 
 		wxTOPLEFT | wxEXPAND, 
 		0);
 
-	dirsizer->Add(dirrow2, 
+	dirinfosizer->Add(dirrow2, 
 		0, 
 		wxTOPLEFT | wxEXPAND, 
 		0);
 
-	dirsizer->Add(dirrow3, 
+	dirinfosizer->Add(dirrow3, 
 		0, 
 		wxTOPLEFT | wxEXPAND, 
 		0);
+
+	dirinfosizer->Add(dirrow4, 
+		0, 
+		wxTOPLEFT | wxEXPAND, 
+		0);
+
+	infosizer->Add(
+		dirinfosizer, 
+		1, 
+		wxTOP | wxEXPAND, 
+		10);
+
+	infosizer->Add(
+		actionssizer, 
+		0, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
+		10);
+
+	dirsizer->Add(
+		infosizer, 
+		0, 
+		wxTOPLEFT | wxBOTTOM | wxEXPAND, 
+		10);
 
 	topsizer->Add(dirsizer,
 		1, 
-		wxTOPLEFTRIGHT | wxEXPAND, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxEXPAND, 
 		10);
 
 	topsizer->Add(controlssizer, 
@@ -276,7 +312,7 @@ void DupFinderDlg::InitControls() {
 	// which order?...
 	wDirList->InsertColumn(1, _T("Subdirs"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(2, _T("Hidden"), wxLIST_FORMAT_LEFT, 30);
-	wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 250);
+	wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 200);
 	wDirList->InsertColumn(4, _T("Mask"), wxLIST_FORMAT_LEFT, 60);
 	wDirList->InsertColumn(5, _T("Min size"), wxLIST_FORMAT_LEFT, 60);
 	wDirList->InsertColumn(6, _T("Max size"), wxLIST_FORMAT_LEFT, 60);

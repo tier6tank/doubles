@@ -67,6 +67,7 @@ enum {
 	ID_MENU_HARDLINK, 
 	ID_MENU_SYMLINK, 
 	ID_MENU_RESTTODIR, 
+	ID_MENU_RESTTOSDIR
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
@@ -87,6 +88,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_MENU_OPENDIR, 	DupFinderDlg3::OnOpenDir)
 	EVT_MENU(ID_MENU_RESTTODIR,	DupFinderDlg3::OnRestToDir)
+	EVT_MENU(ID_MENU_RESTTOSDIR, 	DupFinderDlg3::OnRestToSDir)
 	EVT_MENU(ID_MENU_COPYFILENAME, 	DupFinderDlg3::OnCopyFileName)
 	EVT_MENU(ID_MENU_DELETE, 	DupFinderDlg3::OnDelete)
 	EVT_MENU(ID_MENU_SYMLINK, 	DupFinderDlg3::OnSymLink)
@@ -110,7 +112,8 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *savesizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *restrictsizer = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer *restrictcontrolssizer = new wxBoxSizer(wxVERTICAL);
+	wxStaticBoxSizer *restrictcontrolssizer = new wxStaticBoxSizer(wxVERTICAL, this,
+		_T("Update view"));
 	wxStaticBoxSizer *restrictdetailssizer = new wxStaticBoxSizer(wxVERTICAL, this, 
 		_T("Show only files and their duplicates..."));
 	wxBoxSizer *dirsizer = new wxBoxSizer(wxHORIZONTAL);
@@ -122,15 +125,15 @@ void DupFinderDlg3::CreateControls() {
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
 
 	topsizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. \nRight click on items on the list ")
-			_T("for a list of actions for marked files. ") ), 
+		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Right click on items on the list ")
+			_T("to proceed. ") ), 
 		0, 
-		wxTOPLEFT, 
+		wxTOPLEFTRIGHT, 
 		10);
 
 	resultssizer->Add(
 		wResultList = new wxListView(this, ID_RESULTLIST, 
-			wxDefaultPosition, wxSize(500, 300), 
+			wxDefaultPosition, wxSize(300, 150), 
 			wxBORDER_SUNKEN | wxLC_REPORT | wxLC_NO_HEADER), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
@@ -139,59 +142,60 @@ void DupFinderDlg3::CreateControls() {
 	savesizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Store the upper list to a file: ")), 
 		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	savesizer->Add(
 		new wxButton(this, ID_STORE, _T("&Store")), 
 		0, 
-		wxTOPLEFT | wxRIGHT, 
+		wxLEFT, 
 		10);
 
 	savesizer->AddStretchSpacer(1);
 
 	savesizer->Add(
-		wConfDelete = new wxCheckBox(this, ID_CONFDELETE, _T("&Confirm delete")), 
+		wConfDelete = new wxCheckBox(this, ID_CONFDELETE, 
+			_T("Show &confirmation message when deleting")), 
 		0, 
-		wxTOPLEFT | wxRIGHT | wxALIGN_CENTER_VERTICAL, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirsizer->Add(
-		wRestrictToDir = new wxRadioButton(this, ID_RESTTODIR, _T("... in directory: "), 
+		wRestrictToDir = new wxRadioButton(this, ID_RESTTODIR, _T("... in &directory: "), 
 			wxDefaultPosition, wxDefaultSize, wxRB_GROUP), 
 		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
-		10);
-
-	dirsizer->Add(
-		wSubDirs = new wxCheckBox(this, ID_SUBDIRS, _T(" and its subdir's")), 
-		0, 
-		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirsizer->Add(
 		wDirName = new wxTextCtrl(this, ID_DIRNAME, _T(""), 
 			wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER), 
 		1, 
-		wxTOPLEFT, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirsizer->Add(
 		new wxButton(this, ID_GETDIR, _T("&...")), 
 		0, 
-		wxTOPLEFT, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirsizer->Add(
+		wSubDirs = new wxCheckBox(this, ID_SUBDIRS, _T(" and &its subdir's")), 
+		0, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	masksizer->Add(
-		wRestrictToMask = new wxRadioButton(this, ID_RESTTOMASK, _T("... which match that mask: ")), 
+		wRestrictToMask = new wxRadioButton(this, ID_RESTTOMASK, _T("... which &match that mask: ")), 
 		0, 
-		wxTOPLEFT | wxRIGHT, 
+		wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	masksizer->Add(
 		wMask = new wxTextCtrl(this, ID_MASK, _T("")), 
 		1, 
-		wxTOPLEFT | wxRIGHT, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	restrictcontrolssizer->Add(
@@ -208,23 +212,23 @@ void DupFinderDlg3::CreateControls() {
 
 	restrictdetailssizer->Add(dirsizer, 
 		0, 
-		wxEXPAND, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
+
 	restrictdetailssizer->Add(masksizer, 
 		0, 
-		wxEXPAND, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxEXPAND, 
 		10);
 
 	restrictsizer->Add(
 		restrictdetailssizer, 
 		1, 
-		wxEXPAND, 
-		10);
+		wxEXPAND);
 
 	restrictsizer->Add(
 		restrictcontrolssizer, 
 		0, 
-		wxEXPAND, 
+		wxEXPAND | wxLEFT | wxRIGHT, 
 		10);
 
 	controlssizer->AddStretchSpacer(1);
@@ -232,31 +236,30 @@ void DupFinderDlg3::CreateControls() {
 	controlssizer->Add(
 		new wxButton(this, wxID_CANCEL, _T("Cl&ose")), 
 		0, 
-		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_RIGHT, 
-		10);
+		wxALIGN_RIGHT);
 
 	resultssizer->Add(
 		restrictsizer, 
 		0, 
-		wxEXPAND | wxBOTTOM, 
+		wxTOPLEFTRIGHT| wxEXPAND, 
 		10);
 
 	resultssizer->Add(
 		savesizer, 
 		0, 
-		wxBOTTOM | wxEXPAND, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxEXPAND, 
 		10);
 
 	topsizer->Add(
 		resultssizer, 
 		1, 
-		wxTOP | wxEXPAND, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	topsizer->Add(
 		controlssizer, 
 		0, 
-		wxEXPAND  | wxALIGN_RIGHT, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxEXPAND, 
 		10);
 
 	// topsizer->Hide(wRestrictInfo, true);
@@ -485,6 +488,7 @@ void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 		popupmenu->Append(ID_MENU_OPENDIR, _T("O&pen containing folder"));
 		popupmenu->AppendSeparator();
 		popupmenu->Append(ID_MENU_RESTTODIR, _T("Sho&w only files in this folder"));
+		popupmenu->Append(ID_MENU_RESTTOSDIR, _T("Show onl&y files in this folder and subfolders"));
 		popupmenu->AppendSeparator();
 		bAddSep = false;
 		if(IsSymLinkSupported()) {
@@ -746,8 +750,8 @@ void DupFinderDlg3::RestrictViewToDir(const wxString &dir) {
 	RestrictToDir = wxFileName::DirName(dir);
 	// get a little speed by not normalizing all
 	RestrictToDir.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
-	RestrictToDir.Normalize(wxPATH_NORM_CASE);
 	wDirName->SetValue(RestrictToDir.GetFullPath());
+	RestrictToDir.Normalize(wxPATH_NORM_CASE);
 	bRestrict = true;
 	UpdateView();
 	DisplayResults();
@@ -766,7 +770,7 @@ void DupFinderDlg3::ClearList() {
 	wResultList->DeleteAllItems();
 }
 
-void DupFinderDlg3::OnRestToDir(wxCommandEvent & WXUNUSED(event)) 
+void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
 {
 	int focus = wResultList->GetFocusedItem();
 	if(focus == -1) {
@@ -778,9 +782,21 @@ void DupFinderDlg3::OnRestToDir(wxCommandEvent & WXUNUSED(event))
 
 		wxString path = filename.GetPath();
 
+		wSubDirs->SetValue(bSubDirs);
+
 		RestrictViewToDir(path);
 	}
 }
+
+void DupFinderDlg3::OnRestToDir(wxCommandEvent & WXUNUSED(event)) 
+{
+	MenuRestToDir(false);
+}
+
+void DupFinderDlg3::OnRestToSDir(wxCommandEvent &WXUNUSED(event)) 
+{
+	MenuRestToDir(true);
+}	
 
 void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 {
