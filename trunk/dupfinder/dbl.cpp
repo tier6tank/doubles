@@ -129,7 +129,7 @@ public:
 			size = *pSize;
 		}
 		STOPTIME(__findsize);
-		const bool bIncludeZeroFiles = false; // later make an option out of this?
+		const bool bIncludeZeroFiles = true; // later make an option out of this?
 		
 		bool bFitsMinSize = size >= pi->nMinSize;
 		bool bFitsMaxSize = size <= pi->nMaxSize || pi->nMaxSize == 0;
@@ -263,7 +263,8 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 	list<File>::iterator it;
 	multiset_fileinfosize_it it2;
 	bool bDeleted;
-	wxULongLong nFiles;
+	wxULongLong nFiles1, nFiles2;
+	wxULongLong nSizes1;
 	wxULongLong nDroppedFiles;
 	list<pathinfo> &paths = ffi.paths;
 	list<pathinfo>::const_iterator it3;
@@ -275,12 +276,12 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 
 	wxLogMessage(_T("Step 1: Searching files... "));
 
-	nFiles = 0;
+	nFiles1 = 0;
 
 	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
 		wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
 		
-		AddFileToList traverser(&ffi, &*it3, nFiles, guii);
+		AddFileToList traverser(&ffi, &*it3, nFiles1, guii);
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
@@ -316,15 +317,17 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 	#endif
 	}
 
+	nSizes1 = ffi.pFilesBySize->size();
+
 	multiset_fileinfosize_it it2tmp;
 	
-	nFiles = 0;
+	nFiles2 = 0;
 	nDroppedFiles = 0;
 
 	for(it2 = ffi.pFilesBySize->begin(); it2 != ffi.pFilesBySize->end(); bDeleted ? it2 : it2++) {
 		if(it2->files.size() > 1) {
 			bDeleted = false;
-			nFiles += it2->files.size();
+			nFiles2 += it2->files.size();
 		}
 		else { 
 			it2tmp = it2;
@@ -338,12 +341,17 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 	}
 
 	wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
-		nFiles.GetValue());
+		nFiles2.GetValue());
 
 	if(guii) {
 		wxString tmp;
+		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
+			nFiles1.GetValue(), 
+			nSizes1);
+		guii->nfiles->SetLabel(tmp);
+
 		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %u sizes"), 
-			nFiles.GetValue(), ffi.pFilesBySize->size());
+			nFiles2.GetValue(), ffi.pFilesBySize->size());
 		guii->cfiles->SetLabel(tmp);
 	}
 

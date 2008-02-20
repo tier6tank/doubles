@@ -123,7 +123,7 @@ void DupFinderDlg3::CreateControls() {
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. \nRight click on items on the list ")
-			_T("for a list of actions for marked files. ") )), 
+			_T("for a list of actions for marked files. ") ), 
 		0, 
 		wxTOPLEFT, 
 		10);
@@ -331,7 +331,7 @@ void DupFinderDlg3::DisplayResults() {
 	wxFont font, boldfont;
 	int item;
 
-	if(ffi.pFilesBySize->size() == 0) {
+	if(ffi.pFilesBySize->empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
 			 wxOK | wxICON_INFORMATION, this);
 

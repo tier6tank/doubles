@@ -316,12 +316,12 @@ void DupFinderDlg::UpdateView() {
 	// one path in the list
 
 	FindWindow(wxID_OK)->Enable(
-		ffi.paths.size() > 0
+		!ffi.paths.empty()
 	);
 
 	// RemoveAll enabled if there's something in the list
 	FindWindow(ID_RMALL)->Enable(
-		ffi.paths.size() > 0
+		!ffi.paths.empty()
 	);
 
 }
