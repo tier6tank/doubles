@@ -70,10 +70,10 @@ public:
 
 	void OnCancel(wxCommandEvent &);
 
-	void OnApplyDir(wxCommandEvent &);
+	void OnApply(wxCommandEvent &);
 	void OnShowAll(wxCommandEvent &);
 
-	void RestrictViewTo(const wxString &);
+	void RestrictViewToDir(const wxString &);
 
 	void ClearList();
 
@@ -87,6 +87,8 @@ public:
 
 	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);
 
+	bool IsMatching(const wxString &);
+
 private:
 	static bool bHardLinkWarning;
 
@@ -95,7 +97,11 @@ private:
 	wxListView *wResultList;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
-	wxStaticText *wRestrictInfo;
+	// wxStaticText *wRestrictInfo;
+	wxCheckBox *wSubDirs;
+	wxRadioButton *wRestrictToDir;
+	wxRadioButton *wRestrictToMask;
+	wxTextCtrl *wMask;
 	
 	DupFinderDlg *parent;
 

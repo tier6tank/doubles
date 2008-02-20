@@ -109,7 +109,7 @@ TODO/IDEAS:
 - installer nice AI
 - wrapping / shortening text which appears when restricting view
 + hardlinks / softlinks where supported softlinks yes. hardlinks with warning! 
-- display files only in dir ---> and its subdirs???? (even possible?)
++ display files only in dir ---> and its subdirs???? (even possible?) yes, done.
 + think about minsize, whether it should be perhaps really the MINsize, not the MIN-but-not-EQUAL-size: is minimal size always
 + adding MAXimal size of files option? but what for... done.
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
@@ -127,14 +127,24 @@ TODO/IDEAS:
 - displaying info (size of all duplicates) in gui version as well
 + make filenames not reappear when View is updated!!!!!!!!! done.
 + delete processed files (deleted/symlinked) from internal list!!!!!!!!! done.
-- do some actions (hard-/softlink) on more than one file?
-- add to result dialog "display files which match mask ..."
++ do some actions (hard-/softlink) on more than one file? not possible
++ add to result dialog "display files which match mask ..." template added.
 - +/- button on headers in result dialog (and dblclick)!!
-- supporting watcom compiler
+! supporting watcom compiler (not possible yet because of lack of STL library)
 - replacing list.size() == 0 by list.empty()!
-- removing some seperators of popup menu
+? removing some separators of popup menu
 - correct wxWidgets version number in configure.in
 - add precompiled headers to automake
 ! Autotools
 - debug/non-debug version for automake
 - move all output files to extra dir 
++ coloring matching files in restricted view
+- coloring / ____masking___ out files in one interface
+  replace subdirs by general ____mask___ or ___add___ this...
+- layout dialog1 / dialog3, and making the Border system (wxLEFT etc. ) a bit more 
+  overviewable, perhaps also aligning all elements vertically...
+- implement native searching routine also for unix
+- remove updateview from dialog3 
+? more descriptive name for dialogs?
+- instead/additional to match mask "contain string"?
+

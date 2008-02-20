@@ -205,7 +205,7 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 
 
 #if defined( __UNIX__ ) && !defined(_WIN32)
-
+/*
 void Traverse(const wxString &RootDir, const wxString &mask, int flags, for_each_file_func function, void *pData) 
 {
 	const _TCHAR * array[2] = { pRootDir, NULL };
@@ -237,6 +237,7 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, for_each
 
 	fts_close(hFind);
 }
+*/
 
 bool IsSymLink(const wxString &filename) {
 	struct stat st;
