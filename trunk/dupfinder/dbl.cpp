@@ -27,9 +27,15 @@ using namespace std;
 
 /********* options ************/
 
+#if defined(__UNIX__) && !defined(_WIN32)
+// at the moment, because there is no native
+// routine implemented
+#define FINDFILES_USE_WXWIDGETS
+#else
 #ifndef FINDFILES_USE_WXWIDGETS
 // #define FINDFILES_USE_WXWIDGETS
 #endif
+#endif /* defined(__UNIX__) && !defined(_WIN32)
 
 // #define BENCHMARK
 // #define PROFILE
@@ -347,7 +353,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 		wxString tmp;
 		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
 			nFiles1.GetValue(), 
-			nSizes1);
+			nSizes1.GetValue());
 		guii->nfiles->SetLabel(tmp);
 
 		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %u sizes"), 

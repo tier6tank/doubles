@@ -141,12 +141,13 @@ TODO/IDEAS:
 - move all output files to extra dir 
 --- end automake
 + coloring matching files in restricted view
-* coloring / ____masking___ out files in one interface
-  replace subdirs by general ____mask___ or ___add___ this...
++ coloring / ____masking___ out files in one interface
+  replace subdirs by general ____mask___ or ___add___ this... done.
 - layout dialog1 / dialog3, and making the Border system (wxLEFT etc. ) a bit more 
   overviewable, perhaps also aligning all elements vertically...
-* implement native searching routine also for unix
+- implement native searching routine also for unix. not at the moment
 - remove updateview from dialog3 
 ? more descriptive name for dialogs?
 - instead/additional to match mask "contain string"?
+- reducing width of result dialog
 

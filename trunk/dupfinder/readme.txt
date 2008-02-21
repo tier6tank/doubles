@@ -39,7 +39,7 @@ COMPILING:
    To get there, you have to download wxWidgets from 
    http://sourceforge.net/projects/wxwindows
 
-a) In Unix configure the whole thing with options as you like 
+a) In Unix configure the whole library with options as you like 
    (but --disable-shared is required, you could but also change 
     the makefiles to be able to link with shared libraries), 
    for example
@@ -51,6 +51,7 @@ b) In Windows, follow the instructions you find in the docs directory
 2) The rest is pretty simple: 
 
 For each compiler, there is a special makefile. 
+In unix, there is also a (still experimental) autotools implementation.
 
 
 For building the program with visual c++ - compiler, just type the following: 
@@ -88,7 +89,12 @@ For building the program in unix with gcc, type the following:
 
 	make [debug=0/1]
 
-The compiled files are stored under unix[d]. 
+The compiled files are stored under unix[d].
+Or take the configure way (but note that this is still experimental):
+
+	./configure
+	make -f Makefile
+ 
 
 Other compilers are perhaps also supported, but i did not try other compilers yet. 
 

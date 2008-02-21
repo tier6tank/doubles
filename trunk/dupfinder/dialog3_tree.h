@@ -102,14 +102,15 @@ private:
 	wxTextCtrl *wDirName;
 	// wxStaticText *wRestrictInfo;
 	wxCheckBox *wSubDirs;
-	wxRadioButton *wRestrictToDir;
-	wxRadioButton *wRestrictToMask;
+	wxCheckBox *wRestrictToDir;
+	wxCheckBox *wRestrictToMask;
 	wxTextCtrl *wMask;
 	
 	DupFinderDlg *parent;
 
 	wxFileName RestrictToDir;
-	bool bRestrict;
+	bool bRestrictToDir;
+	bool bRestrictToMask;
 
 	DECLARE_EVENT_TABLE()
 };
