@@ -7,7 +7,8 @@ TODO/IDEAS:
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
 + (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
-- adding option -max (max size of files to compare with each other) or -maxbytes (compare max. n bytes of a file)
++ adding option -max (max size of files to compare with each other) done.
+- maxbytes (compare max. n bytes of a file) 
 + adding IsSameFileFunction (done -> wxWidgets)
 + adding error messages (when finding files, comparing files...) (done via wxWidgets)
 + supporting files over 4 GB always?! yes, i do hope so. 
@@ -26,7 +27,7 @@ TODO/IDEAS:
 + replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
 - add to statistcs sum of bytes read, average speed
 + need a faster container than list for testing for double scanning of directories. done (using set). 
-- linux makefile mkdir if
++ linux makefile mkdir if at last done.
 + removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
   perhaps using wxLogNull and my own error reporting routines? (done via wxLogStream)
 + suppress logging completely (done via wxLogStream)
@@ -146,8 +147,8 @@ TODO/IDEAS:
 - layout dialog1 / dialog3, and making the Border system (wxLEFT etc. ) a bit more 
   overviewable, perhaps also aligning all elements vertically...
 - implement native searching routine also for unix. not at the moment
-- remove updateview from dialog3 
++ remove updateview from dialog3 . done.
 ? more descriptive name for dialogs?
-- instead/additional to match mask "contain string"?
-- reducing width of result dialog
++ instead/additional to match mask "contain string"? no. 
++ reducing width of result dialog done.
 

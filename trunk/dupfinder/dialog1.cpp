@@ -101,7 +101,7 @@ void DupFinderDlg::CreateControls()
 		_T("Direc&tories"));
 
 	wxStaticBoxSizer *dirinfosizer = new wxStaticBoxSizer(wxVERTICAL, this, 
-		_T("Directory and search parameters"));
+		_T("Directory name and search parameters"));
 
 	wxStaticBoxSizer *actionssizer = new wxStaticBoxSizer(wxVERTICAL, this, 
 		_T("Edit list"));
@@ -123,9 +123,8 @@ void DupFinderDlg::CreateControls()
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
-			wxString(_T("Step 1: \nEnter each directory to search in ")
-				_T("and optional \nparameters, then click \"Add\" to ")
-				_T("add each to the list")) ), 
+			wxString(_T("Step 1: \nFor each directory to search in fill out \n")
+				_T("the fields below, then click on \"Add\"")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );
@@ -186,13 +185,13 @@ void DupFinderDlg::CreateControls()
 	dirrow3->Add(
 		wMaskEnable = new wxCheckBox(this, ID_MASKENABLE, _T("Filename &mask: ")), 
 		0, 
-		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow3->Add(
 		wMask = new wxTextCtrl(this, ID_MASK, _T("")), 
 		1, 
-		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow4->Add(
@@ -219,10 +218,12 @@ void DupFinderDlg::CreateControls()
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
+	actionssizer->AddStretchSpacer();
+
 	actionssizer->Add(
 		new wxButton(this, ID_RMALL, _T("Rem&ove all")), 
 		0, 
-		wxTOPLEFTRIGHT | wxBOTTOM, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_BOTTOM, 
 		10);
 
 	controlssizer->Add(
