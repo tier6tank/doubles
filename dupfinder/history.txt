@@ -1,3 +1,8 @@
+Date : 2008/2/21 13:40
+All items have now a ItemData object associated with them 
+ (for further extension)
+GUI changes (layout, automatically checking checkboxes)
+
 Date : 2008/2/21 11:39
 Masking out filenames in result list works now
 linux automatically using wxWidgets dirctory tree walking functions

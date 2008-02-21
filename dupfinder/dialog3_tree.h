@@ -82,15 +82,14 @@ public:
 	
 	void MenuRestToDir(bool);
 
-	void UpdateView();
-
-	void OnDlgChange(wxCommandEvent &);
-
 	void OnGetDir(wxCommandEvent &);
 
 	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);
 
 	bool IsMatching(const wxString &);
+
+	void OnMaskChange(wxCommandEvent &);
+	void OnDirChange(wxCommandEvent &);
 
 private:
 	static bool bHardLinkWarning;

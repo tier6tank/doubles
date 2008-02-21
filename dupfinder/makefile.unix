@@ -65,7 +65,7 @@ all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
 #change that somewhen (with if exist ......) 
 $(outdir): 
-	-@mkdir $(outdir)
+	if [ ! -e $(outdir) ]; then mkdir $(outdir); fi
 
 $(outdir)/$(name): $(outdir)/stdinc.h.gch $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(outdir)/file.o
 	g++ $(opt) -o "$(outdir)/$(name)" $(outdir)/dupf.o $(outdir)/dbl.o $(outdir)/os_cc_specific.o $(outdir)/file.o $(libs) 
