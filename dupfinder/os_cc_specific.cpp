@@ -206,9 +206,11 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 
 #if defined( __UNIX__ ) && !defined(_WIN32)
 /*
-void Traverse(const wxString &RootDir, const wxString &mask, int flags, for_each_file_func function, void *pData) 
+void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDirTraverser &sink) 
 {
-	const _TCHAR * array[2] = { pRootDir, NULL };
+	const _TCHAR * array[2] = { NULL, NULL };
+	array[0] = new _TCHAR[RootDir.Length() + 1];
+	_tscpy(array[0], RootDir.c_str());
 	FTS *hFind;
 	FTSENT *fe;
 	wxString FileName;

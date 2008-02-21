@@ -124,7 +124,7 @@ void DupFinderDlg::CreateControls()
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
 			wxString(_T("Step 1: \nEnter each directory to search in ")
-				_T("and optional parameters, then click \"Add\" to ")
+				_T("and optional \nparameters, then click \"Add\" to ")
 				_T("add each to the list")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
@@ -132,8 +132,8 @@ void DupFinderDlg::CreateControls()
 
 	dirsizer->Add(
 		wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
-			/*wxSize(wxDefaultSize.GetWidth(), 180)*/
-			wxDefaultSize, wxBORDER_SUNKEN | wxLC_REPORT), 
+			wxSize(wxDefaultSize.GetWidth(), 100),
+			wxBORDER_SUNKEN | wxLC_REPORT), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -340,6 +340,12 @@ void DupFinderDlg::UpdateView() {
 		wxFileName::DirExists(dir)  && wMinSize->GetValue().IsNumber()
 	);
 	*/
+
+	// add button disabled when dir field empty
+
+	FindWindow(ID_ADDDIR)->Enable(
+		wDirName->GetValue().Length() != 0
+	);
 
 	// remove button only if there is a selection 
 	// in the dir list

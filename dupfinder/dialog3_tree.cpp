@@ -26,7 +26,8 @@
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, findfileinfo &_ffi) 
 	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi), parent(_parent), 
-		RestrictToDir(_T("")), bRestrict(false)
+		RestrictToDir(_T("")), bRestrictToDir(false), 
+		bRestrictToMask(false)
 {
 }
 
@@ -103,8 +104,6 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 	DisplayResults();
 
 	CenterOnScreen();
-
-	UpdateView();
 }
 
 void DupFinderDlg3::CreateControls() {
@@ -113,34 +112,34 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *savesizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *restrictsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *restrictcontrolssizer = new wxStaticBoxSizer(wxVERTICAL, this,
-		_T("Update view"));
+		_T("Update list"));
 	wxStaticBoxSizer *restrictdetailssizer = new wxStaticBoxSizer(wxVERTICAL, this, 
 		_T("Show only files and their duplicates..."));
 	wxBoxSizer *dirsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *masksizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
-
+	
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Right click on items on the list ")
-			_T("to proceed. ") ), 
+			_T("for a list of actions. ") ), 
 		0, 
 		wxTOPLEFTRIGHT, 
 		10);
 
 	resultssizer->Add(
 		wResultList = new wxListView(this, ID_RESULTLIST, 
-			wxDefaultPosition, wxSize(300, 150), 
+			wxDefaultPosition, wxSize(wxDefaultSize.GetWidth(), 180), 
 			wxBORDER_SUNKEN | wxLC_REPORT | wxLC_NO_HEADER), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	savesizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Store the upper list to a file: ")), 
+		new wxStaticText(this, wxID_STATIC, _T("Store the upper\nlist to a file: ")), 
 		0, 
 		wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -161,8 +160,7 @@ void DupFinderDlg3::CreateControls() {
 		10);
 
 	dirsizer->Add(
-		wRestrictToDir = new wxRadioButton(this, ID_RESTTODIR, _T("... in &directory: "), 
-			wxDefaultPosition, wxDefaultSize, wxRB_GROUP), 
+		wRestrictToDir = new wxCheckBox(this, ID_RESTTODIR, _T("... in &directory: ")), 
 		0, 
 		wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -187,7 +185,7 @@ void DupFinderDlg3::CreateControls() {
 		10);
 
 	masksizer->Add(
-		wRestrictToMask = new wxRadioButton(this, ID_RESTTOMASK, _T("... which &match that mask: ")), 
+		wRestrictToMask = new wxCheckBox(this, ID_RESTTOMASK, _T("... which &match that mask: ")), 
 		0, 
 		wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -303,7 +301,9 @@ struct less_fileiterator : public less<list<File>::iterator > {
 
 bool DupFinderDlg3::IsMatching(const wxString & string)
 {
-	if(wRestrictToDir->GetValue()) {
+	bool bMatching = true;
+
+	if(bRestrictToDir && bMatching) {
 		wxFileName cur;	
 
 		cur = string;
@@ -314,16 +314,18 @@ bool DupFinderDlg3::IsMatching(const wxString & string)
 			wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
 			cur.Normalize(wxPATH_NORM_CASE);
 
-		return (wSubDirs->GetValue() ? 
+		bMatching = (wSubDirs->GetValue() ? 
 			cur.GetPath().StartsWith(RestrictToDir.GetPath()) :
 			cur.GetPath() == RestrictToDir.GetPath());
 	}
-	else if(wRestrictToMask->GetValue()) {
-		
+
+	if(bRestrictToMask && bMatching) {
+		wxFileName name = string;
+
+		bMatching = name.GetFullName().Matches(wMask->GetValue());
 	}
-	else {
-		assert(false);
-	}
+
+	return bMatching;
 }
 
 void DupFinderDlg3::DisplayResults() {
@@ -351,6 +353,8 @@ void DupFinderDlg3::DisplayResults() {
 		for(it2 = it->equalfiles.begin(); it2 != it->equalfiles.end(); it2++) {
 			bool bDisplay;
 			multiset<list<File>::iterator, less_fileiterator> matching;
+
+			bool bRestrict = bRestrictToMask || bRestrictToDir;
 
 			if(bRestrict) {
 				// test if it should be displayed
@@ -450,11 +454,9 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnListItemActivated(wxListEvent &event) 
 {
-		
 	if(event.GetData() != 0) {
 		OpenDir(event.GetIndex());
 	}
-
 }
 
 void DupFinderDlg3::OpenDir(long i) {
@@ -720,7 +722,10 @@ void DupFinderDlg3::OnCancel(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnApply(wxCommandEvent &WXUNUSED(event))
 {
-	if(wRestrictToDir->GetValue()) {
+	bRestrictToDir = wRestrictToDir->GetValue();
+	bRestrictToMask = wRestrictToMask->GetValue();
+
+	if(bRestrictToDir) {
 		wxString dirname = wDirName->GetValue();
 
 		if(!wxFileName::DirExists(dirname)) {
@@ -731,29 +736,25 @@ void DupFinderDlg3::OnApply(wxCommandEvent &WXUNUSED(event))
 		}
 
 		RestrictViewToDir(dirname);
-	} else if(wRestrictToMask->GetValue()) {
+	} 
+	
+	DisplayResults();
+}
 
-	}
-	else {
-		assert(false);
-	}
+void DupFinderDlg3::RestrictViewToDir(const wxString &dirname)
+{
+	bRestrictToDir = true;
+
+	RestrictToDir = wxFileName::DirName(dirname);
+		
+	RestrictToDir.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
+	RestrictToDir.Normalize(wxPATH_NORM_CASE);
 }
 
 void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 {
-	bRestrict = false;
-	DisplayResults();
-	UpdateView();
-}
-
-void DupFinderDlg3::RestrictViewToDir(const wxString &dir) {
-	RestrictToDir = wxFileName::DirName(dir);
-	// get a little speed by not normalizing all
-	RestrictToDir.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_LONG);
-	wDirName->SetValue(RestrictToDir.GetFullPath());
-	RestrictToDir.Normalize(wxPATH_NORM_CASE);
-	bRestrict = true;
-	UpdateView();
+	bRestrictToDir = false;
+	bRestrictToMask = false;
 	DisplayResults();
 }
 
@@ -783,8 +784,12 @@ void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
 		wxString path = filename.GetPath();
 
 		wSubDirs->SetValue(bSubDirs);
+		wRestrictToDir->SetValue(true);
+		wDirName->SetValue(path);
 
 		RestrictViewToDir(path);
+
+		DisplayResults();
 	}
 }
 
@@ -800,39 +805,10 @@ void DupFinderDlg3::OnRestToSDir(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnDlgChange(wxCommandEvent &WXUNUSED(event))
 {
-	UpdateView();
 }
 
 void DupFinderDlg3::UpdateView() {
-	/*
-	wxSize cs1, cs2;
-	
-	wxString tmp;
-	tmp.Printf(_T("Showing only files in %s and their duplicates! "), 
-		RestrictToDir.GetFullPath().c_str() );
 
-	wRestrictInfo->SetLabel(tmp);
-
-	// if there are spaces...
-	wRestrictInfo->Wrap(wRestrictInfo->GetSize().GetWidth());
-
-	GetSizer()->Show(wRestrictInfo, bRestrict, true);
-
-	GetSizer()->Layout();
-
-	cs1 = GetClientSize();
-	cs2 = GetSizer()->GetMinSize();
-
-	this->SetSizeHints(GetBestSize());
-
-	SetClientSize(
-		max(cs1.GetWidth(), cs2.GetWidth()), 
-		max(cs1.GetHeight(), cs2.GetHeight()) );
-
-	GetSizer()->SetDimension(0, 0, 
-		GetClientSize().GetWidth(), 
-		GetClientSize().GetHeight());
-	*/
 }
 		
 void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
@@ -840,7 +816,7 @@ void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 
 	dirch.SetWindowStyle(wxDD_DIR_MUST_EXIST);
 
-	if(bRestrict) {
+	if(bRestrictToDir) {
 		dirch.SetPath(RestrictToDir.GetPath());
 	} else {
 		dirch.SetPath(wDirName->GetValue());
