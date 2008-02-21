@@ -151,4 +151,4 @@ TODO/IDEAS:
 ? more descriptive name for dialogs?
 + instead/additional to match mask "contain string"? no. 
 + reducing width of result dialog done.
-
+- with items associated information (ItemData) static

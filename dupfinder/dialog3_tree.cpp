@@ -47,10 +47,11 @@ struct ItemData
 	ItemData(list<File>::iterator _myself, 
 		fileinfoequal *_mygroup) : myself(_myself), mygroup(_mygroup), type(TYPE_FILE)
 	{ }
-	ItemData() : type(TYPE_HEADER), mygroup(NULL) { }
+	ItemData(fileinfoequal *_mygroup) : mygroup(_mygroup), type(TYPE_HEADER) /*, bExpanded(true) */ { }
 	list<File>::iterator myself;
 	fileinfoequal *mygroup;
 	int type;
+	// bool bExpanded;
 };
 
 enum {
@@ -316,7 +317,7 @@ void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
 }
 
 struct less_fileiterator : public less<list<File>::iterator > {
-	bool operator () (const list<File>::iterator &a, const list<File>::iterator &b) {
+	bool operator () (const list<File>::iterator &a, const list<File>::iterator &b) const {
 		return a->GetName() < b->GetName();
 	}
 };
@@ -415,7 +416,7 @@ void DupFinderDlg3::DisplayResults() {
 			
 				wResultList->SetItemFont(item, boldfont);
 
-				itemdata = new ItemData();
+				itemdata = new ItemData(&*it2);
 
 				wResultList->SetItemData(item, (long)itemdata);
 
@@ -479,9 +480,12 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnListItemActivated(wxListEvent &event) 
 {
-	if(((ItemData *)event.GetData())->type == TYPE_FILE) {
+	ItemData *data = (ItemData *)event.GetData();
+	if(data->type == TYPE_FILE) {
 		OpenDir(event.GetIndex());
-	}
+	} /*else {
+		data->bExpanded = !data->bExpanded;	
+	}*/
 }
 
 void DupFinderDlg3::OpenDir(long i) {
@@ -721,7 +725,8 @@ void DupFinderDlg3::DeleteOrphanedHeaders()
 	count = wResultList->GetItemCount();
 	
 	for(i = 0; i < count; i++) {
-		if(((ItemData *)wResultList->GetItemData(i))->type == TYPE_HEADER) {
+		ItemData *data = (ItemData *)wResultList->GetItemData(i);
+		if(data->type == TYPE_HEADER /*&& data->bExpanded*/) {
 			if(i == count-1) {
 				delete_this.push_back(i);
 			}
