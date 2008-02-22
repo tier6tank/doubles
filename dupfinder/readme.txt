@@ -35,24 +35,34 @@ Then click on Go! and wait, until the results page is displayed.
 COMPILING:
 ----------
 
-1) You have to have the wxWidgets library installed. 
-   To get there, you have to download wxWidgets from 
-   http://sourceforge.net/projects/wxwindows
+Supported are on windows these compilers:
+Borland c++, Microsoft c++, Mingw, Cygwin
 
-a) In Unix configure the whole library with options as you like 
-   (but --disable-shared is required, you could but also change 
-    the makefiles to be able to link with shared libraries), 
-   for example
-   configure --with-gtk --disable-shared [--enable-debug]
+On unix, use either the provided makefile (GNUmakefile, recommended), 
+or the configure script (still experimental!). 
 
-b) In Windows, follow the instructions you find in the docs directory
+Step 1)
 
+Download the wxWidgets library (if you don't have it installed yet). 
 
-2) The rest is pretty simple: 
+--- Unix specific: 
 
-For each compiler, there is a special makefile. 
-In unix, there is also a (still experimental) autotools implementation.
+Configure the library with the following command line:
 
+    ./configure --with-gtk --disable-shared [--enable-debug] 
+
+Decide yourself if you want to create a debug version. 
+
+--- Windows specific:
+
+In the docs directory you find information about how to install
+the library with your preferred compiler. 
+
+Step 2)
+
+--- Windows specific:
+
+For each compiler, there is a special makefile: 
 
 For building the program with visual c++ - compiler, just type the following: 
 
@@ -60,13 +70,11 @@ For building the program with visual c++ - compiler, just type the following:
 
 The compiled files are stored under vc[u][d]. 
 
-
 For building the program with borland c++, type the following:
 
 	make -f makefile.bcc [-Ddebug=0/1] [-Dunicode=0/1]
 
 The compiled files are stored under bcc[u][d]. 
-
 
 For building the program with mingw, type the following (on the windows 
 command line, not on msys or another unix emulation shell!):
@@ -75,29 +83,32 @@ command line, not on msys or another unix emulation shell!):
 
 The compiled files are stored under gcc[u][d]. 
 
-
 If you don't have mingw but only cygwin, you can build the program that way
-(note that you have to follow the steps for unix in 1a first using --with-msw instead
-of --with-gtk or --with-motif):
+(note that you have to follow the steps for unix in 1) first, using --with-msw instead
+of --with-gtk):
 
 	make cygwin=1 [debug=0/1]
 
 The compiled files are stored under unix[d]. 
 
+--- Unix specific:
 
-For building the program in unix with gcc, type the following:
+Method 1: For building the program in unix with gcc, type the following:
 
 	make [debug=0/1]
 
 The compiled files are stored under unix[d].
-Or take the configure way (but note that this is still experimental):
+
+
+Method 2: Take the configure way (but note that this is still experimental, 
+and produces non-optimized executables with debug info, hence the stripping
+below):
 
 	./configure
 	make -f Makefile
+	strip -S dupfgui
+	strip -S dupf
  
-
-Other compilers are perhaps also supported, but i did not try other compilers yet. 
-
 
 LICENSE:
 -------
