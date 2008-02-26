@@ -36,14 +36,14 @@ public:
 	void OnClose(wxCloseEvent &);
 	void OnSize(wxSizeEvent &);
 
-	void OnStore(wxCommandEvent &);
+	/* void OnStore(wxCommandEvent &); */
 
 	void CreateControls();
 	void DisplayResults();
 
 	void OnInitDialog(wxInitDialogEvent &);
 
-	void OnListItemRightClick(wxListEvent &);
+	/* void OnListItemRightClick(wxListEvent &);
 	void OnListItemActivated(wxListEvent &);
 
 	void OnOpenFile(wxCommandEvent &);
@@ -56,9 +56,11 @@ public:
 	void OpenDir(long i);
 	void OpenFile(long i);
 
+	*/
+
 	void ReturnToParent();
 
-	void OnListKeyDown(wxListEvent &);
+	/* void OnListKeyDown(wxListEvent &);
 
 	void DeleteFiles();
 
@@ -68,23 +70,31 @@ public:
 
 	void DeleteOrphanedHeaders();
 
+	*/
+
 	void OnCancel(wxCommandEvent &);
 
+	/*
 	void OnApply(wxCommandEvent &);
 	void OnShowAll(wxCommandEvent &);
 
 	void RestrictViewToDir(const wxString &);
 
-	void ClearList();
+	// void ClearList();
 
 	void OnRestToDir(wxCommandEvent &);
 	void OnRestToSDir(wxCommandEvent &);
 	
 	void MenuRestToDir(bool);
 
+	*/
 	void OnGetDir(wxCommandEvent &);
 
+	/*
+
 	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);
+
+	*/
 
 	bool IsMatching(const wxString &);
 
@@ -96,7 +106,8 @@ private:
 
 	findfileinfo ffi;
 
-	wxListView *wResultList;
+	// wxListView *wResultList;
+	wxTreeCtrl *wResults;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
 	// wxStaticText *wRestrictInfo;

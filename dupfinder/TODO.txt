@@ -152,3 +152,8 @@ TODO/IDEAS:
 + instead/additional to match mask "contain string"? no. 
 + reducing width of result dialog done.
 - with items associated information (ItemData) static
+- treeview
+- delete all except this
+- test no items!
+- add automake files to cvs system
+- displaying statistics in root item

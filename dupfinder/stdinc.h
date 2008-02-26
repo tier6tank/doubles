@@ -29,6 +29,7 @@
 #include <wx/listctrl.h>
 #include <wx/aboutdlg.h>
 #include <wx/clipbrd.h>
+#include <wx/treectrl.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
