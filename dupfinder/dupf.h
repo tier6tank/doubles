@@ -22,7 +22,7 @@
 #ifndef DUPF_H
 #define DUPF_H
 
-void	PrintResults(multiset_fileinfosize &, wxFile &, bool);
+void	PrintResults(multiset_fileinfosize &, wxFile &, bool, bool);
 
 #endif
 

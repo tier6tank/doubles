@@ -28,64 +28,36 @@ using namespace std;
 /********* options ************/
 
 #if defined(__UNIX__) && !defined(_WIN32)
-// at the moment, because there is no native
-// routine implemented
+
+// for unix, there is no native routine implemented, 
+// so use wxWidgets
 #define FINDFILES_USE_WXWIDGETS
+
 #else
+
+// for windows, there is a native routine, 
+// which is much faster than the wxWidget's one
+
 #ifndef FINDFILES_USE_WXWIDGETS
 // #define FINDFILES_USE_WXWIDGETS
 #endif
-#endif /* defined(__UNIX__) && !defined(_WIN32)
 
-// #define BENCHMARK
+#endif /* defined(__UNIX__) && !defined(_WIN32) */
+
+
+// option, which controls profiling
+// on windows platforms
+// include "profile.h" always after this definition!
 // #define PROFILE
+
+#include "profile.h"
+
+
 // for testing
 // #define TEST
 // #define RANDOM_NOISE
 
-/********* further, of the upper dependent options **********/
-
-
-
-#ifdef BENCHMARK
-#ifndef TESTCNT
-#define TESTCNT 10
-#endif /*!defined(TESTCNT) */
-#ifndef TESTFUNC
-#define TESTFUNC 1
-#endif /* !defined(TESTFUNC) */
-#endif /* BENCHMARK */
-
-/*********************************/
-
-#include "profile.h"
-
-#ifdef BENCHMARK
-#ifdef BENCHMARKBUFSIZE
-int __MinBufSize = BASEBUFSIZE;
-int __BufSize;
-int __MaxFirstBytes;
-#define MAXBUFSIZEMULT 10
-#define MAXMAXFIRSTBYTESMULT 20
-char *__b[2] = { NULL, NULL };
-#endif /* defined(BENCHMARKBUFSIZE) */
-
-wxULongLong __nBytesRead = 0;
-wxULongLong __nSectorsRead = 0;
-wxULongLong __nFilesOpened = 0;
-
-#else /* if !defined(BENCHMARK) */
-#define comparefiles comparefiles2
-#endif /* defined(BENCHMARK) */
-
 #define REFRESH_INTERVAL 1 /* in seconds */
-
-
-#ifdef BENCHMARK
-typedef bool (*__comparefunc)(fileinfo &, fileinfo &);
-__comparefunc __functions[] = {comparefiles0, comparefiles1 };
-#define comparefiles __functions[TESTFUNC]
-#endif /* defined(BENCHMARK) */
 
 
 #ifdef PROFILE
@@ -103,7 +75,7 @@ class AddFileToList : public wxExtDirTraverser
 {
 public:
 	AddFileToList(findfileinfo * pInfo, const pathinfo *ppi, wxULongLong &_nFiles, 
-		guiinfo * _guii = NULL) : ffi(pInfo), pi(ppi), guii(_guii), 
+		guiinfo * _guii /*= NULL*/) : ffi(pInfo), pi(ppi), guii(_guii), 
 		bDirChanged(true), nFiles(_nFiles) {
 #ifdef PROFILE
 		__OnFile.QuadPart = 0;
@@ -263,7 +235,7 @@ static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString 
 #endif
 }
 
-void	FindFiles(findfileinfo &ffi, guiinfo *guii)
+void	FindFiles(findfileinfo &ffi, guiinfo *guii, bool quiet)
 {
 	fileinfosize fis;
 	list<File>::iterator it;
@@ -280,12 +252,16 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 #endif
 
 
-	wxLogMessage(_T("Step 1: Searching files... "));
+	if(!quiet) {
+		wxLogMessage(_T("Step 1: Searching files... "));
+	}
 
 	nFiles1 = 0;
 
 	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
-		wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
+		if(!quiet) {
+			wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
+		}
 		
 		AddFileToList traverser(&ffi, &*it3, nFiles1, guii);
 		wxString dirname = it3->path;
@@ -346,12 +322,14 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 		}
 	}
 
-	wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
+	if(!quiet) {
+		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
 		nFiles2.GetValue());
+	}
 
 	if(guii) {
 		wxString tmp;
-		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
+		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %") wxLongLongFmtSpec _T("u size(s)"), 
 			nFiles1.GetValue(), 
 			nSizes1.GetValue());
 		guii->nfiles->SetLabel(tmp);
@@ -364,7 +342,7 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii)
 
 }
 
-void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
+void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool quiet)
 {
 	list<File>::iterator it, it3;
 	multiset_fileinfosize_it it2;
@@ -378,13 +356,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 	wxString output;
 	bool bStart = true;
 
-#ifdef BENCHMARK 
-	clock_t __tstart = 0, __tend = 0;
-	int __i;
-#ifdef BENCHMARKBUFSIZE
-	int __x, __y;
-#endif /* defined(BENCHMARKBUFSIZE) */
-#endif /* defined(BENCHMARK) */
 #ifdef TEST
 	list<File>::iterator __it3;
 	list<File>::iterator __it5, __it;
@@ -419,8 +390,9 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 #endif /* RANDOM_NOISE */
 	
 
-	
-	wxLogMessage(_T("Step 2: Comparing files with same size for equality... "));
+	if(!quiet) {
+		wxLogMessage(_T("Step 2: Comparing files with same size for equality... "));
+	}
 
 	tlast = time(NULL);
 
@@ -432,43 +404,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 
 	STARTTIME(comparetime);
 
-#ifdef BENCHMARK
-
-	list<fileinfosize> __oldlist = sortedbytsize;
-
-#ifdef BENCHMARKBUFSIZE
-	FILE *__fLog;
-	_tfopen_s(&__fLog, _T("benchmbufsize.log"), _T("w"));
-	assert(__fLog);
-	for(__y = 0; __y < MAXMAXFIRSTBYTESMULT; __y++) {
-		_ftprintf(__fLog, _T(";%i"), __y);
-	}
-	_ftprintf(__fLog, _T("\n"));
-	/* __x BUFSIZE, __y MAXFIRSTBYTES */
-	for(__x = 0; __x < MAXBUFSIZEMULT; __x++) {
-		__BufSize = __MinBufSize << __x;
-		delete [] __b[0];
-		delete [] __b[1];
-		__b[0] = new char[__BufSize];
-		__b[1] = new char[__BufSize];
-		
-		_ftprintf(__fLog, _T("%i"), __x);
-		for(__y = 0; __y < __x; __y++) {
-			_ftprintf(__fLog, _T(";"));
-		}
-	for(__y = __x; __y < MAXMAXFIRSTBYTESMULT; __y++) {
-		__MaxFirstBytes = __MinBufSize << __y;
-		_ftprintf(stderr, _T("\n%i, %i\n"), __x, __y);
-#endif /* defined(BENCHMARKBUFSIZE) */	
-
-	__tstart = clock();
-
-	for(__i = 0; __i < TESTCNT; __i++) {
-
-	sortedbysize = __oldlist;
-
-#endif /* BENCHMARK*/
-
 	nSortedBySizeLen = sortedbysize.size();
 	
 	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
@@ -478,12 +413,12 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 		if(tnow - tlast >= REFRESH_INTERVAL || bStart == true) {
 			bStart = false; // at the beginning information should also be displayed!
 			if(guii) {
-				output.Printf(_T("size %i/%i (%") wxLongLongFmtSpec _T("u bytes)"), 
-					sizeN, nSortedBySizeLen, it2->size.GetValue() );
+				output.Printf(_T("size %i/%i (%") wxLongLongFmtSpec _T("u bytes, %u files)"), 
+					sizeN, nSortedBySizeLen, it2->size.GetValue(), it2->files.size() );
 				guii->wProgress->SetLabel(output);
 				guii->wSpeed->SetLabel(_T("--"));
 			}
-			else {
+			else if (!quiet) {
 				deleteline(output.Length());
 				output.Printf(_T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
 					/*" %i kb/s" */, 
@@ -505,7 +440,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 				it3 = it;
 				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
-					bEqual = comparefiles(*it, *it3, it2->size, guii);
+					bEqual = comparefiles(*it, *it3, it2->size, guii, quiet);
 
 					if(guii) {
 						if(!guii->bContinue) {
@@ -571,46 +506,18 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii)
 		it2->files.clear();
 	}
 
-#ifdef BENCHMARK
-	}
-
-	__tend = clock();
-
-#ifdef BENCHMARKBUFSIZE
-	_ftprintf(__fLog, _T(";%.6f"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
-	fflush(__fLog);
-	__MaxFirstBytes <<= 1;
-	}
-	_ftprintf(__fLog, _T("\n"));
-	__BufSize <<= 1; 
-	}
-#endif
-#endif /* BENCHMARK */
-
-
 	STOPTIME(comparetime);
 
-	deleteline(output.Length());
-	wxLogMessage(_T("        done. \n"));
+	if(!quiet) {
+		deleteline(output.Length());
+		wxLogMessage(_T("        done. \n"));
 
-	wxLogMessage(_T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
-		nDifferentFiles.GetValue());
-	wxLogMessage(_T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
-		 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
-		nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
-
-#ifdef BENCHMARK
-	_ftprintf(stderr, _T("Time/run: %.3f\n"), ((double)(__tend-__tstart))/CLOCKS_PER_SEC/TESTCNT);
-	_ftprintf(stderr, _T("Bytes read:   %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
-		__nBytesRead.GetDouble()/TESTCNT, 
-		__nBytesRead.GetValue()/TESTCNT);
-	_ftprintf(stderr, _T("Sectors read: %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
-		__nSectorsRead.GetDouble()/TESTCNT, 
-		__nSectorsRead.GetValue()/TESTCNT);
-	_ftprintf(stderr, _T("Files opened: %10.2f (%10") wxLongLongFmtSpec _T("u)\n"), 
-		__nFilesOpened.GetDouble()/TESTCNT, 
-		__nFilesOpened.GetValue()/TESTCNT);
-#endif /* BENCHMARK */
+		wxLogMessage(_T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
+			nDifferentFiles.GetValue());
+		wxLogMessage(_T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+			 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
+			nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
+	}
 
 #ifdef TEST
 	for(__it2 = sortedbysize.begin(); __it2 != sortedbysize.end(); __it2++) {
@@ -648,7 +555,7 @@ void	deleteline(int n) {
 #include "filetest.cpp"
 #endif
 
-bool	comparefiles2(File &f1, File &f2, const wxULongLong &size, guiinfo *guii) {
+bool	comparefiles(File &f1, File &f2, const wxULongLong &size, guiinfo *guii, bool quiet) {
 	bool bResult;
 	static char *b1, *b2;
 	char *pb1, *pb2;
@@ -701,13 +608,6 @@ bool	comparefiles2(File &f1, File &f2, const wxULongLong &size, guiinfo *guii) {
 		nBytesRead += n1;
 		nBytesRead += n2;
 
-#ifdef BENCHMARK
-		__nBytesRead += n1;
-		__nBytesRead += n2;
-		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
-		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
-#endif
-
 		if(n1 != n2 || !br1 || !br2) {
 			bResult = false;
 			goto End;
@@ -730,7 +630,7 @@ bool	comparefiles2(File &f1, File &f2, const wxULongLong &size, guiinfo *guii) {
 				guii->wSpeed->SetLabel(output);
 
 			}
-			else {
+			else if(!quiet) {
 				deleteline(output.Length());
 				output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
 				_ftprintf(stderr, _T("%s"), output.c_str());
@@ -740,13 +640,13 @@ bool	comparefiles2(File &f1, File &f2, const wxULongLong &size, guiinfo *guii) {
 			nPrevBytesRead = nBytesRead;
 			tstart = tcurrent;
 		}
-		
-
 	}
 
 	bResult = true;
 
-End:	deleteline(output.Length());
+End:	if(!quiet) {
+		deleteline(output.Length());
+	}
 	return bResult;
 }
 

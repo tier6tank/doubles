@@ -74,6 +74,7 @@ void File::ReleaseData() {
 	}
 }
 
+// get the amount of "Sectors" (of length BUFSIZE) a file of length value needs
 unsigned int File::RoundUpToBufSize(unsigned int value) {
 	return value % BUFSIZE == 0 ? value : (value / BUFSIZE + 1) *BUFSIZE;
 }
@@ -82,7 +83,7 @@ bool File::Open(const wxULongLong &size) {
 	bool bResult;
 
 	if(!data->extdata) {
-		data->extdata = new extfiledata;
+		data->extdata = new filedata::extfiledata;
 
 		unsigned int maxcachesize = RoundUpToBufSize(min(size.GetValue(), File::MAXCACHESIZE));
 		data->extdata->cache= new char [maxcachesize];
@@ -114,9 +115,8 @@ bool File::Read(char **buffer, unsigned int &ncount) {
 		ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
 		*buffer = data->extdata->cache+data->extdata->pos;
 	}
-	else {
-		/* data->extdata->pos >= data->extdata->cachesize */
-
+	else { /* data->extdata->pos >= data->extdata->cachesize */
+		
 		bool bWriteToCache = data->extdata->pos < data->extdata->maxcachesize;
 		if(bWriteToCache) {
 			*buffer = data->extdata->cache + data->extdata->pos;

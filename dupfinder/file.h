@@ -52,20 +52,22 @@ public:
 	void Close();
 
 private:
-	struct extfiledata {
-		char *cache;
-		unsigned int maxcachesize;
-		unsigned int cachesize;
-		wxFile file;
-		wxFileOffset pos;
-		wxULongLong size;
-		bool bChangeToDiskRead;
-	};
 
 	struct filedata
 	{
+		// reference count
 		int rcount;
-		extfiledata *extdata;
+		// extended data, only needed when file is actually used
+		struct extfiledata {
+			char *cache;
+			unsigned int maxcachesize;
+			unsigned int cachesize;
+			wxFile file;
+			wxFileOffset pos;
+			wxULongLong size;
+			bool bChangeToDiskRead;
+		} *extdata;
+		// filename
 		wxString name;
 	};
 
