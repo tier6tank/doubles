@@ -43,22 +43,11 @@ DECLARE_MAIN
 	int i;
 	int nOptions;
 	wxFile fOutput;
+	bool bQuiet;
 
 	::wxInitialize();
 	// timestamps are ugly
 	wxLog::GetActiveTarget()->SetTimestamp(NULL);
-
-#ifdef BENCHMARK
-#ifdef _WIN32
-	SetPriorityClass(
-		GetCurrentProcess(), 
-		REALTIME_PRIORITY_CLASS);
-
-	SetThreadPriority(
-		GetCurrentThread(), 
-		THREAD_PRIORITY_TIME_CRITICAL);
-#endif /* defined(_WIN32) */
-#endif /* defined(BENCHMARK) */
 
 	INITPROFILE;
 
@@ -76,6 +65,7 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("General options  : \n\n"));
 		_ftprintf(stderr, _T("-r   | --reverse  : small files first (default is big files first)\n"));
 		_ftprintf(stderr, _T("-o x | --out x    : Print results to file x\n"));
+		_ftprintf(stderr, _T("-q   | --quiet    : No progress display (not impl. yet)\n"));
 		_ftprintf(stderr, _T("\nOptions for each path: \n\n"));
 		_ftprintf(stderr, _T("       --min x    : Ignore files smaller than x (in bytes)\n"));
 		_ftprintf(stderr, _T("       --max x    : Ignore files larger than x (in bytes)\n"));
@@ -89,6 +79,7 @@ DECLARE_MAIN
 	nOptions = 0;
 	fOutput.Attach(wxFile::fd_stdout);
 	bReverse = false;
+	bQuiet = false;
 
 	// get general options
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
@@ -111,6 +102,11 @@ DECLARE_MAIN
 			}
 			nOptions += 2;
 			i++;
+		} 
+		else if (_tcscmp(argv[i], _T("-q")) == 0 || 
+			_tcscmp(argv[i], _T("--quiet")) == 0) {
+			bQuiet = true;
+			nOptions += 1;
 		} else {
 			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
 			return 1;
@@ -235,49 +231,19 @@ DECLARE_MAIN
 
 	ffi.pFilesBySize = &sortedbysize;
 
-	// BEGINLOG, ENDLOG -> log errors temporarily to string-stream
-
-#define BEGINLOG { xxx\
-		/* for error output */\
-		ostrstream log; \
-		wxLogStream logstr(&log); \
-		wxLog * poldlog = wxLog::SetActiveTarget(&logstr); \
-		logstr.SetTimestamp(NULL); \
-
-#define ENDLOG /* print errors */ \
-		if(log.pcount() != 0) { xxx\
-			_ftprintf(stderr, _T("\n        The following errors occured: \n")); \
-			fwrite(log.str(), log.pcount(), 1, stderr); \
-			_ftprintf(stderr, _T("\n")); \
-		} \
-		 \
-		wxLog::SetActiveTarget(poldlog); \
-	} \
-
-
-	// BEGINLOG
-
-	FindFiles(ffi);
+	
+	FindFiles(ffi, NULL, bQuiet);
 	// RemoveDoubleFiles(ffi); // perhaps this IS necessary some time
-
-	// ENDLOG
-
-
-	// no wxWidgets errors possible here
-	// SortFilesBySize(files, sortedbysize);
 
 	// for error testing (e.g. delete files before GetEqualFiles)
 	// int i;
 	// scanf("%i", &i);
 
-	// BEGINLOG
-	
-	GetEqualFiles(sortedbysize);
+	GetEqualFiles(sortedbysize, NULL, bQuiet);
 
-	// ENDLOG
 
 	
-	PrintResults(sortedbysize, fOutput, bReverse);
+	PrintResults(sortedbysize, fOutput, bReverse, bQuiet);
 
 	sortedbysize.clear();
 
@@ -316,7 +282,9 @@ DECLARE_MAIN
 		_stprintf_s(szMinutes, tmpsize, _T("%.2f sec"), dseconds);
 	}
 
-	_ftprintf(stderr, _T("Time: %s%s%s. \n"), szDays, szHours, szMinutes);
+	if(!bQuiet) {
+		_ftprintf(stderr, _T("Time: %s%s%s. \n"), szDays, szHours, szMinutes);
+	}
 
 	STOPTIME(all);
 
@@ -330,10 +298,6 @@ DECLARE_MAIN
 	_ftprintf(stderr, _T("     fileopen: %.3f (%.3f %%)\n"), SECONDS(fileopen), SECONDS(fileopen)/SECONDS(disk)*100);
 	_ftprintf(stderr, _T("     fileseek: %.3f (%.3f %%)\n"), SECONDS(fileseek), SECONDS(fileseek)/SECONDS(disk)*100);
 	_ftprintf(stderr, _T("     fileread: %.3f (%.3f %%)\n"), SECONDS(fileread), SECONDS(fileread)/SECONDS(disk)*100);
-#endif
-
-#ifdef TEST
-	_ftprintf(stderr, _T("all test ok! \n"));
 #endif
 
 	::wxUninitialize();
@@ -382,7 +346,7 @@ static const char * ToAscii(const wxString &string)
 #endif
 }
 
-void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse)
+void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse, bool bQuiet)
 {
 	list<File>::const_iterator it, it3;
 	multiset_fileinfosize::const_iterator it2;
@@ -395,7 +359,9 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 		(platform.GetOperatingSystemId() & wxOS_WINDOWS);
 	bool bDisplayWarning = false;
 
-	_ftprintf(stderr, _T("Printing the results...\n\n"));
+	if(!bQuiet) {
+		_ftprintf(stderr, _T("Printing the results...\n\n"));
+	}
 
 	for(
 		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();

@@ -94,13 +94,11 @@ struct guiinfo {
 
 
 // prototypes
-bool	comparefiles0(File &, File &);
-// bool	comparefiles1(fileinfo &, fileinfo &, guiinfo * = NULL);
-bool 	comparefiles2(File &, File &, const wxULongLong &, guiinfo * = NULL);
+bool 	comparefiles(File &, File &, const wxULongLong &, guiinfo * /*= NULL*/, bool = false);
 void	deleteline(int);
 
-void	FindFiles(findfileinfo &, guiinfo * = NULL);
-void	GetEqualFiles(multiset_fileinfosize &, guiinfo * = NULL);
+void	FindFiles(findfileinfo &, guiinfo * /*= NULL*/, bool = false);
+void	GetEqualFiles(multiset_fileinfosize &, guiinfo * /*= NULL*/, bool = false);
 
 
 

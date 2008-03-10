@@ -135,6 +135,8 @@ TODO/IDEAS:
 + replacing list.size() == 0 by list.empty()! done.
 ? removing some separators of popup menu
 --- automake
+- rewriting wxWidgets recognition macro
+
 - correct wxWidgets version number in configure.in
 - add precompiled headers to automake
 ! Autotools
@@ -157,3 +159,6 @@ TODO/IDEAS:
 - test no items!
 - add automake files to cvs system
 - displaying statistics in root item
+- expand all / unexpand all 
++ option command line version: do not display progress output done.
+- help option
