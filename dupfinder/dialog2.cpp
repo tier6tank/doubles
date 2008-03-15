@@ -79,7 +79,7 @@ void DupFinderDlg2::CreateControls()
 
 	const int wxTOPLEFT = wxLEFT | wxTOP;
 	const int wxTOPLEFTRIGHT = wxLEFT | wxTOP | wxRIGHT;
-	const int wxTOPRIGHT = wxRIGHT | wxTOP;
+	// const int wxTOPRIGHT = wxRIGHT | wxTOP;
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 2: \nSearching for duplicates")), 

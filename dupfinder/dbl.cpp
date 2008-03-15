@@ -228,7 +228,7 @@ public:
 static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString &mask, int flags) 
 {
 #ifdef FINDFILES_USE_WXWIDGETS
-	return root.Traverse(sink, mask, flags) != -1;
+	return root.Traverse(sink, mask, flags) != (size_t)-1;
 #else
 	Traverse(root.GetName(), mask, flags, sink);
 	return true;
