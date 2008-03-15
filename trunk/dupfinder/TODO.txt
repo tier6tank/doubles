@@ -162,3 +162,8 @@ TODO/IDEAS:
 - expand all / unexpand all 
 + option command line version: do not display progress output done.
 - help option
+- bold popupmenu default item
+- remove mutable, restore unconst(...) function
+- adding a test if the specific file system supports hard/symlinks before actually trying to create a link...
+- removing from the bottom to the top
+- do not display groups with only one item left????
