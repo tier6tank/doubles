@@ -36,41 +36,37 @@ public:
 	void OnClose(wxCloseEvent &);
 	void OnSize(wxSizeEvent &);
 
-	/* void OnStore(wxCommandEvent &); */
+	void OnStore(wxCommandEvent &);
 
 	void CreateControls();
 	void DisplayResults();
 
 	void OnInitDialog(wxInitDialogEvent &);
 
-	/* void OnListItemRightClick(wxListEvent &);
-	void OnListItemActivated(wxListEvent &);
+	void OnTreeItemRightClick(wxTreeEvent &);
+	void OnTreeItemActivated(wxTreeEvent &);
 
-	void OnOpenFile(wxCommandEvent &);
-	void OnOpenDir(wxCommandEvent &);
+	void OnOpenFile(wxCommandEvent &); 
+	void OnOpenDir(wxCommandEvent &); 
 	void OnCopyFileName(wxCommandEvent &);
 	void OnDelete(wxCommandEvent &);
 	void OnSymLink(wxCommandEvent &);
 	void OnHardLink(wxCommandEvent &);
-
-	void OpenDir(long i);
-	void OpenFile(long i);
-
-	*/
+	
+	void OpenDir(const wxTreeItemId &);
+	void OpenFile(const wxTreeItemId &);
 
 	void ReturnToParent();
 
-	/* void OnListKeyDown(wxListEvent &);
+	void OnTreeKeyDown(wxTreeEvent &);
 
 	void DeleteFiles();
 
-	void GetSelectedFilenameCount(int &count);
-	int GetFirstSelectedFilename();
-	int GetNextSelectedFilename(int i);
+	int GetSelectedFilenameCount(const wxArrayTreeItemIds &);
+	int GetFirstSelectedFilename(const wxArrayTreeItemIds &);
+	int GetNextSelectedFilename(const wxArrayTreeItemIds &, unsigned int i);
 
 	void DeleteOrphanedHeaders();
-
-	*/
 
 	void OnCancel(wxCommandEvent &);
 
@@ -80,8 +76,6 @@ public:
 
 	void RestrictViewToDir(const wxString &);
 
-	// void ClearList();
-
 	void OnRestToDir(wxCommandEvent &);
 	void OnRestToSDir(wxCommandEvent &);
 	
@@ -90,11 +84,7 @@ public:
 	*/
 	void OnGetDir(wxCommandEvent &);
 
-	/*
-
 	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);
-
-	*/
 
 	bool IsMatching(const wxString &);
 
@@ -106,11 +96,9 @@ private:
 
 	findfileinfo ffi;
 
-	// wxListView *wResultList;
-	wxTreeCtrl *wResults;
+	wxTreeCtrl *wResultList;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
-	// wxStaticText *wRestrictInfo;
 	wxCheckBox *wSubDirs;
 	wxCheckBox *wRestrictToDir;
 	wxCheckBox *wRestrictToMask;
@@ -121,6 +109,8 @@ private:
 	wxFileName RestrictToDir;
 	bool bRestrictToDir;
 	bool bRestrictToMask;
+
+	wxTreeItemId rightClickedItem;
 
 	DECLARE_EVENT_TABLE()
 };

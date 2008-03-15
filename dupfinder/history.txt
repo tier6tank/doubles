@@ -1,3 +1,6 @@
+Date : 2008/3/15 14:39
+Restored all functionalities in dialog 3 except those related to restricting view
+
 Date : 2008/3/10 16:53
 Removed BENCHMARK stuff, added "be quiet" option, # of files displayed in gui version
 
