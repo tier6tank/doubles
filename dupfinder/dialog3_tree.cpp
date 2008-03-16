@@ -963,6 +963,12 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 				bool bResult = wxRenameFile(file.GetFullPath(), tmpfile);
 				
 				if(!bResult) {
+					bResult = wxRemoveFile(tmpfile);
+					if(!bResult) {
+						wxString tmp;
+						tmp.Printf(_T("Cannot delete %s! "), tmpfile.c_str());
+						wxMessageBox(tmp, _T("Error"), wxOK | wxICON_ERROR, this);
+					}
 					bError = true;
 				} else {
 					bResult = link_func(target_data->GetIt()->GetName(), file.GetFullPath());

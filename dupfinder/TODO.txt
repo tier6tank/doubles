@@ -167,3 +167,6 @@ TODO/IDEAS:
 - adding a test if the specific file system supports hard/symlinks before actually trying to create a link...
 - removing from the bottom to the top
 - do not display groups with only one item left????
+- quick links (delete all/hard/symlink all)
+- hard/symlinking for more than one selection (using always the first selected)
+- no remaining temporary files must be left! (see CreateTempFile)!!!
