@@ -125,7 +125,8 @@ void DupFinderDlg::CreateControls()
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
 			wxString(_T("Step 1: \nFor each directory to search in fill out \n")
-				_T("the fields below, then click on \"Add\"")) ), 
+				_T("the fields below (leave fields you do not need blank), \n")
+				_T("then click on \"Add\"")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );

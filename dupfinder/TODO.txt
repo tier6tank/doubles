@@ -176,3 +176,4 @@ TODO/IDEAS:
 - class DuplicateFilesFinder!
 - keeping clear document/view structure
 + merge the both delete files functions. done.
+- display control buttons (dialog 1/3) in *one* border

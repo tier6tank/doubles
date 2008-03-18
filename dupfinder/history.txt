@@ -1,3 +1,7 @@
+Date : 2008/3/
+wrote better dialog 1 desc
+delete_but_this won't delete files if the one to be remaining does not exist
+
 Date : 2008/3/18 15:59
 Added "Delete all duplicates to this file" functionality
 
