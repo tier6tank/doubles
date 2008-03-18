@@ -70,7 +70,6 @@ public:
 
 	void OnCancel(wxCommandEvent &);
 
-	/*
 	void OnApply(wxCommandEvent &);
 	void OnShowAll(wxCommandEvent &);
 
@@ -81,7 +80,6 @@ public:
 	
 	void MenuRestToDir(bool);
 
-	*/
 	void OnGetDir(wxCommandEvent &);
 
 	void CreateLink(bool (*)(const wxString &, const wxString &), const wxString &);

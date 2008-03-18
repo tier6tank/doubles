@@ -124,12 +124,10 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_TREE_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnTreeItemRightClick)
 	EVT_TREE_KEY_DOWN(ID_RESULTLIST, DupFinderDlg3::OnTreeKeyDown)
 	EVT_BUTTON(wxID_CANCEL, 	DupFinderDlg3::OnCancel)
-	/* 
 	EVT_BUTTON(ID_APPLY, 		DupFinderDlg3::OnApply)
 	EVT_BUTTON(ID_SHOWALL, 		DupFinderDlg3::OnShowAll) 
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg3::OnApply)
 	EVT_TEXT_ENTER(ID_MASK, 	DupFinderDlg3::OnApply) 
-	*/
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg3::OnDirChange)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg3::OnGetDir)
 	EVT_TEXT(ID_MASK, 		DupFinderDlg3::OnMaskChange)
@@ -139,8 +137,8 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_MENU_OPENDIR, 	DupFinderDlg3::OnOpenDir)
-	/*EVT_MENU(ID_MENU_RESTTODIR,	DupFinderDlg3::OnRestToDir)
-	EVT_MENU(ID_MENU_RESTTOSDIR, 	DupFinderDlg3::OnRestToSDir) */
+	EVT_MENU(ID_MENU_RESTTODIR,	DupFinderDlg3::OnRestToDir)
+	EVT_MENU(ID_MENU_RESTTOSDIR, 	DupFinderDlg3::OnRestToSDir) 
 	EVT_MENU(ID_MENU_COPYFILENAME, 	DupFinderDlg3::OnCopyFileName)
 	EVT_MENU(ID_MENU_DELETE, 	DupFinderDlg3::OnDelete)
 	EVT_MENU(ID_MENU_SYMLINK, 	DupFinderDlg3::OnSymLink)
@@ -291,7 +289,7 @@ void DupFinderDlg3::CreateControls() {
 	restrictsizer->Add(
 		restrictcontrolssizer, 
 		0, 
-		wxEXPAND | wxLEFT | wxRIGHT, 
+		wxEXPAND | wxLEFT, 
 		10);
 
 	controlssizer->AddStretchSpacer(1);
@@ -301,15 +299,17 @@ void DupFinderDlg3::CreateControls() {
 		0, 
 		wxALIGN_RIGHT);
 
+	expandsizer->AddStretchSpacer(1);
+
 	expandsizer->Add(
 		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
 		0, 
-		0);
+		wxALIGN_RIGHT);
 
 	expandsizer->Add(
 		new wxButton(this, ID_COLLAPSEALL, _T("Collapse all")), 
 		0, 
-		wxLEFT, 
+		wxLEFT | wxALIGN_RIGHT,  
 		10);
 
 	resultssizer->Add(
@@ -832,8 +832,6 @@ void DupFinderDlg3::OnCancel(wxCommandEvent &WXUNUSED(event))
 	Close();
 }
 
-/*
-
 void DupFinderDlg3::OnApply(wxCommandEvent &WXUNUSED(event))
 {
 	bRestrictToDir = wRestrictToDir->GetValue();
@@ -872,18 +870,11 @@ void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 	DisplayResults();
 }
 
-*/
-
-/*
 void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
 {
-	int focus = wResultList->GetFocusedItem();
-	if(focus == -1) {
-		return;
-	}
-	ItemData *data = (ItemData *)wResultList->GetItemData(focus);
-	if(data->type == TYPE_FILE) {
-		wxFileName filename = data->myself->GetName();
+	TreeItemData *data = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
+	if(data->GetType() == TYPE_ITEM) {
+		wxFileName filename = data->GetIt()->GetName();
 
 		wxString path = filename.GetPath();
 
@@ -907,7 +898,6 @@ void DupFinderDlg3::OnRestToSDir(wxCommandEvent &WXUNUSED(event))
 	MenuRestToDir(true);
 }	
 
-*/
 		
 void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 	wxDirDialog dirch(this);
