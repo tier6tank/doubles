@@ -105,6 +105,8 @@ enum {
 	ID_COLLAPSEALL, 
 
 	// menu
+
+	// single menu 
 	ID_MENU_OPENFILE, 
 	ID_MENU_OPENDIR, 
 	ID_MENU_COPYFILENAME, 
@@ -112,7 +114,8 @@ enum {
 	ID_MENU_HARDLINK, 
 	ID_MENU_SYMLINK, 
 	ID_MENU_RESTTODIR, 
-	ID_MENU_RESTTOSDIR
+	ID_MENU_RESTTOSDIR, 
+	ID_MENU_DELETEBUTTHIS
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
@@ -143,6 +146,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_MENU(ID_MENU_DELETE, 	DupFinderDlg3::OnDelete)
 	EVT_MENU(ID_MENU_SYMLINK, 	DupFinderDlg3::OnSymLink)
 	EVT_MENU(ID_MENU_HARDLINK, 	DupFinderDlg3::OnHardLink)
+	EVT_MENU(ID_MENU_DELETEBUTTHIS, DupFinderDlg3::OnDeleteButThis)
 END_EVENT_TABLE()
 
 void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event) 
@@ -607,6 +611,7 @@ void DupFinderDlg3::OnTreeItemRightClick(wxTreeEvent &event)
 			popupmenu->Append(ID_MENU_HARDLINK, _T("Create &hard links to this file"));
 			bAddSep = true;
 		}
+		popupmenu->Append(ID_MENU_DELETEBUTTHIS, _T("Delete all duplicates to this file"));
 		if(bAddSep) {
 			popupmenu->AppendSeparator();
 		}
@@ -706,19 +711,20 @@ void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event)) 
 {
-	DeleteFiles();
+	wxArrayTreeItemIds selected;
+
+	wResultList->GetSelections(selected);
+
+	DeleteFiles(selected);
 }
 
-void DupFinderDlg3::DeleteFiles()
+void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 {
 	int i, count;
 	wxString tmp;
 	wxString filename;
 	int result;
 	list<wxTreeItemId> delete_this;
-	wxArrayTreeItemIds selected;
-
-	wResultList->GetSelections(selected);
 
 	count = GetSelectedFilenameCount(selected);
 
@@ -736,7 +742,7 @@ void DupFinderDlg3::DeleteFiles()
 			tmp.Printf(_T("Do you really want to delete these %i files? "), count);
 		}
 
-		result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO);
+		result = wxMessageBox(tmp, _T("Confirmation"), wxYES_NO | wxICON_QUESTION);
 	}
 	else { 
 		result = wxYES;
@@ -797,8 +803,14 @@ void DupFinderDlg3::OnTreeKeyDown(wxTreeEvent &event)
 		OpenDir(focus);
 		break; */
 	case WXK_DELETE:
-		DeleteFiles();
+		{
+		wxArrayTreeItemIds selected;
+		
+		wResultList->GetSelections(selected);
+
+		DeleteFiles(selected);
 		break;
+		}
 	}
 }
 
@@ -1072,6 +1084,37 @@ void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 }
 
 
+void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
+{
+	wxTreeItemId group;
+	TreeItemData *targetdata;
+	list<wxTreeItemId> delete_these;
+
+	targetdata = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
+
+	if(targetdata->GetType() == TYPE_ITEM) {
+		wxTreeItemId i;
+		wxTreeItemIdValue cookie;
+		wxArrayTreeItemIds todelete;
+
+		group = wResultList->GetItemParent(rightClickedItem);
+
+		for(i = wResultList->GetFirstChild(group, cookie); 
+			i.IsOk(); 
+			i = wResultList->GetNextChild(group, cookie)) {
+
+			if(i != rightClickedItem) {
+				todelete.Add(i);
+			}
+		}
+
+		DeleteFiles(todelete);
+	}
+
+	
+
+	
+}
 
 
 

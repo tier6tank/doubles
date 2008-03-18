@@ -155,13 +155,13 @@ TODO/IDEAS:
 + reducing width of result dialog done.
 + with items associated information (ItemData) static. doesn't work
 + treeview. yip.
-- delete all except this
++ delete all except this done.
 - test no items in list event!
 + add automake files to cvs system done.
 - displaying statistics in root item
 + expand all / unexpand all 
 + option command line version: do not display progress output done.
-- help option
+- help option (command line program)
 - bold popupmenu default item
 - remove mutable, restore unconst(...) function
 - adding a test if the specific file system supports hard/symlinks before actually trying to create a link...
@@ -173,3 +173,6 @@ TODO/IDEAS:
 + minimize/maximize buttons done.
 - recognize hardlinks?
 - restriction options not shown at first?
+- class DuplicateFilesFinder!
+- keeping clear document/view structure
++ merge the both delete files functions. done.
