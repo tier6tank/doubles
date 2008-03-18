@@ -66,7 +66,8 @@ END_EVENT_TABLE()
 
 DupFinderDlg::DupFinderDlg(wxWindow * parent) 
 	: wxDialog(parent, -1, _T("Duplicate Files Finder"), 
-		wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) {
+		wxDefaultPosition, wxDefaultSize, 
+		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) {
 
 	CreateControls();
 

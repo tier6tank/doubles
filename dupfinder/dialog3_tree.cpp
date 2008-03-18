@@ -25,7 +25,8 @@
 
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, findfileinfo &_ffi) 
 	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
-		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) , ffi(_ffi), parent(_parent), 
+		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) , 
+		ffi(_ffi), parent(_parent), 
 		RestrictToDir(_T("")), bRestrictToDir(false), 
 		bRestrictToMask(false)
 {
@@ -100,6 +101,8 @@ enum {
 	ID_RESTTODIR,
 	ID_RESTTOMASK, 
 	ID_MASK, 
+	ID_EXPANDALL, 
+	ID_COLLAPSEALL, 
 
 	// menu
 	ID_MENU_OPENFILE, 
@@ -121,14 +124,19 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_TREE_ITEM_RIGHT_CLICK(ID_RESULTLIST, DupFinderDlg3::OnTreeItemRightClick)
 	EVT_TREE_KEY_DOWN(ID_RESULTLIST, DupFinderDlg3::OnTreeKeyDown)
 	EVT_BUTTON(wxID_CANCEL, 	DupFinderDlg3::OnCancel)
-	/* EVT_BUTTON(ID_APPLY, 		DupFinderDlg3::OnApply)
+	/* 
+	EVT_BUTTON(ID_APPLY, 		DupFinderDlg3::OnApply)
 	EVT_BUTTON(ID_SHOWALL, 		DupFinderDlg3::OnShowAll) 
 	EVT_TEXT_ENTER(ID_DIRNAME, 	DupFinderDlg3::OnApply)
-	EVT_TEXT_ENTER(ID_MASK, 	DupFinderDlg3::OnApply) */
+	EVT_TEXT_ENTER(ID_MASK, 	DupFinderDlg3::OnApply) 
+	*/
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg3::OnDirChange)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg3::OnGetDir)
 	EVT_TEXT(ID_MASK, 		DupFinderDlg3::OnMaskChange)
-	// Menu
+	EVT_BUTTON(ID_EXPANDALL, 	DupFinderDlg3::OnExpandAll)
+	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
+
+	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
 	EVT_MENU(ID_MENU_OPENDIR, 	DupFinderDlg3::OnOpenDir)
 	/*EVT_MENU(ID_MENU_RESTTODIR,	DupFinderDlg3::OnRestToDir)
@@ -162,6 +170,7 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *dirhorzsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *masksizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *expandsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
 	
 	const int wxTOPLEFT = wxTOP | wxLEFT;
@@ -292,6 +301,23 @@ void DupFinderDlg3::CreateControls() {
 		0, 
 		wxALIGN_RIGHT);
 
+	expandsizer->Add(
+		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
+		0, 
+		0);
+
+	expandsizer->Add(
+		new wxButton(this, ID_COLLAPSEALL, _T("Collapse all")), 
+		0, 
+		wxLEFT, 
+		10);
+
+	resultssizer->Add(
+		expandsizer, 
+		0, 
+		wxTOPLEFTRIGHT | wxEXPAND, 
+		10);
+
 	resultssizer->Add(
 		restrictsizer, 
 		0, 
@@ -301,7 +327,7 @@ void DupFinderDlg3::CreateControls() {
 	resultssizer->Add(
 		savesizer, 
 		0, 
-		wxTOPLEFTRIGHT | wxBOTTOM | wxEXPAND, 
+		wxTOPLEFTRIGHT | wxEXPAND | wxBOTTOM, 
 		10);
 
 	topsizer->Add(
@@ -1032,9 +1058,28 @@ void DupFinderDlg3::OnDirChange(wxCommandEvent &WXUNUSED(event))
 {
 	wRestrictToDir->SetValue(wDirName->GetValue().Length() != 0);
 }
-		
 
+void DupFinderDlg3::OnExpandAll(wxCommandEvent &WXUNUSED(event)) 
+{
+	wxTreeItemId i;
+	wxTreeItemIdValue cookie;
+	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
+		i.IsOk();
+		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
+		wResultList->Expand(i);
+	}
+}
 
+void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
+{
+	wxTreeItemId i;
+	wxTreeItemIdValue cookie;
+	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
+		i.IsOk();
+		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
+		wResultList->Collapse(i);
+	}
+}
 
 
 
