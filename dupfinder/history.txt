@@ -1,3 +1,6 @@
+Date : 2008/3/18 15:30
+Restored restriction functionality
+
 Date : 2008/3/18 15:19
 Added expand all/collapse all buttons.
 Added minimize/maximize/restore system buttons to dialogs.
