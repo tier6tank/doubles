@@ -60,7 +60,7 @@ public:
 
 	void OnTreeKeyDown(wxTreeEvent &);
 
-	void DeleteFiles();
+	void DeleteFiles(const wxArrayTreeItemIds &);
 
 	int GetSelectedFilenameCount(const wxArrayTreeItemIds &);
 	int GetFirstSelectedFilename(const wxArrayTreeItemIds &);
@@ -91,6 +91,8 @@ public:
 
 	void OnExpandAll(wxCommandEvent &);
 	void OnCollapseAll(wxCommandEvent &);
+
+	void OnDeleteButThis(wxCommandEvent &);
 
 private:
 	static bool bHardLinkWarning;
