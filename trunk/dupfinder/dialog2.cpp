@@ -49,8 +49,9 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 END_EVENT_TABLE()
 
 DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
-	wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize,  /* no parent because of icon !!! */
-	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER) & ~wxCLOSE_BOX ), 
+	wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize,  
+	/* no parent because of icon !!! */
+	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMINIMIZE_BOX | wxMAXIMIZE_BOX) & ~wxCLOSE_BOX ), 
 	ffi(_ffi), sortedbysize(*_ffi.pFilesBySize), bStarted(false), parent(_parent)
 {
 	

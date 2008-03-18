@@ -153,13 +153,13 @@ TODO/IDEAS:
 ? more descriptive name for dialogs?
 + instead/additional to match mask "contain string"? no. 
 + reducing width of result dialog done.
-- with items associated information (ItemData) static
-- treeview
++ with items associated information (ItemData) static. doesn't work
++ treeview. yip.
 - delete all except this
-- test no items!
-- add automake files to cvs system
+- test no items in list event!
++ add automake files to cvs system done.
 - displaying statistics in root item
-- expand all / unexpand all 
++ expand all / unexpand all 
 + option command line version: do not display progress output done.
 - help option
 - bold popupmenu default item
@@ -169,4 +169,7 @@ TODO/IDEAS:
 - do not display groups with only one item left????
 - quick links (delete all/hard/symlink all)
 - hard/symlinking for more than one selection (using always the first selected)
-- no remaining temporary files must be left! (see CreateTempFile)!!!
++ no remaining temporary files must be left! (see CreateTempFile)!!! done.
++ minimize/maximize buttons done.
+- recognize hardlinks?
+- restriction options not shown at first?

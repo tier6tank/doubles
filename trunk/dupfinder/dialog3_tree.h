@@ -91,6 +91,9 @@ public:
 	void OnMaskChange(wxCommandEvent &);
 	void OnDirChange(wxCommandEvent &);
 
+	void OnExpandAll(wxCommandEvent &);
+	void OnCollapseAll(wxCommandEvent &);
+
 private:
 	static bool bHardLinkWarning;
 
