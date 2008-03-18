@@ -1091,8 +1091,19 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 	list<wxTreeItemId> delete_these;
 
 	targetdata = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
-
+	
 	if(targetdata->GetType() == TYPE_ITEM) {
+
+		// do not accidentaly erase the other files if the only
+		// file do be kept does not exist any more
+		if(!wxDir::Exists(targetdata->GetIt()->GetName())) {
+			wxString tmp;
+			tmp.Printf(_T("The file %s does not exist! I won't delete the files. "), 
+				targetdata->GetIt()->GetName());
+			wxMessageBox(tmp, _T("Error"), wxICON_ERROR | wxOK, this);
+			return;
+		}
+
 		wxTreeItemId i;
 		wxTreeItemIdValue cookie;
 		wxArrayTreeItemIds todelete;
@@ -1110,10 +1121,6 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 
 		DeleteFiles(todelete);
 	}
-
-	
-
-	
 }
 
 
