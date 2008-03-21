@@ -30,9 +30,6 @@
 // that's because of mingw32 build which
 // does not support wmain, but still unicode
 DECLARE_MAIN
-	multiset_fileinfosize sortedbysize;
-	findfileinfo ffi;
-
 	list<File>::iterator it, it3;
 	multiset_fileinfosize_it it2;
 	list<fileinfoequal>::iterator it4;
@@ -44,6 +41,8 @@ DECLARE_MAIN
 	int nOptions;
 	wxFile fOutput;
 	bool bQuiet;
+
+	list<DuplicatesGroup> duplicates;
 
 	::wxInitialize();
 	// timestamps are ugly
@@ -118,6 +117,8 @@ DECLARE_MAIN
 		return 1;
 	}
 
+	DuplicateFilesFinder dupf(NULL, bQuiet);
+
 	for(/*i*/; i < argc; ) {
 		pathinfo pi;
 		pi.path = argv[i];
@@ -187,9 +188,10 @@ DECLARE_MAIN
 			_ftprintf(stderr, _T("Error: Maximal size must be greater than minimal size. \n"));
 			return 1;
 		}
-		ffi.paths.push_back(pi);
+		dupf.AddPath(pi);
 	}
 
+	/*
 	list<wxString> dirs;
 	for(it5 = ffi.paths.begin(); it5 != ffi.paths.end(); it5++) {
 		if(!wxFileName::DirExists(it5->path)) {
@@ -229,24 +231,11 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("Correct the command line for avoiding trivial duplicates. \n\n\n"));
 	}
 
-	ffi.pFilesBySize = &sortedbysize;
+	*/
 
-	
-	FindFiles(ffi, NULL, bQuiet);
-	// RemoveDoubleFiles(ffi); // perhaps this IS necessary some time
+	dupf.FindDuplicateFiles(duplicates);
 
-	// for error testing (e.g. delete files before GetEqualFiles)
-	// int i;
-	// scanf("%i", &i);
-
-	GetEqualFiles(sortedbysize, NULL, bQuiet);
-
-
-	
-	PrintResults(sortedbysize, fOutput, bReverse, bQuiet);
-
-	sortedbysize.clear();
-
+	PrintResults(duplicates, fOutput, bReverse, bQuiet);
 
 	fOutput.Close();
 
@@ -346,12 +335,11 @@ static const char * ToAscii(const wxString &string)
 #endif
 }
 
-void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bReverse, bool bQuiet)
+void PrintResults(const list<DuplicatesGroup> &sortedbysize, wxFile &fOutput, bool bReverse, bool bQuiet)
 {
 	list<File>::const_iterator it, it3;
-	multiset_fileinfosize::const_iterator it2;
-	multiset_fileinfosize::const_reverse_iterator rit2;
-	list<fileinfoequal>::const_iterator it4;
+	list<DuplicatesGroup>::const_iterator it2;
+	list<DuplicatesGroup>::const_reverse_iterator rit2;
 	wxString Buffer;
 	// bConOut because output to console does NOT support unicode/utf-8/... in windows (but it does in unix! )
 	wxPlatformInfo platform;
@@ -365,17 +353,25 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 
 	for(
 		rit2 = sortedbysize.rbegin(), it2 = sortedbysize.begin();
-		bReverse ? rit2 != ((const multiset_fileinfosize &)sortedbysize).rend() : it2 != sortedbysize.end();
+		bReverse ? rit2 != sortedbysize.rend() : it2 != sortedbysize.end();
 		rit2++, it2++) {
 
 
-		for(
-			bReverse ? it4 = rit2->equalfiles.begin() : it4 = it2->equalfiles.begin();
-			bReverse ? it4 != rit2->equalfiles.end() : it4 != it2->equalfiles.end(); 
-			it4++) {
-			Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
-				it4->files.size(), 
-				bReverse ? rit2->size.GetValue() : it2->size.GetValue());
+		Buffer.Printf(_T("- Equal (%i files of size %") wxLongLongFmtSpec _T("u): \r\n"), 
+			bReverse ? rit2->files.size() : it2->files.size(), 
+			bReverse ? rit2->size.GetValue() : it2->size.GetValue());
+
+		if(bConOut) {
+			fOutput.Write(ToAscii(Buffer), Buffer.Length());
+			if(!IsAscii(Buffer)) {
+				bDisplayWarning = true;
+			}
+		}
+		else {
+			fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8 : (wxMBConv &)wxConvUTF8);
+		}
+		for(it = it2->files.begin(); it != it2->files.end(); it++) {
+			Buffer.Printf(_T("  \"%s\"\r\n"), it->GetName().c_str());
 			if(bConOut) {
 				fOutput.Write(ToAscii(Buffer), Buffer.Length());
 				if(!IsAscii(Buffer)) {
@@ -383,19 +379,7 @@ void	PrintResults(multiset_fileinfosize &sortedbysize, wxFile & fOutput, bool bR
 				}
 			}
 			else {
-				fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8 : (wxMBConv &)wxConvUTF8);
-			}
-			for(it = it4->files.begin(); it != it4->files.end(); it++) {
-				Buffer.Printf(_T("  \"%s\"\r\n"), it->GetName().c_str());
-				if(bConOut) {
-					fOutput.Write(ToAscii(Buffer), Buffer.Length());
-					if(!IsAscii(Buffer)) {
-						bDisplayWarning = true;
-					}
-				}
-				else {
-					fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8: (wxMBConv &)wxConvUTF8);
-				}
+				fOutput.Write(Buffer, bConOut ? (wxMBConv &)wxConvUTF8: (wxMBConv &)wxConvUTF8);
 			}
 		}
 	}
