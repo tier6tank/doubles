@@ -24,6 +24,70 @@
 
 #include "file.h"
 
+struct DuplicatesGroup
+{
+	wxULongLong size;
+	list<File> files;
+};
+
+struct SearchPathInfo
+{
+	wxString path;
+	wxULongLong nMinSize;
+	wxULongLong nMaxSize; // if 0, no max size
+	bool bGoIntoSubDirs;
+	bool bSearchHidden;
+	wxString Mask;
+};
+
+struct GuiInfo {
+	// vars for step 1
+	wxTextCtrl *out;
+	wxStaticText *nfiles;
+	bool bContinue;
+	wxApp * theApp;
+	wxStaticText *cfiles;
+	bool bPause;
+
+	// vars for step 2
+	wxStaticText *wSpeed;
+	wxStaticText *wProgress;
+};
+
+struct DuplicateFilesStatistics
+{
+
+
+};
+
+// this is the class which does all the work
+
+class DuplicateFilesFinder
+{
+public:
+	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet) 
+		: gui(_gui), bQuiet(_bQuiet) {}
+	~DuplicateFilesFinder() {}
+
+	void AddPath(const SearchPathInfo &path) {
+		paths.push_back(path);
+	}
+	
+	void FindDuplicateFiles(list<DuplicatesGroup> & /* , DuplicateFilesStatistics &stats*/);
+private:
+	list<SearchPathInfo> paths;
+
+	bool bQuiet;
+	GuiInfo * gui;
+
+};
+
+// temporary
+typedef SearchPathInfo pathinfo;
+typedef GuiInfo guiinfo;
+
+
+
 struct fileinfoequal
 {
 	list<File> files;
@@ -60,16 +124,6 @@ typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
 typedef multiset<fileinfosize, less_fileinfosize>::iterator multiset_fileinfosize_it;
 typedef multiset<fileinfosize, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
 
-struct pathinfo
-{
-	wxString path;
-	wxULongLong nMinSize;
-	wxULongLong nMaxSize; // if 0, no max size
-	bool bGoIntoSubDirs;
-	bool bSearchHidden;
-	wxString Mask;
-};
-
 
 struct findfileinfo
 {
@@ -78,19 +132,7 @@ struct findfileinfo
 };
 
 
-struct guiinfo {
-	// vars for step 1
-	wxTextCtrl *out;
-	wxStaticText *nfiles;
-	bool bContinue;
-	wxApp * theApp;
-	wxStaticText *cfiles;
-	bool bPause;
 
-	// vars for step 2
-	wxStaticText *wSpeed;
-	wxStaticText *wProgress;
-};
 
 
 // prototypes

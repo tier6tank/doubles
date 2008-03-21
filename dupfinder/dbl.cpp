@@ -69,7 +69,33 @@ LARGE_INTEGER fileopen;
 LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
+void DuplicateFilesFinder::FindDuplicateFiles(list<DuplicatesGroup> & duplicates) {
+	
+	multiset_fileinfosize sortedbysize;
+	findfileinfo ffi;
+	
+	ffi.pFilesBySize = &sortedbysize;
+	ffi.paths = this->paths;
 
+	FindFiles(ffi, this->gui, this->bQuiet);
+
+	GetEqualFiles(sortedbysize, this->gui, this->bQuiet);
+
+	multiset_fileinfosize::iterator it1;
+	list<fileinfoequal>::iterator it2;
+	DuplicatesGroup dupl;
+
+	for(it1 = sortedbysize.begin(); it1 != sortedbysize.end(); it1++) {
+		dupl.size = it1->size;
+		for(it2 = it1->equalfiles.begin(); !it1->equalfiles.empty(); it2 = it1->equalfiles.begin()) {
+			dupl.files = it2->files;
+			// immediately delete memory not needed, to be keeping memory 
+			// usage low
+			duplicates.push_back(dupl);
+			it1->equalfiles.erase(it2);
+		}
+	}
+}
 
 class AddFileToList : public wxExtDirTraverser
 {
