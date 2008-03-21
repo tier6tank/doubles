@@ -1099,7 +1099,7 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 		if(!wxDir::Exists(targetdata->GetIt()->GetName())) {
 			wxString tmp;
 			tmp.Printf(_T("The file %s does not exist! I won't delete the files. "), 
-				targetdata->GetIt()->GetName());
+				targetdata->GetIt()->GetName().c_str());
 			wxMessageBox(tmp, _T("Error"), wxICON_ERROR | wxOK, this);
 			return;
 		}
