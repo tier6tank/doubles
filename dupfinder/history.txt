@@ -1,3 +1,7 @@
+Date : 2008/3/22 21:00
+removed mutable, restored unconst
+moved output part to PrintResults
+
 Date : 2008/3/22 20:36
 implemented statistics calculation
 prevented root item from collapsing

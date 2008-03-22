@@ -104,6 +104,10 @@ public:
 	
 };
 
+template <class T> T & unconst(const T & x) {
+	return const_cast<T &>(x);
+}
+
 // prototypes
 
 bool IsSymLink(const wxString &);

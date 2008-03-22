@@ -433,7 +433,7 @@ void DupFinderDlg3::DisplayResults() {
 	wResultList->SetItemData(rootItem, new TreeItemData(TYPE_ROOT));
 
 	for(it = ffi.pFilesBySize->begin(); it != ffi.pFilesBySize->end(); it++) {
-		for(it2 = it->equalfiles.begin(); it2 != it->equalfiles.end(); it2++) {
+		for(it2 = unconst(*it).equalfiles.begin(); it2 != unconst(*it).equalfiles.end(); it2++) {
 			bool bDisplay;
 			multiset<list<File>::iterator, less_fileiterator> matching;
 

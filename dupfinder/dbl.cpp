@@ -93,7 +93,9 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 
 	for(it1 = sortedbysize.begin(); it1 != sortedbysize.end(); it1++) {
 		dupl.size = it1->size;
-		for(it2 = it1->equalfiles.begin(); !it1->equalfiles.empty(); it2 = it1->equalfiles.begin()) {
+		for(it2 = unconst(*it1).equalfiles.begin(); 
+			!it1->equalfiles.empty(); 
+			it2 = unconst(*it1).equalfiles.begin()) {
 
 			stats.nFilesWithDuplicates++;
 			stats.nDuplicateFiles += it2->files.size()-1;
@@ -103,7 +105,7 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 			// immediately delete memory not needed, to be keeping memory 
 			// usage low
 			duplicates.push_back(dupl);
-			it1->equalfiles.erase(it2);
+			unconst(*it1).equalfiles.erase(it2);
 		}
 	}
 }
@@ -166,7 +168,7 @@ public:
 
 			
 			if(it2 != ffi->pFilesBySize->end()) {
-				it2->files.push_back(f);
+				unconst(*it2).files.push_back(f);
 			}
 			else {
 				// the next line actually is not needed
@@ -465,7 +467,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 			fileinfoequal fiq;
 			list<File>::iterator ittmp;
 			bool bEqual;
-			for(it = it2->files.begin(); it != it2->files.end(); /*it++*/) {
+			for(it = unconst(*it2).files.begin(); it != unconst(*it2).files.end(); /*it++*/) {
 				bFirstDouble = true;
 				it3 = it;
 				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
@@ -487,17 +489,17 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 							fiq.files.clear();
 							fiq.files.push_back(*it);
 							fiq.files.push_back(*it3);
-							it2->equalfiles.push_back(fiq);
+							unconst(*it2).equalfiles.push_back(fiq);
 						}
 						else {
-							it2->equalfiles.back().files.push_back(*it3);
+							unconst(*it2).equalfiles.back().files.push_back(*it3);
 						}
 
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
 						ittmp->Close();
-						it2->files.erase(ittmp);
+						unconst(*it2).files.erase(ittmp);
 					}
 
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
@@ -518,16 +520,16 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 					if(!bNotEqual) { abort(); }
 				}
 #endif
-				it2->files.front().Close();
-				it2->files.pop_front();
-				it = it2->files.begin();
+				unconst(*it2).files.front().Close();
+				unconst(*it2).files.pop_front();
+				it = unconst(*it2).files.begin();
 			}
 		} /* if size > 1 */
 		/* Close files */
-		for(it = it2->files.begin(); it != it2->files.end(); it++) {
+		for(it = unconst(*it2).files.begin(); it != unconst(*it2).files.end(); it++) {
 			it->Close();
 		} 
-		it2->files.clear();
+		unconst(*it2).files.clear();
 	}
 
 	STOPTIME(comparetime);
