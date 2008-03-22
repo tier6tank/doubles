@@ -41,6 +41,7 @@ DECLARE_MAIN
 	int nOptions;
 	wxFile fOutput;
 	bool bQuiet;
+	bool bHelp;
 
 	list<DuplicatesGroup> duplicates;
 
@@ -58,19 +59,7 @@ DECLARE_MAIN
 	argc--;
 
 	if(argc == 0) {
-		_ftprintf(stderr, _T("dupf: Finds duplicate files\n"));
-		_ftprintf(stderr, _T("Copyright (c) Matthias Boehm 2007-2008\n\n"));
-		_ftprintf(stderr, _T("dupf [GENERAL OPTIONS] Path1 [PATH-OPTIONS] [Path2 [PATH-OPTIONS]] ...\n\n"));
-		_ftprintf(stderr, _T("General options  : \n\n"));
-		_ftprintf(stderr, _T("-r   | --reverse  : small files first (default is big files first)\n"));
-		_ftprintf(stderr, _T("-o x | --out x    : Print results to file x\n"));
-		_ftprintf(stderr, _T("-q   | --quiet    : No progress display (not impl. yet)\n"));
-		_ftprintf(stderr, _T("\nOptions for each path: \n\n"));
-		_ftprintf(stderr, _T("       --min x    : Ignore files smaller than x (in bytes)\n"));
-		_ftprintf(stderr, _T("       --max x    : Ignore files larger than x (in bytes)\n"));
-		_ftprintf(stderr, _T("-n   | --norecurse: do not recurse into subdirectories\n"));
-		_ftprintf(stderr, _T("-h   | --hidden   : include hidden files in search (default: off)\n"));
-		_ftprintf(stderr, _T("-m   | --mask x   : limit your search to those files which match the file mask\n"));
+		DisplayHelp();
 		return 1;
 	}
 
@@ -79,6 +68,7 @@ DECLARE_MAIN
 	fOutput.Attach(wxFile::fd_stdout);
 	bReverse = false;
 	bQuiet = false;
+	bHelp = false;
 
 	// get general options
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
@@ -106,10 +96,19 @@ DECLARE_MAIN
 			_tcscmp(argv[i], _T("--quiet")) == 0) {
 			bQuiet = true;
 			nOptions += 1;
+		} else if(_tcscmp(argv[i], _T("-h")) == 0 || 
+			_tcscmp(argv[i], _T("--help")) == 0) {
+			bHelp = true;
+			nOptions += 1;
 		} else {
 			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
 			return 1;
 		}
+	}
+
+	if(bHelp) {
+		DisplayHelp();
+		return 1; // 1 or 0, who cares...
 	}
 
 	if(argc-nOptions <= 0) {
@@ -233,13 +232,24 @@ DECLARE_MAIN
 
 	*/
 
-	dupf.FindDuplicateFiles(duplicates);
+	DuplicateFilesStats stats;
 
-	PrintResults(duplicates, fOutput, bReverse, bQuiet);
+	dupf.FindDuplicateFiles(duplicates, stats);
+
+	PrintResults(duplicates, stats, fOutput, bReverse, bQuiet);
 
 	fOutput.Close();
 
 	tend = clock();
+
+	if(!bQuiet) {
+		_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
+			stats.nFilesWithDuplicates.GetValue());
+		_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+			 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
+			stats.nDuplicateFiles.GetValue(), stats.nWastedSpace.GetValue(), 
+			stats.nWastedSpace.GetValue()/1024, stats.nWastedSpace.GetValue()/1024/1024);
+	}
 
 	/* Calculation and output of consumed time */
 
@@ -335,7 +345,8 @@ static const char * ToAscii(const wxString &string)
 #endif
 }
 
-void PrintResults(const list<DuplicatesGroup> &sortedbysize, wxFile &fOutput, bool bReverse, bool bQuiet)
+void PrintResults(const list<DuplicatesGroup> &sortedbysize, 
+	const DuplicateFilesStats & stats, wxFile &fOutput, bool bReverse, bool bQuiet)
 {
 	list<File>::const_iterator it, it3;
 	list<DuplicatesGroup>::const_iterator it2;
@@ -391,4 +402,20 @@ void PrintResults(const list<DuplicatesGroup> &sortedbysize, wxFile &fOutput, bo
 
 }
 
-
+void DisplayHelp()
+{
+	_ftprintf(stderr, _T("dupf: Finds duplicate files\n"));
+	_ftprintf(stderr, _T("Copyright (c) Matthias Boehm 2007-2008\n\n"));
+	_ftprintf(stderr, _T("dupf [GENERAL OPTIONS] Path1 [PATH-OPTIONS] [Path2 [PATH-OPTIONS]] ...\n\n"));
+	_ftprintf(stderr, _T("General options  : \n\n"));
+	_ftprintf(stderr, _T("-r   | --reverse  : small files first (default is big files first)\n"));
+	_ftprintf(stderr, _T("-o x | --out x    : Print results to file x\n"));
+	_ftprintf(stderr, _T("-q   | --quiet    : No progress display\n"));
+	_ftprintf(stderr, _T("-h   | --help     : Display this help\n"));
+	_ftprintf(stderr, _T("\nOptions for each path: \n\n"));
+	_ftprintf(stderr, _T("       --min x    : Ignore files smaller than x (in bytes)\n"));
+	_ftprintf(stderr, _T("       --max x    : Ignore files larger than x (in bytes)\n"));
+	_ftprintf(stderr, _T("-n   | --norecurse: do not recurse into subdirectories\n"));
+	_ftprintf(stderr, _T("-h   | --hidden   : include hidden files in search (default: off)\n"));
+	_ftprintf(stderr, _T("-m   | --mask x   : limit your search to those files which match the file mask\n"));
+}

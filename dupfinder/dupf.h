@@ -22,7 +22,9 @@
 #ifndef DUPF_H
 #define DUPF_H
 
-void PrintResults(const list<DuplicatesGroup> &, wxFile &, bool, bool);
+void PrintResults(const list<DuplicatesGroup> &, 
+	const DuplicateFilesStats &, wxFile &, bool, bool);
+void DisplayHelp();
 
 #endif
 

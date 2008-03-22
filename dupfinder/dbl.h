@@ -40,6 +40,7 @@ struct SearchPathInfo
 	wxString Mask;
 };
 
+// that is still subject to change
 struct GuiInfo {
 	// vars for step 1
 	wxTextCtrl *out;
@@ -54,10 +55,15 @@ struct GuiInfo {
 	wxStaticText *wProgress;
 };
 
-struct DuplicateFilesStatistics
+struct DuplicateFilesStats
 {
+	wxULongLong nDuplicateFiles;
+	wxULongLong nWastedSpace;
+	wxULongLong nFilesWithDuplicates;
 
-
+	// to be implemented
+	wxULongLong nBytesRead;
+	double fAverageSpeed;
 };
 
 // this is the class which does all the work
@@ -66,18 +72,20 @@ class DuplicateFilesFinder
 {
 public:
 	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet) 
-		: gui(_gui), bQuiet(_bQuiet) {}
+		: bQuiet(_bQuiet), gui(_gui) {}
 	~DuplicateFilesFinder() {}
 
 	void AddPath(const SearchPathInfo &path) {
 		paths.push_back(path);
 	}
 	
-	void FindDuplicateFiles(list<DuplicatesGroup> & /* , DuplicateFilesStatistics &stats*/);
+	void FindDuplicateFiles(list<DuplicatesGroup> & , DuplicateFilesStats &);
 private:
 	list<SearchPathInfo> paths;
 
 	bool bQuiet;
+
+	// subject to change
 	GuiInfo * gui;
 
 };
@@ -97,12 +105,8 @@ struct fileinfoequal
 struct fileinfosize
 {
 	wxULongLong size;
-	// mutable because set iterators are always const
-	// but files and equalfiles are not influencing the 
-	// order of a set (size is the only relevant member for 
-	// ordering), so it's save to declare them mutable
-	mutable list<File> files;
-	mutable list<fileinfoequal> equalfiles;
+	list<File> files;
+	list<fileinfoequal> equalfiles;
 };
 
 

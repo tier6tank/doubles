@@ -69,7 +69,9 @@ LARGE_INTEGER fileopen;
 LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
-void DuplicateFilesFinder::FindDuplicateFiles(list<DuplicatesGroup> & duplicates) {
+void DuplicateFilesFinder::FindDuplicateFiles(
+	list<DuplicatesGroup> & duplicates, 
+	DuplicateFilesStats &stats) {
 	
 	multiset_fileinfosize sortedbysize;
 	findfileinfo ffi;
@@ -85,9 +87,18 @@ void DuplicateFilesFinder::FindDuplicateFiles(list<DuplicatesGroup> & duplicates
 	list<fileinfoequal>::iterator it2;
 	DuplicatesGroup dupl;
 
+	stats.nDuplicateFiles = 0;
+	stats.nWastedSpace = 0;
+	stats.nFilesWithDuplicates = 0;
+
 	for(it1 = sortedbysize.begin(); it1 != sortedbysize.end(); it1++) {
 		dupl.size = it1->size;
 		for(it2 = it1->equalfiles.begin(); !it1->equalfiles.empty(); it2 = it1->equalfiles.begin()) {
+
+			stats.nFilesWithDuplicates++;
+			stats.nDuplicateFiles += it2->files.size()-1;
+			stats.nWastedSpace += wxULongLong(it2->files.size()-1)*it1->size;
+
 			dupl.files = it2->files;
 			// immediately delete memory not needed, to be keeping memory 
 			// usage low
@@ -376,9 +387,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 	int sizeN;
 	size_t nSortedBySizeLen;
 	time_t tlast, tnow;
-	wxULongLong sumsize;
-	wxULongLong nDoubleFiles;
-	wxULongLong nDifferentFiles;
 	wxString output;
 	bool bStart = true;
 
@@ -423,10 +431,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 	tlast = time(NULL);
 
 	sizeN = 0;
-
-	nDifferentFiles = 0;
-	sumsize = 0;
-	nDoubleFiles = 0;
 
 	STARTTIME(comparetime);
 
@@ -489,9 +493,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 							it2->equalfiles.back().files.push_back(*it3);
 						}
 
-						nDoubleFiles++;
-						sumsize += it2->size;
-						
 						bDeleted3 = true;
 						ittmp = it3;
 						it3++;
@@ -500,9 +501,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 					}
 
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
-				}
-				if(!bFirstDouble) {
-					nDifferentFiles++;
 				}
 #ifdef TEST
 				/* no doubles found */
@@ -537,12 +535,6 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 	if(!quiet) {
 		deleteline(output.Length());
 		wxLogMessage(_T("        done. \n"));
-
-		wxLogMessage(_T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
-			nDifferentFiles.GetValue());
-		wxLogMessage(_T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
-			 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
-			nDoubleFiles.GetValue(), sumsize.GetValue(), sumsize.GetValue()/1024, sumsize.GetValue()/1024/1024);
 	}
 
 #ifdef TEST
