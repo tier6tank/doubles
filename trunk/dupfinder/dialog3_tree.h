@@ -94,6 +94,8 @@ public:
 
 	void OnDeleteButThis(wxCommandEvent &);
 
+	void OnCollapsing(wxTreeEvent &);
+
 private:
 	static bool bHardLinkWarning;
 

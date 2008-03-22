@@ -40,7 +40,8 @@ bool DupFinderDlg3::bHardLinkWarning = true;
 enum {
 	TYPE_HEADER, 
 	TYPE_ITEM, 
-	TYPE_ROOT
+	TYPE_ROOT, 
+	TYPE_NONE
 };
 
 class TreeItemData : public wxTreeItemData {
@@ -136,6 +137,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_TEXT(ID_MASK, 		DupFinderDlg3::OnMaskChange)
 	EVT_BUTTON(ID_EXPANDALL, 	DupFinderDlg3::OnExpandAll)
 	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
+	EVT_TREE_ITEM_COLLAPSING(ID_RESULTLIST, DupFinderDlg3::OnCollapsing)
 
 	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
@@ -506,7 +508,14 @@ void DupFinderDlg3::DisplayResults() {
 
 	// no items in list?
 	if(wResultList->GetChildrenCount(wResultList->GetRootItem()) == 0) {
-		wResultList->AppendItem(wResultList->GetRootItem(), _T("No items. "));
+		TreeItemData *nothing;
+		wxTreeItemId id = wResultList->AppendItem(wResultList->GetRootItem(), _T("No items in this view. "));
+		nothing = new TreeItemData(TYPE_NONE);
+		wResultList->SetItemData(id, nothing);
+		// strangely, this has to be added for the item to be shown
+		id = wResultList->AppendItem(id, _T("No items"));
+		nothing = new TreeItemData(TYPE_NONE);
+		wResultList->SetItemData(id, nothing);
 	}
 
 	wResultList->ExpandAllChildren(wResultList->GetRootItem());
@@ -597,6 +606,14 @@ void DupFinderDlg3::OnTreeItemRightClick(wxTreeEvent &event)
 		bool bAddSep;
 		
 		popupmenu->Append(ID_MENU_OPENFILE, _T("&Open"));
+		// the following commented works, 
+		// but doesn't look very nice
+		/* wxMenuItem *default = new wxMenuItem(popupmenu, ID_MENU_OPENDIR, 
+			_T("O&pen containing folder")); 
+		wxFont font = popupmenu->FindItem(ID_MENU_OPENFILE)->GetFont();
+		font.SetWeight(wxFONTWEIGHT_BOLD);
+		default->SetFont(font); 
+		popupmenu->Append(default); */
 		popupmenu->Append(ID_MENU_OPENDIR, _T("O&pen containing folder"));
 		popupmenu->AppendSeparator();
 		popupmenu->Append(ID_MENU_RESTTODIR, _T("Sho&w only files in this folder"));
@@ -1123,5 +1140,12 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 	}
 }
 
-
+void DupFinderDlg3::OnCollapsing(wxTreeEvent & event)
+{
+	// do not let root item be collapsed
+	if( ((TreeItemData *)wResultList->GetItemData(event.GetItem())) 
+		-> GetType() == TYPE_ROOT) {
+		event.Veto();
+	}
+}
 

@@ -62,6 +62,17 @@ Step 1)
 
 Step 2)
 
+  There are a few options for the makefiles which determine 
+  the program build: they are "debug" and "unicode" (windows 
+  only). For all options, the valid values are
+  0 for off and 1 for on.
+  "debug" determines whether to build a debug version or a 
+  retail version. Enabled by default. 
+  "unicode" determines whether to build a unicode version of 
+  the program (windows only). That option mainly exists for
+  supporting the old (95, 98, ME) windows versions, which do
+  not support unicode. It is enabled by default. 
+
   --- Windows specific:
 
   For each compiler, there is a special makefile: 
