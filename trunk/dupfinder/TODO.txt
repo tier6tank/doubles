@@ -162,7 +162,7 @@ TODO/IDEAS:
 + option command line version: do not display progress output done.
 + help option (command line program) done.
 - bold popupmenu default item (?) possible, but looks not very nice (commented in source)
-+ remove mutable, restore unconst(...) function works easy because of DuplicateFilesFinder class
++ remove mutable, restore unconst(...)  done. 
 - adding a test if the specific file system supports hard/symlinks before actually trying to create a link...
 - removing from the bottom to the top
 - do not display groups with only one item left????
@@ -186,3 +186,4 @@ TODO/IDEAS:
 - Speed display always, not only for large files
 - Bug report concerning tree control ("No items" case)
 - read from stdin (s. unix) when no paths given on commandline ?
+- gui version implemention of DuplicateFilesFinder and removal of old code afterwards

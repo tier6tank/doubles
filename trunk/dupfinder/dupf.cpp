@@ -242,15 +242,6 @@ DECLARE_MAIN
 
 	tend = clock();
 
-	if(!bQuiet) {
-		_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
-			stats.nFilesWithDuplicates.GetValue());
-		_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
-			 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
-			stats.nDuplicateFiles.GetValue(), stats.nWastedSpace.GetValue(), 
-			stats.nWastedSpace.GetValue()/1024, stats.nWastedSpace.GetValue()/1024/1024);
-	}
-
 	/* Calculation and output of consumed time */
 
 	const int tmpsize = 20;
@@ -400,6 +391,14 @@ void PrintResults(const list<DuplicatesGroup> &sortedbysize,
 			_T("on the console screen! \nIf you want to get the correct filenames, use the -o option! \n\n"));
 	}
 
+	if(!bQuiet) {
+		_ftprintf(stderr, _T("Found %") wxLongLongFmtSpec _T("u files, of which exist at least one more copy. "), 
+			stats.nFilesWithDuplicates.GetValue());
+		_ftprintf(stderr, _T("%") wxLongLongFmtSpec _T("u duplicates consume altogether %") wxLongLongFmtSpec
+			 _T("u bytes (%") wxLongLongFmtSpec _T("u kb, %") wxLongLongFmtSpec _T("u mb)\n"), 
+			stats.nDuplicateFiles.GetValue(), stats.nWastedSpace.GetValue(), 
+			stats.nWastedSpace.GetValue()/1024, stats.nWastedSpace.GetValue()/1024/1024);
+	}
 }
 
 void DisplayHelp()
