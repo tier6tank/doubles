@@ -1,3 +1,6 @@
+Date : 2008/3/23 15:22 ------- dupfinder v0.40
+Readme update
+
 Date : 2008/3/23 15:05
 version number update (0.40)
 
