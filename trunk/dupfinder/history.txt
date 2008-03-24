@@ -1,3 +1,6 @@
+Date : 2008/3/23 15:05
+version number update (0.40)
+
 Date : 2008/3/23 14:55
 fixed memory leak (when occured when canceling)
 
