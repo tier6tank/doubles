@@ -9,10 +9,9 @@ it is much faster than other programs. There are both a gui and command line ver
 INSTALLATION:
 -------------
 
-As currently there is no installation program, you have to extract the files of the program in 
-a folder you want. From there, you can either execute the command line version (dupf) in a console
-or the gui version (dupfgui) by double clicking at the symbol in the file explorer. 
-
+On windows, simpy use the installation program. 
+On unix, there is currently no installation program, only a still experimental 
+version of a configure system. See "Compiling" below. 
 
 USAGE:
 -------
