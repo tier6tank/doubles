@@ -1,3 +1,6 @@
+Date : 2008/3/23 14:55
+fixed memory leak (when occured when canceling)
+
 Date : 2008/3/24 14:01
 integrated class DuplicateFilesFinder and statistics in gui version as well
 added some freeze/thaw lines to accelerate display of wResultList

@@ -287,6 +287,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		dupfinder.FindDuplicateFiles(*pDuplicates);
 
 		if(!guii.bContinue) {
+			delete pDuplicates;
 			ReturnToStart();
 			return;
 		}
