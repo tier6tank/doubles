@@ -183,7 +183,7 @@ private:
 	bool 	CompareFiles(File &, File &, const wxULongLong &);
 
 	// prevent direct copies
-	DuplicateFilesFinder::DuplicateFilesFinder(const DuplicateFilesFinder &);
+	DuplicateFilesFinder(const DuplicateFilesFinder &) {}
 
 
 };
