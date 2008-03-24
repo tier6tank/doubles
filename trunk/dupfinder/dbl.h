@@ -23,6 +23,7 @@
 #define __DBL_H_123
 
 #include "file.h"
+#include "os_cc_specific.h"
 
 struct DuplicatesGroup
 {
@@ -49,10 +50,15 @@ struct GuiInfo {
 	wxApp * theApp;
 	wxStaticText *cfiles;
 	bool bPause;
+	wxStaticText *wStep1;
 
 	// vars for step 2
 	wxStaticText *wSpeed;
 	wxStaticText *wProgress;
+	wxStaticText *wStep2;
+
+	// fonts 
+	wxFont normalfont, boldfont;
 };
 
 struct DuplicateFilesStats
@@ -78,9 +84,84 @@ public:
 	void AddPath(const SearchPathInfo &path) {
 		paths.push_back(path);
 	}
-	
-	void FindDuplicateFiles(list<DuplicatesGroup> & , DuplicateFilesStats &);
+
+	void RemoveAllPaths() {
+		paths.clear();
+	}
+
+	void FindDuplicateFiles(list<DuplicatesGroup> & , DuplicateFilesStats * =NULL);
+
+	// that later will be changed
+	void SetGui(GuiInfo *_gui) { gui = _gui; }
+
+	void GetStats(DuplicateFilesStats &_stats) const { _stats = stats; }
+
 private:
+	// private structures
+
+	struct fileinfoequal
+	{
+		list<File> files;
+	};
+
+	struct fileinfosize
+	{
+		wxULongLong size;
+		list<File> files;
+		list<fileinfoequal> equalfiles;
+	};
+
+	
+	struct less_fileinfosize : public less<fileinfosize> {
+		bool operator () (const fileinfosize &a, const fileinfosize &b) const {
+			return a.size > b.size;
+		}
+	};
+
+	typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
+
+	
+	class AddFileToList : public wxExtDirTraverser
+	{
+	public:
+		AddFileToList(multiset_fileinfosize &, const SearchPathInfo *, wxULongLong &, GuiInfo *);
+
+		virtual wxDirTraverseResult OnFile(const wxString &, const wxULongLong *);
+		virtual wxDirTraverseResult OnFile(const wxString & filename);
+
+		virtual wxDirTraverseResult OnExtFile(const FileData &data);
+
+		virtual wxDirTraverseResult OnDir(const wxString &dirname);
+
+		wxDirTraverseResult UpdateInfo(const wxString *dirname);
+
+	private:
+		multiset_fileinfosize & sortedbysize;
+		const SearchPathInfo *pi;
+		time_t tlast;
+	
+		GuiInfo *guii;
+
+		// for status display
+		wxString curdir;
+		bool bDirChanged;
+		wxULongLong &nFiles;
+
+	#ifdef PROFILE
+	public:
+		LARGE_INTEGER __OnFile;
+		LARGE_INTEGER __OnDir;
+		LARGE_INTEGER __findsize;
+		LARGE_INTEGER __normalize;
+		LARGE_INTEGER __finddir;
+		LARGE_INTEGER __insert;
+	#endif
+
+	};
+
+private:
+	// private variables
+
 	list<SearchPathInfo> paths;
 
 	bool bQuiet;
@@ -88,65 +169,24 @@ private:
 	// subject to change
 	GuiInfo * gui;
 
-};
+	multiset_fileinfosize sortedbysize;
 
-// temporary
-typedef SearchPathInfo pathinfo;
-typedef GuiInfo guiinfo;
+	DuplicateFilesStats stats;
 
 
-
-struct fileinfoequal
-{
-	list<File> files;
-};
-
-
-struct fileinfosize
-{
-	wxULongLong size;
-	list<File> files;
-	list<fileinfoequal> equalfiles;
-};
-
-
-struct less_fileinfosize : public less<fileinfosize> {
-	bool operator () (const fileinfosize &a, const fileinfosize &b) const {
-		// the commented code does not work because i don't get bReverse from somewhere, 
-		// so now bReverse is used in PrintResults
-
-		//if (bReverse) {
-		//	return a.size < b.size;
-		// else {
-		// bigger because i want to have BIG files first by default!
-		return a.size > b.size;
-		// }
-	}
-};
+private:
+	// private procedures
 	
-typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
-typedef multiset<fileinfosize, less_fileinfosize>::iterator multiset_fileinfosize_it;
-typedef multiset<fileinfosize, less_fileinfosize>::reverse_iterator multiset_fileinfosize_rit;
+	void	FindFiles();
+	void	GetEqualFiles();
+
+	bool 	CompareFiles(File &, File &, const wxULongLong &);
+
+	// prevent direct copies
+	DuplicateFilesFinder::DuplicateFilesFinder(const DuplicateFilesFinder &);
 
 
-struct findfileinfo
-{
-	multiset_fileinfosize *pFilesBySize;
-	list<pathinfo> paths;
 };
-
-
-
-
-
-// prototypes
-bool 	comparefiles(File &, File &, const wxULongLong &, guiinfo * /*= NULL*/, bool = false);
-void	deleteline(int);
-
-void	FindFiles(findfileinfo &, guiinfo * /*= NULL*/, bool = false);
-void	GetEqualFiles(multiset_fileinfosize &, guiinfo * /*= NULL*/, bool = false);
-
-
 
 #endif /* defined(__DBL_H_123) */
 

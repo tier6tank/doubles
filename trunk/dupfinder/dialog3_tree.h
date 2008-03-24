@@ -29,7 +29,7 @@ using namespace std;
 class DupFinderDlg3 : public wxDialog
 {
 public:
-	DupFinderDlg3(DupFinderDlg *, findfileinfo &);
+	DupFinderDlg3(DupFinderDlg *, list<DuplicatesGroup> &, DuplicateFilesFinder &);
 	
 	~DupFinderDlg3();
 
@@ -99,7 +99,8 @@ public:
 private:
 	static bool bHardLinkWarning;
 
-	findfileinfo ffi;
+	DuplicateFilesFinder &dupfinder;
+	list<DuplicatesGroup> &duplicates;
 
 	wxTreeCtrl *wResultList;
 	wxCheckBox *wConfDelete;

@@ -23,16 +23,18 @@
 #include "dialog3.h"
 #include "os_cc_specific.h"
 
-DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, findfileinfo &_ffi) 
+DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, list<DuplicatesGroup> &_dupl, 
+		DuplicateFilesFinder &_dupf) 
 	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) , 
-		ffi(_ffi), parent(_parent), 
+		dupfinder(_dupf), duplicates(_dupl), parent(_parent), 
 		RestrictToDir(_T("")), bRestrictToDir(false), 
 		bRestrictToMask(false)
 {
 }
 
 DupFinderDlg3::~DupFinderDlg3() {
+	delete &duplicates;
 }
 
 bool DupFinderDlg3::bHardLinkWarning = true;
@@ -52,12 +54,12 @@ public:
 	virtual const wxTreeItemId &GetId() const { return id; }
 	virtual void SetId(const wxTreeItemId &_id) { id = _id; }
 
-	void SetGroup(fileinfoequal *_mygroup) {
+	void SetGroup(DuplicatesGroup *_mygroup) {
 		// assert(type == TYPE_HEADER);
 		data.mygroup = _mygroup;
 	}
 
-	fileinfoequal *GetGroup() {
+	DuplicatesGroup *GetGroup() {
 		// assert(type == TYPE_HEADER);
 		return data.mygroup;
 	}
@@ -82,7 +84,7 @@ private:
 	
 	struct _data {
 	// union _data {
-		fileinfoequal *mygroup;
+		DuplicatesGroup *mygroup;
 		list<File>::iterator myself;
 	} data;
 
@@ -375,12 +377,6 @@ void DupFinderDlg3::OnSize(wxSizeEvent &WXUNUSED(event)) {
 	}
 }
 
-struct less_fileiterator : public less<list<File>::iterator > {
-	bool operator () (const list<File>::iterator &a, const list<File>::iterator &b) const {
-		return a->GetName() < b->GetName();
-	}
-};
-
 bool DupFinderDlg3::IsMatching(const wxString & string)
 {
 	bool bMatching = true;
@@ -410,14 +406,19 @@ bool DupFinderDlg3::IsMatching(const wxString & string)
 	return bMatching;
 }
 
+struct less_fileiterator : public less<list<File>::iterator > {
+	bool operator () (const list<File>::iterator &a, const list<File>::iterator &b) const {
+		return a->GetName() < b->GetName();
+	}
+};
+
 void DupFinderDlg3::DisplayResults() {
-	multiset_fileinfosize::iterator it;
-	list<fileinfoequal>::iterator it2;
+	list<DuplicatesGroup>::iterator it;
 	list<File>::iterator it3;
 	// bool bHaveFont = false;
 	wxFont font, boldfont;
 
-	if(ffi.pFilesBySize->empty()) {
+	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
 			 wxOK | wxICON_INFORMATION, this);
 
@@ -429,79 +430,87 @@ void DupFinderDlg3::DisplayResults() {
 	wResultList->Freeze();
 
 	wResultList->DeleteAllItems();
-	wxTreeItemId rootItem = wResultList->AddRoot(_T("Duplicate files: (statistics)"));
+	wxString tmp;
+	DuplicateFilesStats stats;
+	dupfinder.GetStats(stats);
+
+	tmp.Printf(_T("Duplicate files: %") wxLongLongFmtSpec _T("u duplicates of %") 
+		wxLongLongFmtSpec _T("u files consume %.2f mb"), 
+		stats.nDuplicateFiles.GetValue(), 
+		stats.nFilesWithDuplicates.GetValue(), 
+		((double)stats.nWastedSpace.GetValue())/1024/1024);
+
+	wxTreeItemId rootItem = wResultList->AddRoot(tmp);
 	wResultList->SetItemData(rootItem, new TreeItemData(TYPE_ROOT));
 
-	for(it = ffi.pFilesBySize->begin(); it != ffi.pFilesBySize->end(); it++) {
-		for(it2 = unconst(*it).equalfiles.begin(); it2 != unconst(*it).equalfiles.end(); it2++) {
-			bool bDisplay;
-			multiset<list<File>::iterator, less_fileiterator> matching;
+	for(it = duplicates.begin(); it != duplicates.end(); it++) {
+		bool bDisplay;
+		multiset<list<File>::iterator, less_fileiterator> matching;
 
-			bool bRestrict = bRestrictToMask || bRestrictToDir;
+		bool bRestrict = bRestrictToMask || bRestrictToDir;
 
-			// don't include items which have only one element left ?
-			if(it2->files.size() == 1 && false) {
-				bDisplay = false; 
-			} else {
-				if(bRestrict) {
-					// test if it should be displayed
-					bDisplay = false;
+		// don't include items which have only one element left ?
+		if(it->files.size() == 1 && false) {
+			bDisplay = false; 
+		} else {
+			if(bRestrict) {
+				// test if it should be displayed
+				bDisplay = false;
 
 
-					for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
+				for(it3 = it->files.begin(); it3 != it->files.end(); it3++) {
 					
-						// is in in the directory?
-						if(IsMatching(it3->GetName()) ) {
-							bDisplay = true;
-							matching.insert(it3);
-							// break;
-						}
+					// is in in the directory?
+					if(IsMatching(it3->GetName()) ) {
+						bDisplay = true;
+						matching.insert(it3);
+						// break;
 					}
-				}
-				else {
-					bDisplay = true;
 				}
 			}
+			else {
+				bDisplay = true;
+			}
+		}
 
-			if(bDisplay) {
-				TreeItemData *itemdata;
+		if(bDisplay) {
+			TreeItemData *itemdata;
 
-				wxString tmp;
-				tmp.Printf(_T("%u equal files of size %") wxLongLongFmtSpec _T("u"), 
-					it2->files.size(), it->size.GetValue());
+			wxString tmp;
+			tmp.Printf(_T("%u equal files of size %") wxLongLongFmtSpec _T("u"), 
+				it->files.size(), it->size.GetValue());
 
-				wxTreeItemId item, rootitem;
+			wxTreeItemId item, rootitem;
 
-				item = wResultList->AppendItem(wResultList->GetRootItem(), tmp);
+			item = wResultList->AppendItem(wResultList->GetRootItem(), tmp);
 
-				/* if(!bHaveFont) {
-					boldfont = font = wResultList->GetItemFont(item);
-					boldfont.SetWeight(wxFONTWEIGHT_BOLD);
-					boldfont.SetUnderlined(true);
-					bHaveFont = true;
-				}
-			
-				wResultList->SetItemFont(item, boldfont); */
+			/* if(!bHaveFont) {
+				boldfont = font = wResultList->GetItemFont(item);
+				boldfont.SetWeight(wxFONTWEIGHT_BOLD);
+				boldfont.SetUnderlined(true);
+				bHaveFont = true;
+			}
+		
+			wResultList->SetItemFont(item, boldfont); */
 
-				itemdata = new TreeItemData(TYPE_HEADER);
-				itemdata->SetGroup(&*it2);
+			itemdata = new TreeItemData(TYPE_HEADER);
+			itemdata->SetGroup(&*it);
 
-				wResultList->SetItemData(item, itemdata);
+			wResultList->SetItemData(item, itemdata);
 
-				rootitem = item;
+			rootitem = item;
 
-				for(it3 = it2->files.begin(); it3 != it2->files.end(); it3++) {
-					item = wResultList->AppendItem(rootitem, it3->GetName());
-					itemdata = new TreeItemData(TYPE_ITEM);
-					itemdata->SetGroup(&*it2);
-					itemdata->SetIt(it3);
+			for(it3 = it->files.begin(); it3 != it->files.end(); it3++) {
+				item = wResultList->AppendItem(rootitem, it3->GetName());
+				itemdata = new TreeItemData(TYPE_ITEM);
+				itemdata->SetGroup(&*it);
+				itemdata->SetIt(it3);
 					
-					// matching ?
-					if(matching.find(it3) != matching.end()) {
-						wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
-					}
-					wResultList->SetItemData(item, itemdata);
+				// matching ?
+				if(matching.find(it3) != matching.end()) {
+					wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
 				}
+				wResultList->SetItemData(item, itemdata);
 			}
 		}
 	}
@@ -1082,22 +1091,32 @@ void DupFinderDlg3::OnExpandAll(wxCommandEvent &WXUNUSED(event))
 {
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
+
+	wResultList->Freeze();
+
 	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
 		i.IsOk();
 		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
 		wResultList->Expand(i);
 	}
+
+	wResultList->Thaw();
 }
 
 void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 {
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
+
+	wResultList->Freeze();
+
 	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
 		i.IsOk();
 		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
 		wResultList->Collapse(i);
 	}
+
+	wResultList->Thaw();
 }
 
 

@@ -27,7 +27,7 @@
 class DupFinderDlg2 : public wxDialog 
 {
 public:
-	DupFinderDlg2(findfileinfo &, DupFinderDlg *);
+	DupFinderDlg2(DuplicateFilesFinder &, DupFinderDlg *);
 	~DupFinderDlg2();
 	
 	void OnClose(wxCloseEvent &);
@@ -50,8 +50,7 @@ public:
 	
 private:
 
-	findfileinfo &ffi;
-	multiset_fileinfosize &sortedbysize;
+	DuplicateFilesFinder &dupfinder;
 
 	bool bStarted;
 
@@ -64,7 +63,7 @@ private:
 	wxStaticText *wProgress;
 	wxStaticText *wSpeed;
 
-	guiinfo guii;
+	GuiInfo guii;
 
 	wxStaticText *wStep1, *wStep2;
 

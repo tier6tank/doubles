@@ -52,7 +52,7 @@ public:
 	void OnDirRemove(wxCommandEvent &);
 	void OnRemoveAll(wxCommandEvent &);
 
-	void AddDir(const pathinfo  &);
+	void AddDir(const SearchPathInfo  &);
 
 	void OnGetDir(wxCommandEvent &);
 
@@ -76,7 +76,9 @@ private:
 	wxTextCtrl *wMask;
 	wxTextCtrl *wMaxSize;
 
-	findfileinfo ffi;
+	DuplicateFilesFinder dupfinder;
+
+	list<SearchPathInfo> paths;
 
 	DECLARE_EVENT_TABLE()
 };

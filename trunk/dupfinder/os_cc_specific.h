@@ -18,6 +18,10 @@
 
 ******************************************************************************/
 
+
+#ifndef __OS_CC_SPECIFIC_H_123
+#define __OS_CC_SPECIFIC_H_123
+
 #if !defined(_WIN32) || ( defined(_WIN32) && defined(__GNUC__) && !defined(__MINGW32__) )
 /* unix provides no unicode, at least not like the windows platform does */
 
@@ -122,7 +126,7 @@ void Traverse(const wxString &, const wxString &, int, wxExtDirTraverser &);
 
 
 
-
+#endif
 
 
 

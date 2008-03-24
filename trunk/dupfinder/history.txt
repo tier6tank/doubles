@@ -1,3 +1,7 @@
+Date : 2008/3/24 14:01
+integrated class DuplicateFilesFinder and statistics in gui version as well
+added some freeze/thaw lines to accelerate display of wResultList
+
 Date : 2008/3/22 21:00
 removed mutable, restored unconst
 moved output part to PrintResults
