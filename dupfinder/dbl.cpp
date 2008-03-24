@@ -69,19 +69,44 @@ LARGE_INTEGER fileopen;
 LARGE_INTEGER fileread;
 #endif /* defined(PROFILE) */
 
+// prototypes
+static void	deleteline(int);
+
+
 void DuplicateFilesFinder::FindDuplicateFiles(
 	list<DuplicatesGroup> & duplicates, 
-	DuplicateFilesStats &stats) {
-	
-	multiset_fileinfosize sortedbysize;
-	findfileinfo ffi;
-	
-	ffi.pFilesBySize = &sortedbysize;
-	ffi.paths = this->paths;
+	DuplicateFilesStats *pStats) {
 
-	FindFiles(ffi, this->gui, this->bQuiet);
+	if(gui) {
+		gui->wStep1->SetFont(gui->boldfont);
+	}
 
-	GetEqualFiles(sortedbysize, this->gui, this->bQuiet);
+	FindFiles();
+
+	if(gui) {
+		gui->wStep1->SetFont(gui->normalfont);
+
+		// test if aborted
+		if(!gui->bContinue) {
+			return;
+		}
+
+		gui->out->Disable();
+		gui->out->SetValue(_T(""));
+
+		gui->wStep2->SetFont(gui->boldfont);
+	}
+
+	GetEqualFiles();
+	
+	if(gui) {
+		gui->wStep2->SetFont(gui->normalfont);
+
+		if(!gui->bContinue) {
+			return;
+		}
+	}
+
 
 	multiset_fileinfosize::iterator it1;
 	list<fileinfoequal>::iterator it2;
@@ -90,6 +115,9 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 	stats.nDuplicateFiles = 0;
 	stats.nWastedSpace = 0;
 	stats.nFilesWithDuplicates = 0;
+
+	stats.fAverageSpeed = 0;
+	stats.nBytesRead = 0;
 
 	for(it1 = sortedbysize.begin(); it1 != sortedbysize.end(); it1++) {
 		dupl.size = it1->size;
@@ -108,161 +136,139 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 			unconst(*it1).equalfiles.erase(it2);
 		}
 	}
+
+	if(pStats) {
+		*pStats = stats;
+	}
 }
 
-class AddFileToList : public wxExtDirTraverser
-{
-public:
-	AddFileToList(findfileinfo * pInfo, const pathinfo *ppi, wxULongLong &_nFiles, 
-		guiinfo * _guii /*= NULL*/) : ffi(pInfo), pi(ppi), guii(_guii), 
-		bDirChanged(true), nFiles(_nFiles) {
+DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, const SearchPathInfo *ppi, 
+	wxULongLong &_nFiles, 
+	GuiInfo * _guii /*= NULL*/) : sortedbysize(_sbz), pi(ppi), guii(_guii), 
+	bDirChanged(true), nFiles(_nFiles) {
 #ifdef PROFILE
-		__OnFile.QuadPart = 0;
-		__OnDir.QuadPart = 0;
-		__findsize.QuadPart = 0;
-		__normalize.QuadPart = 0;
-		__finddir.QuadPart = 0;
-		__insert.QuadPart = 0;
+	__OnFile.QuadPart = 0;
+	__OnDir.QuadPart = 0;
+	__findsize.QuadPart = 0;
+	__normalize.QuadPart = 0;
+	__finddir.QuadPart = 0;
+	__insert.QuadPart = 0;
 #endif
-		tlast = time(NULL);
-	}
+	tlast = time(NULL);
+}
 
-	virtual wxDirTraverseResult OnFile(const wxString &filename, const wxULongLong *pSize)
-	{
-		if(IsSymLink(filename)) {
-			return UpdateInfo(NULL);
-		}
-		STARTTIME(__OnFile);
-		// fileinfo fi;
-		File f;
-		fileinfosize fis;
-		multiset_fileinfosize_it it2;
-		wxULongLong size;
-		STARTTIME(__findsize);
-		// slow
-		if(pSize == NULL) {
-			size = wxFileName::GetSize(filename);
-		} else {
-			size = *pSize;
-		}
-		STOPTIME(__findsize);
-		const bool bIncludeZeroFiles = true; // later make an option out of this?
-		
-		bool bFitsMinSize = size >= pi->nMinSize;
-		bool bFitsMaxSize = size <= pi->nMaxSize || pi->nMaxSize == 0;
-
-		assert(pi->nMaxSize >= pi->nMinSize || pi->nMaxSize == 0);
-		
-		if(size != wxInvalidSize && 
-			(size != 0 || bIncludeZeroFiles) &&
-			bFitsMinSize &&
-			bFitsMaxSize) {
-			// init structure
-			STARTTIME(__insert);
-			// fi.name = filename;
-			// fi.data = NULL;
-			f.SetName(filename);
-
-			fis.size = size;
-			it2 = ffi->pFilesBySize->find(fis);
-
-			
-			if(it2 != ffi->pFilesBySize->end()) {
-				unconst(*it2).files.push_back(f);
-			}
-			else {
-				// the next line actually is not needed
-				fis.size = size;
-				fis.files.push_back(f);
-				ffi->pFilesBySize->insert(fis);
-			}
-			STOPTIME(__insert);
-		}
-		STOPTIME(__OnFile);
-
-		nFiles++;
-
+wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnFile(const wxString &filename, const wxULongLong *pSize)
+{
+	if(IsSymLink(filename)) {
 		return UpdateInfo(NULL);
 	}
-
-	virtual wxDirTraverseResult OnFile(const wxString & filename)
-	{
-		return OnFile(filename, NULL);
+	STARTTIME(__OnFile);
+	// fileinfo fi;
+	File f;
+	fileinfosize fis;
+	multiset_fileinfosize::iterator it2;
+	wxULongLong size;
+	STARTTIME(__findsize);
+	// slow
+	if(pSize == NULL) {
+		size = wxFileName::GetSize(filename);
+	} else {
+		size = *pSize;
 	}
-
-	virtual wxDirTraverseResult OnExtFile(const FileData &data) {
-		return OnFile(data.name, &data.size);
-	}
-
-	virtual wxDirTraverseResult OnDir(const wxString &dirname)
-	{
-		// do NOT follow links! 
-		if(IsSymLink(dirname)) {
-			return wxDIR_IGNORE;
-		}
+	STOPTIME(__findsize);
+	const bool bIncludeZeroFiles = true; // later make an option out of this?
 		
-		return UpdateInfo(&dirname);
-	}
+	bool bFitsMinSize = size >= pi->nMinSize;
+	bool bFitsMaxSize = size <= pi->nMaxSize || pi->nMaxSize == 0;
 
-	wxDirTraverseResult UpdateInfo(const wxString *dirname) 
-	{
-		if(guii) { 
-			guii->theApp->Yield();
-			while(guii->bPause && guii->bContinue) {
-				wxMilliSleep(10);
-				guii->theApp->Yield();
-			}
-			if(!guii->bContinue) {
-				return wxDIR_STOP;
-			}
+	assert(pi->nMaxSize >= pi->nMinSize || pi->nMaxSize == 0);
+		
+	if(size != wxInvalidSize && 
+		(size != 0 || bIncludeZeroFiles) &&
+		bFitsMinSize &&
+		bFitsMaxSize) {
+		// init structure
+		STARTTIME(__insert);
+		// fi.name = filename;
+		// fi.data = NULL;
+		f.SetName(filename);
 
-			if(dirname) {
-				bDirChanged = true;
-				curdir = *dirname;
-			}
+		fis.size = size;
+		it2 = sortedbysize.find(fis);
 
-			time_t tcur;
-			tcur = time(NULL);
-				
-			if(tcur - tlast >= REFRESH_INTERVAL ) {
-				if(bDirChanged) {
-					guii->out->SetValue(curdir);
-				}
-				wxString tmp;
-				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
-					nFiles.GetValue(), 
-					ffi->pFilesBySize->size());
-				guii->nfiles->SetLabel(tmp);
-			}
-
-			tlast = tcur;
+			
+		if(it2 != sortedbysize.end()) {
+			unconst(*it2).files.push_back(f);
 		}
-		return wxDIR_CONTINUE;
+		else {
+			// the next line actually is not needed
+			fis.size = size;
+			fis.files.push_back(f);
+			sortedbysize.insert(fis);
+		}
+		STOPTIME(__insert);
 	}
+	STOPTIME(__OnFile);
 
-private:
-	findfileinfo *ffi;
-	const pathinfo *pi;
-	time_t tlast;
-	
-	guiinfo *guii;
+	nFiles++;
 
-	// for status display
-	wxString curdir;
-	bool bDirChanged;
-	wxULongLong &nFiles;
+	return UpdateInfo(NULL);
+}
 
-#ifdef PROFILE
-public:
-	LARGE_INTEGER __OnFile;
-	LARGE_INTEGER __OnDir;
-	LARGE_INTEGER __findsize;
-	LARGE_INTEGER __normalize;
-	LARGE_INTEGER __finddir;
-	LARGE_INTEGER __insert;
-#endif
+wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnFile(const wxString & filename)
+{
+	return OnFile(filename, NULL);
+}
 
-};
+wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnExtFile(const FileData &data) {
+	return OnFile(data.name, &data.size);
+}
+
+wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnDir(const wxString &dirname)
+{
+	// do NOT follow links! 
+	if(IsSymLink(dirname)) {
+		return wxDIR_IGNORE;
+	}
+		
+	return UpdateInfo(&dirname);
+}
+
+wxDirTraverseResult DuplicateFilesFinder::AddFileToList::UpdateInfo(const wxString *dirname) 
+{
+	if(guii) { 
+		guii->theApp->Yield();
+		while(guii->bPause && guii->bContinue) {
+			wxMilliSleep(10);
+			guii->theApp->Yield();
+		}
+		if(!guii->bContinue) {
+			return wxDIR_STOP;
+		}
+
+		if(dirname) {
+			bDirChanged = true;
+			curdir = *dirname;
+		}
+
+		time_t tcur;
+		tcur = time(NULL);
+				
+		if(tcur - tlast >= REFRESH_INTERVAL ) {
+			if(bDirChanged) {
+				guii->out->SetValue(curdir);
+			}
+			wxString tmp;
+			tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %i size(s)"), 
+				nFiles.GetValue(), 
+				sortedbysize.size());
+			guii->nfiles->SetLabel(tmp);
+		}
+
+		tlast = tcur;
+	}
+	return wxDIR_CONTINUE;
+}
 
 static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString &mask, int flags) 
 {
@@ -274,35 +280,34 @@ static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString 
 #endif
 }
 
-void	FindFiles(findfileinfo &ffi, guiinfo *guii, bool quiet)
+void	DuplicateFilesFinder::FindFiles()
 {
 	fileinfosize fis;
 	list<File>::iterator it;
-	multiset_fileinfosize_it it2;
+	multiset_fileinfosize::iterator it2;
 	bool bDeleted;
 	wxULongLong nFiles1, nFiles2;
 	wxULongLong nSizes1;
 	wxULongLong nDroppedFiles;
-	list<pathinfo> &paths = ffi.paths;
-	list<pathinfo>::const_iterator it3;
+	list<SearchPathInfo>::const_iterator it3;
 
 #ifdef PROFILE
 	LARGE_INTEGER __all = {0, 0};
 #endif
 
 
-	if(!quiet) {
+	if(!bQuiet) {
 		wxLogMessage(_T("Step 1: Searching files... "));
 	}
 
 	nFiles1 = 0;
 
 	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
-		if(!quiet) {
+		if(!bQuiet) {
 			wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
 		}
 		
-		AddFileToList traverser(&ffi, &*it3, nFiles1, guii);
+		AddFileToList traverser(sortedbysize, &*it3, nFiles1, gui);
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
@@ -311,14 +316,14 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii, bool quiet)
 			(it3->bSearchHidden ? wxDIR_HIDDEN : 0));
 		STOPTIME(__all);
 		// _ftprintf(stderr, _T("\n"));
-		if(guii) {
-			if(!guii->bContinue) {
+		if(gui) {
+			if(!gui->bContinue) {
 				return;
 			}
 		}
 
 		
-	#ifdef PROFILE
+#ifdef PROFILE
 		_ftprintf(stderr, _T("all:      % 8.3f\n"), SECONDS(__all));
 		_ftprintf(stderr, _T("OnFile:   % 8.3f (%.3f %%) \n"), SECONDS(traverser.__OnFile), 
 			SECONDS(traverser.__OnFile)/SECONDS(__all)*100.0);
@@ -335,17 +340,17 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii, bool quiet)
 		_ftprintf(stderr, _T("finddir:  % 8.3f (%.3f %%) \n"), SECONDS(traverser.__finddir), 
 			SECONDS(traverser.__finddir)/SECONDS(traverser.__OnDir)*100.0);
 
-	#endif
+#endif
 	}
 
-	nSizes1 = ffi.pFilesBySize->size();
+	nSizes1 = sortedbysize.size();
 
-	multiset_fileinfosize_it it2tmp;
+	multiset_fileinfosize::iterator it2tmp;
 	
 	nFiles2 = 0;
 	nDroppedFiles = 0;
 
-	for(it2 = ffi.pFilesBySize->begin(); it2 != ffi.pFilesBySize->end(); bDeleted ? it2 : it2++) {
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
 		if(it2->files.size() > 1) {
 			bDeleted = false;
 			nFiles2 += it2->files.size();
@@ -354,37 +359,37 @@ void	FindFiles(findfileinfo &ffi, guiinfo *guii, bool quiet)
 			it2tmp = it2;
 			it2++;
 
-			ffi.pFilesBySize->erase(it2tmp);
+			sortedbysize.erase(it2tmp);
 			bDeleted = true;
 
 			nDroppedFiles++;
 		}
 	}
 
-	if(!quiet) {
+	if(!bQuiet) {
 		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
 		nFiles2.GetValue());
 	}
 
-	if(guii) {
+	if(gui) {
 		wxString tmp;
 		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %") wxLongLongFmtSpec _T("u size(s)"), 
 			nFiles1.GetValue(), 
 			nSizes1.GetValue());
-		guii->nfiles->SetLabel(tmp);
+		gui->nfiles->SetLabel(tmp);
 
 		tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %u sizes"), 
-			nFiles2.GetValue(), ffi.pFilesBySize->size());
-		guii->cfiles->SetLabel(tmp);
+			nFiles2.GetValue(), sortedbysize.size());
+		gui->cfiles->SetLabel(tmp);
 	}
 
 
 }
 
-void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool quiet)
+void	DuplicateFilesFinder::GetEqualFiles()
 {
 	list<File>::iterator it, it3;
-	multiset_fileinfosize_it it2;
+	multiset_fileinfosize::iterator it2;
 	list<fileinfoequal>::iterator it4;
 	int sizeN;
 	size_t nSortedBySizeLen;
@@ -395,7 +400,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 #ifdef TEST
 	list<File>::iterator __it3;
 	list<File>::iterator __it5, __it;
-	multiset_fileinfosize_it __it2;
+	multiset_fileinfosize::iterator __it2;
 	list<fileinfoequal>::iterator __it4;
 #endif /*defined(TEST) */
 
@@ -426,7 +431,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 #endif /* RANDOM_NOISE */
 	
 
-	if(!quiet) {
+	if(!bQuiet) {
 		wxLogMessage(_T("Step 2: Comparing files with same size for equality... "));
 	}
 
@@ -444,13 +449,13 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 		tnow = time(NULL);
 		if(tnow - tlast >= REFRESH_INTERVAL || bStart == true) {
 			bStart = false; // at the beginning information should also be displayed!
-			if(guii) {
+			if(gui) {
 				output.Printf(_T("size %i/%i (%") wxLongLongFmtSpec _T("u bytes, %u files)"), 
 					sizeN, nSortedBySizeLen, it2->size.GetValue(), it2->files.size() );
-				guii->wProgress->SetLabel(output);
-				guii->wSpeed->SetLabel(_T("--"));
+				gui->wProgress->SetLabel(output);
+				gui->wSpeed->SetLabel(_T("--"));
 			}
-			else if (!quiet) {
+			else if (!bQuiet) {
 				deleteline(output.Length());
 				output.Printf(_T("size %i/%i (%i files of size %") wxLongLongFmtSpec _T("u)")
 					/*" %i kb/s" */, 
@@ -472,10 +477,10 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 				it3 = it;
 				for(it3++; it3 != it2->files.end(); bDeleted3 ? it3 : it3++) {
 					bDeleted3 = false;
-					bEqual = comparefiles(*it, *it3, it2->size, guii, quiet);
+					bEqual = CompareFiles(*it, *it3, it2->size);
 
-					if(guii) {
-						if(!guii->bContinue) {
+					if(gui) {
+						if(!gui->bContinue) {
 							return;
 						}
 					}
@@ -534,7 +539,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 
 	STOPTIME(comparetime);
 
-	if(!quiet) {
+	if(!bQuiet) {
 		deleteline(output.Length());
 		wxLogMessage(_T("        done. \n"));
 	}
@@ -558,7 +563,7 @@ void	GetEqualFiles(multiset_fileinfosize & sortedbysize, guiinfo *guii, bool qui
 
 }
 
-void	deleteline(int n) {
+static void deleteline(int n) {
 	int t;
 	for(t = 0; t < n; t++) {
 		_ftprintf(stderr, _T("\b"));
@@ -575,7 +580,7 @@ void	deleteline(int n) {
 #include "filetest.cpp"
 #endif
 
-bool	comparefiles(File &f1, File &f2, const wxULongLong &size, guiinfo *guii, bool quiet) {
+bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &size) {
 	bool bResult;
 	static char *b1, *b2;
 	char *pb1, *pb2;
@@ -605,13 +610,13 @@ bool	comparefiles(File &f1, File &f2, const wxULongLong &size, guiinfo *guii, bo
 	tstart = time(NULL);
 
 	while(1) {
-		if(guii) {
-			guii->theApp->Yield();
-			while(guii->bPause && guii->bContinue) {
+		if(gui) {
+			gui->theApp->Yield();
+			while(gui->bPause && gui->bContinue) {
 				wxMilliSleep(10);
-				guii->theApp->Yield();
+				gui->theApp->Yield();
 			}
-			if(!guii->bContinue) {
+			if(!gui->bContinue) {
 				return false;
 			}
 		}
@@ -644,13 +649,13 @@ bool	comparefiles(File &f1, File &f2, const wxULongLong &size, guiinfo *guii, bo
 		tcurrent = time(NULL);
 		if(tcurrent - tstart >= REFRESH_INTERVAL) {
 			// display status
-			if(guii) {
+			if(gui) {
 				output.Printf(_T(" %.2f mb/sec"), 
 					(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
-				guii->wSpeed->SetLabel(output);
+				gui->wSpeed->SetLabel(output);
 
 			}
-			else if(!quiet) {
+			else if(!bQuiet) {
 				deleteline(output.Length());
 				output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024.0/1024.0);
 				_ftprintf(stderr, _T("%s"), output.c_str());
@@ -664,7 +669,7 @@ bool	comparefiles(File &f1, File &f2, const wxULongLong &size, guiinfo *guii, bo
 
 	bResult = true;
 
-End:	if(!quiet) {
+End:	if(!bQuiet) {
 		deleteline(output.Length());
 	}
 	return bResult;

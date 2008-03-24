@@ -67,15 +67,14 @@ END_EVENT_TABLE()
 DupFinderDlg::DupFinderDlg(wxWindow * parent) 
 	: wxDialog(parent, -1, _T("Duplicate Files Finder"), 
 		wxDefaultPosition, wxDefaultSize, 
-		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) {
+		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX), 
+	  dupfinder(NULL, false) {
 
 	CreateControls();
 
 	InitControls();
 
 	CenterOnScreen();
-
-	ffi.pFilesBySize = new multiset_fileinfosize;
 }
 
 DupFinderDlg::~DupFinderDlg() {
@@ -85,13 +84,11 @@ DupFinderDlg::~DupFinderDlg() {
 	// delete item related memory
 	for(i = 0; i < count; i++) {
 		// delete item <item>
-		list<pathinfo>::iterator *pit = 
-			(list<pathinfo>::iterator *)wDirList->GetItemData(i);
+		list<SearchPathInfo>::iterator *pit = 
+			(list<SearchPathInfo>::iterator *)wDirList->GetItemData(i);
 		
 		delete pit;
 	}
-	
-	delete ffi.pFilesBySize;
 }
 
 void DupFinderDlg::CreateControls()
@@ -361,12 +358,12 @@ void DupFinderDlg::UpdateView() {
 	// one path in the list
 
 	FindWindow(wxID_OK)->Enable(
-		!ffi.paths.empty()
+		!paths.empty()
 	);
 
 	// RemoveAll enabled if there's something in the list
 	FindWindow(ID_RMALL)->Enable(
-		!ffi.paths.empty()
+		!paths.empty()
 	);
 
 }
@@ -388,17 +385,18 @@ void DupFinderDlg::OnSize(wxSizeEvent &WXUNUSED(event)) {
 }
 
 void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
-	
-	/*
-	list<pathinfo>::iterator it;
+	list<SearchPathInfo>::iterator it;
 
-	for(it = ffi.paths.begin(); it != ffi.paths.end(); it++) {
-		wxMessageBox(it->path);
+	dupfinder.RemoveAllPaths();
+
+	for(it = paths.begin(); it != paths.end(); it++) {
+		// wxMessageBox(it->path);
+		dupfinder.AddPath(*it);
 	}
-	*/
 
 	this->Hide();
-	DupFinderDlg2 *progress = new DupFinderDlg2(ffi, this);	
+
+	DupFinderDlg2 *progress = new DupFinderDlg2(dupfinder, this);	
 
 	progress->Show();
 	wxTheApp->SetTopWindow(progress);
@@ -431,7 +429,7 @@ static wxULongLong_t StrToULongLong(const wxString & str) {
 }
 
 void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
-	pathinfo pi;
+	SearchPathInfo pi;
 	wxULongLong_t minsize;
 	wxULongLong_t maxsize;
 	bool bResult;
@@ -480,7 +478,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 }
 
-void DupFinderDlg::AddDir(const pathinfo &pi)
+void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 {
 	wxListItem c1, c2, c3, c4, c5, c6;
 	// c1.SetColumn(0); // don't set column, else you will get strange assert messages
@@ -496,9 +494,9 @@ void DupFinderDlg::AddDir(const pathinfo &pi)
 	c5.SetMask(wxLIST_MASK_TEXT);
 	c6.SetMask(wxLIST_MASK_TEXT);
 	
-	ffi.paths.push_back(pi);
+	paths.push_back(pi);
 
-	c1.SetData(new list<pathinfo>::iterator( --ffi.paths.end()) );
+	c1.SetData(new list<SearchPathInfo>::iterator( --paths.end()) );
 
 	c1.SetText(pi.bGoIntoSubDirs ? _T("x") : _T(""));
 	c2.SetText(pi.bSearchHidden ? _T("x") : _T(""));
@@ -532,10 +530,10 @@ void DupFinderDlg::OnDirRemove(wxCommandEvent &WXUNUSED(event)) {
 		}
 
 		// delete item <item>
-		list<pathinfo>::iterator *pit = 
-			(list<pathinfo>::iterator *)wDirList->GetItemData(item);
+		list<SearchPathInfo>::iterator *pit = 
+			(list<SearchPathInfo>::iterator *)wDirList->GetItemData(item);
 		
-		ffi.paths.erase(*pit);
+		paths.erase(*pit);
 		delete pit;
 
 		// ? delete all items ? 
@@ -566,10 +564,10 @@ void DupFinderDlg::OnRemoveAll(wxCommandEvent &WXUNUSED(event)) {
 	int count = wDirList->GetItemCount();
 
 	for(i = 0; i < count; i++) {
-		delete (list<pathinfo>::iterator *)wDirList->GetItemData(i);
+		delete (list<SearchPathInfo>::iterator *)wDirList->GetItemData(i);
 	}
 
-	ffi.paths.clear();
+	paths.clear();
 
 	wDirList->DeleteAllItems();
 
@@ -613,7 +611,7 @@ void DupFinderDlg::ReturnToMe()
 void DupFinderDlg::CleanUp()
 {
 	// that should do it
-	ffi.pFilesBySize->clear();
+	// ffi.pFilesBySize->clear();
 }
 
 

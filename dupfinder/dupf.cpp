@@ -19,6 +19,8 @@
 ******************************************************************************/
 
 #include "stdinc.h"
+using namespace std;
+
 #include "dbl.h"
 #include "os_cc_specific.h"
 #include "profile.h"
@@ -31,9 +33,6 @@
 // does not support wmain, but still unicode
 DECLARE_MAIN
 	list<File>::iterator it, it3;
-	multiset_fileinfosize_it it2;
-	list<fileinfoequal>::iterator it4;
-	list<pathinfo>::iterator it5;
 
 	clock_t tstart, tend;
 	bool bReverse;
@@ -119,7 +118,7 @@ DECLARE_MAIN
 	DuplicateFilesFinder dupf(NULL, bQuiet);
 
 	for(/*i*/; i < argc; ) {
-		pathinfo pi;
+		SearchPathInfo pi;
 		pi.path = argv[i];
 		pi.nMinSize = 0;
 		pi.nMaxSize = 0;
@@ -234,7 +233,7 @@ DECLARE_MAIN
 
 	DuplicateFilesStats stats;
 
-	dupf.FindDuplicateFiles(duplicates, stats);
+	dupf.FindDuplicateFiles(duplicates, &stats);
 
 	PrintResults(duplicates, stats, fOutput, bReverse, bQuiet);
 

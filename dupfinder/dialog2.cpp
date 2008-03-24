@@ -48,11 +48,11 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_BUTTON(ID_PAUSE, 		DupFinderDlg2::OnPause)
 END_EVENT_TABLE()
 
-DupFinderDlg2::DupFinderDlg2(findfileinfo &_ffi, DupFinderDlg *_parent) : 
+DupFinderDlg2::DupFinderDlg2(DuplicateFilesFinder &_dupf, DupFinderDlg *_parent) : 
 	wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize,  
 	/* no parent because of icon !!! */
 	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMINIMIZE_BOX | wxMAXIMIZE_BOX) & ~wxCLOSE_BOX ), 
-	ffi(_ffi), sortedbysize(*_ffi.pFilesBySize), bStarted(false), parent(_parent)
+	dupfinder(_dupf), bStarted(false), parent(_parent)
 {
 	
 }
@@ -256,11 +256,10 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		// do not change this and LEAVE THIS AT THE BEGINNING
 		bStarted = true;
 
-		wxFont font, boldfont;
-
 		// do not pass messages to old (gui) log target!
 		wxLogWindow *logw = new wxLogWindow(this, _T("Messages"), true, false);
 		wxLog::SetActiveTarget(logw);
+		// log window shall not obscure the main window
 		this->Raise();
 
 		guii.out = wDirName;
@@ -269,45 +268,36 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		guii.bPause = false;
 		guii.theApp = wxTheApp;
 		guii.cfiles = wcFiles;
+		guii.wStep1 = wStep1;
 
 		guii.wSpeed = wSpeed;
 		guii.wProgress = wProgress;
+		guii.wStep2 = wStep2;
 
-		font = boldfont = wStep1->GetFont();
-		boldfont.SetWeight(wxFONTWEIGHT_BOLD);
-		wStep1->SetFont(boldfont);
+		guii.normalfont = wStep1->GetFont();
+		
+		guii.boldfont = guii.normalfont;
+		guii.boldfont.SetWeight(wxFONTWEIGHT_BOLD);		
+		
 
-		ffi.pFilesBySize = &sortedbysize;
-		FindFiles(ffi, &guii);
+		dupfinder.SetGui(&guii);
 
-		wStep1->SetFont(font);
+		list<DuplicatesGroup> *pDuplicates = new list<DuplicatesGroup>;
 
-		// test if aborted
-		if(!guii.bContinue) {
-			ReturnToStart();
-			return;
-		}
-
-		wDirName->Disable();
-		wDirName->SetValue(_T(""));
-
-		wStep2->SetFont(boldfont);
-
-		GetEqualFiles(sortedbysize, &guii);
-
-		wStep2->SetFont(font);
+		dupfinder.FindDuplicateFiles(*pDuplicates);
 
 		if(!guii.bContinue) {
 			ReturnToStart();
 			return;
 		}
 
+		
 		DupFinderDlg3 * resultdlg;
 
 		Hide();
 		RestoreLogTarget();
 
-		resultdlg = new DupFinderDlg3(parent, ffi);
+		resultdlg = new DupFinderDlg3(parent, *pDuplicates, dupfinder);
 
 		resultdlg->Show();
 
