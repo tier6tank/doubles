@@ -85,11 +85,15 @@ public:
 		paths.push_back(path);
 	}
 
-	void RemoveAllPaths() {
+	void Reset() {
 		paths.clear();
+		duplicates.clear();
+		sortedbysize.clear();
 	}
 
-	void FindDuplicateFiles(list<DuplicatesGroup> & , DuplicateFilesStats * =NULL);
+	void FindDuplicateFiles();
+
+	list<DuplicatesGroup> &GetDuplicates() { return duplicates; }
 
 	// that later will be changed
 	void SetGui(GuiInfo *_gui) { gui = _gui; }
@@ -171,6 +175,8 @@ private:
 
 	multiset_fileinfosize sortedbysize;
 
+	list<DuplicatesGroup> duplicates;
+
 	DuplicateFilesStats stats;
 
 
@@ -184,6 +190,7 @@ private:
 
 	// prevent direct copies
 	DuplicateFilesFinder(const DuplicateFilesFinder &) {}
+	DuplicateFilesFinder &operator =(const DuplicateFilesFinder &) { return *this; }
 
 
 };

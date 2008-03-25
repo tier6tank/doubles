@@ -29,7 +29,7 @@ using namespace std;
 class DupFinderDlg3 : public wxDialog
 {
 public:
-	DupFinderDlg3(DupFinderDlg *, list<DuplicatesGroup> &, DuplicateFilesFinder &);
+	DupFinderDlg3(DupFinderDlg *, DuplicateFilesFinder &);
 	
 	~DupFinderDlg3();
 

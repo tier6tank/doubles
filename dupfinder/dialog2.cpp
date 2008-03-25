@@ -282,12 +282,9 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 
 		dupfinder.SetGui(&guii);
 
-		list<DuplicatesGroup> *pDuplicates = new list<DuplicatesGroup>;
-
-		dupfinder.FindDuplicateFiles(*pDuplicates);
+		dupfinder.FindDuplicateFiles();
 
 		if(!guii.bContinue) {
-			delete pDuplicates;
 			ReturnToStart();
 			return;
 		}
@@ -298,7 +295,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		Hide();
 		RestoreLogTarget();
 
-		resultdlg = new DupFinderDlg3(parent, *pDuplicates, dupfinder);
+		resultdlg = new DupFinderDlg3(parent, dupfinder);
 
 		resultdlg->Show();
 

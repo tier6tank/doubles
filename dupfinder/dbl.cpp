@@ -73,9 +73,7 @@ LARGE_INTEGER fileread;
 static void	deleteline(int);
 
 
-void DuplicateFilesFinder::FindDuplicateFiles(
-	list<DuplicatesGroup> & duplicates, 
-	DuplicateFilesStats *pStats) {
+void DuplicateFilesFinder::FindDuplicateFiles() {
 
 	if(gui) {
 		gui->wStep1->SetFont(gui->boldfont);
@@ -119,7 +117,9 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 	stats.fAverageSpeed = 0;
 	stats.nBytesRead = 0;
 
-	for(it1 = sortedbysize.begin(); it1 != sortedbysize.end(); it1++) {
+	for(it1 = sortedbysize.begin(); 
+		!sortedbysize.empty(); 
+		it1 = sortedbysize.begin()) {
 		dupl.size = it1->size;
 		for(it2 = unconst(*it1).equalfiles.begin(); 
 			!it1->equalfiles.empty(); 
@@ -135,11 +135,10 @@ void DuplicateFilesFinder::FindDuplicateFiles(
 			duplicates.push_back(dupl);
 			unconst(*it1).equalfiles.erase(it2);
 		}
+		sortedbysize.erase(it1);
 	}
 
-	if(pStats) {
-		*pStats = stats;
-	}
+	assert(sortedbysize.empty());
 }
 
 DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, const SearchPathInfo *ppi, 

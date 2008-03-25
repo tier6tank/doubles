@@ -387,8 +387,6 @@ void DupFinderDlg::OnSize(wxSizeEvent &WXUNUSED(event)) {
 void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 	list<SearchPathInfo>::iterator it;
 
-	dupfinder.RemoveAllPaths();
-
 	for(it = paths.begin(); it != paths.end(); it++) {
 		// wxMessageBox(it->path);
 		dupfinder.AddPath(*it);
@@ -610,8 +608,7 @@ void DupFinderDlg::ReturnToMe()
 
 void DupFinderDlg::CleanUp()
 {
-	// that should do it
-	// ffi.pFilesBySize->clear();
+	dupfinder.Reset();
 }
 
 

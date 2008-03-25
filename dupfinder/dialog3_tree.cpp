@@ -23,18 +23,17 @@
 #include "dialog3.h"
 #include "os_cc_specific.h"
 
-DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, list<DuplicatesGroup> &_dupl, 
+DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, 
 		DuplicateFilesFinder &_dupf) 
 	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) , 
-		dupfinder(_dupf), duplicates(_dupl), parent(_parent), 
+		dupfinder(_dupf), duplicates(_dupf.GetDuplicates()), parent(_parent), 
 		RestrictToDir(_T("")), bRestrictToDir(false), 
 		bRestrictToMask(false)
 {
 }
 
 DupFinderDlg3::~DupFinderDlg3() {
-	delete &duplicates;
 }
 
 bool DupFinderDlg3::bHardLinkWarning = true;
