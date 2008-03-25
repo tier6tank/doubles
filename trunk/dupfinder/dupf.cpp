@@ -42,8 +42,6 @@ DECLARE_MAIN
 	bool bQuiet;
 	bool bHelp;
 
-	list<DuplicatesGroup> duplicates;
-
 	::wxInitialize();
 	// timestamps are ugly
 	wxLog::GetActiveTarget()->SetTimestamp(NULL);
@@ -229,11 +227,15 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("Correct the command line for avoiding trivial duplicates. \n\n\n"));
 	}
 
-	*/
+	*/	
+
+	dupf.FindDuplicateFiles();
 
 	DuplicateFilesStats stats;
 
-	dupf.FindDuplicateFiles(duplicates, &stats);
+	dupf.GetStats(stats);
+
+	list<DuplicatesGroup> &duplicates = dupf.GetDuplicates();
 
 	PrintResults(duplicates, stats, fOutput, bReverse, bQuiet);
 
