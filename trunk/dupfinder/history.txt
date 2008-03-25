@@ -1,3 +1,7 @@
+Date : 2008/3/25 16:08 ------- dupfinder v0.41 (win only)
+fixed bug which didn't let the program start on windows 9x/ME
+version number set to 0.41
+
 Date : 2008/3/25 15:17
 improved DuplicateFilesFinder interface
 

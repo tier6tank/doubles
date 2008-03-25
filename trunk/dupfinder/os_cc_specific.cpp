@@ -182,7 +182,7 @@ bool IsSymLinkSupported() {
 }
 
 bool CreateSymLink(const wxString &WXUNUSED(d1), const wxString &WXUNUSED(d2)) {
-	// don't even try it
+	// don't even try it - windows
 	return false;
 }
 
@@ -198,7 +198,16 @@ bool IsHardLinkSupported() {
 }
 
 bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
+// assume that defined _UNICODE means the Win NT family, 
+// and not defined _UNICODE means the Win 9x family
+// this is because CreateHardLink is exported to be linked at runtime
+// with a dll, but on windows 9x/ME, that link cannot be resolved, 
+// so the program doesn't start at all
+#if defined( _UNICODE) || defined(UNICODE)
 	return CreateHardLink(newpath.fn_str(), oldpath.fn_str(), NULL);
+#else
+	return false;
+#endif
 }
 
 #endif
