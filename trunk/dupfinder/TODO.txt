@@ -191,3 +191,6 @@ TODO/IDEAS:
 - ansynchronous i/o?
 - internationalization
 - create cache class (move code to cache class)
+- solve problem where selecion doesn't get selected if clicking right
+- clicking on header: copy filenames
+

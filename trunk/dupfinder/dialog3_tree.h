@@ -92,6 +92,8 @@ public:
 	void OnExpandAll(wxCommandEvent &);
 	void OnCollapseAll(wxCommandEvent &);
 
+	void OnHardlinkAll(wxCommandEvent &);
+
 	void OnDeleteButThis(wxCommandEvent &);
 
 	void OnCollapsing(wxTreeEvent &);
