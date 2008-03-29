@@ -105,6 +105,7 @@ enum {
 	ID_MASK, 
 	ID_EXPANDALL, 
 	ID_COLLAPSEALL, 
+	ID_HARDLINKALL, 
 
 	// menu
 
@@ -139,6 +140,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_BUTTON(ID_EXPANDALL, 	DupFinderDlg3::OnExpandAll)
 	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
 	EVT_TREE_ITEM_COLLAPSING(ID_RESULTLIST, DupFinderDlg3::OnCollapsing)
+	EVT_BUTTON(ID_HARDLINKALL, 	DupFinderDlg3::OnHardlinkAll)
 
 	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
@@ -307,6 +309,13 @@ void DupFinderDlg3::CreateControls() {
 		wxALIGN_RIGHT);
 
 	expandsizer->AddStretchSpacer(1);
+
+	/*	
+	expandsizer->Add(
+		new wxButton(this, ID_HARDLINKALL, _T("Hardlink all")), 
+		0,
+		wxALIGN_RIGHT);
+	*/
 
 	expandsizer->Add(
 		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
@@ -609,6 +618,13 @@ void DupFinderDlg3::OnTreeItemRightClick(wxTreeEvent &event)
 	TreeItemData *data = (TreeItemData *)wResultList->GetItemData(event.GetItem());
 
 	rightClickedItem = event.GetItem();
+
+	// as long as wxTR_MULTIPLE does not work as 
+	// expected
+	if(data->GetType() != TYPE_ITEM) {
+		delete popupmenu;
+		return;
+	}
 	
 	if(data->GetType() == TYPE_ITEM) {
 		bool bAddSep;
@@ -642,7 +658,9 @@ void DupFinderDlg3::OnTreeItemRightClick(wxTreeEvent &event)
 		}
 	}
 	
-	popupmenu->Append(ID_MENU_COPYFILENAME, _T("&Copy filename(s) to clipboard"));
+	popupmenu->Append(ID_MENU_COPYFILENAME, _T(
+		/*"&Copy filename(s) to clipboard"*/
+		"&Copy filename to clipboard"));
 	popupmenu->AppendSeparator();
 	popupmenu->Append(ID_MENU_DELETE, _T("&Delete"));
 		
@@ -1167,3 +1185,7 @@ void DupFinderDlg3::OnCollapsing(wxTreeEvent & event)
 	}
 }
 
+void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
+{
+	
+}

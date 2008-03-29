@@ -1,3 +1,7 @@
+Date : 2008/3/29 16:21
+Set version number to 0.43
+Some fixes according to new single selection style
+
 Date : 2008/3/29 15:39
 Solved speed problem by (temporarily) commenting multiselection mode flag
 
