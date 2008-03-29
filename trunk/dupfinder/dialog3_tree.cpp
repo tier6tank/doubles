@@ -1131,7 +1131,7 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 
 		// do not accidentaly erase the other files if the only
 		// file do be kept does not exist any more
-		if(!wxDir::Exists(targetdata->GetIt()->GetName())) {
+		if(!wxFile::Exists(targetdata->GetIt()->GetName())) {
 			wxString tmp;
 			tmp.Printf(_T("The file %s does not exist! I won't delete the files. "), 
 				targetdata->GetIt()->GetName().c_str());

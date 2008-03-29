@@ -1,3 +1,8 @@
+Date : 2008/3/28 20:30 ------- dupfinder v0.42
+fixed an ashaming bug (wxDir instead of wxFile!!!!)
+makefile.unix: stripping works now on gui program file
+change version number to 0.42
+
 Date : 2008/3/25 16:08 ------- dupfinder v0.41 (win only)
 fixed bug which didn't let the program start on windows 9x/ME
 version number set to 0.41
