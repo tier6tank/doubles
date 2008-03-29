@@ -114,7 +114,6 @@ TODO/IDEAS:
 + adding MAXimal size of files option? but what for... done.
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
 - Treating 0-bytes sized files as double files (option?)
-- internationalization
 - make dll (with dup.cpp code)?
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
@@ -189,3 +188,6 @@ TODO/IDEAS:
 - read from stdin (s. unix) when no paths given on commandline ?
 + gui version implemention of DuplicateFilesFinder and removal of old code afterwards done.
 ! restoring func. of TEST 
+- ansynchronous i/o?
+- internationalization
+- create cache class (move code to cache class)

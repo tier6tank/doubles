@@ -1,3 +1,6 @@
+Date : 2008/3/29 15:39
+Solved speed problem by (temporarily) commenting multiselection mode flag
+
 Date : 2008/3/28 20:30 ------- dupfinder v0.42
 fixed an ashaming bug (wxDir instead of wxFile!!!!)
 makefile.unix: stripping works now on gui program file

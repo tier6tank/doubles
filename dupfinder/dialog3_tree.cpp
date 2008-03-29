@@ -191,7 +191,7 @@ void DupFinderDlg3::CreateControls() {
 	resultssizer->Add(
 		wResultList = new wxTreeCtrl(this, ID_RESULTLIST, 
 			wxDefaultPosition, wxSize(wxDefaultSize.GetWidth(), 180), 
-			wxBORDER_SUNKEN | wxTR_MULTIPLE /*| wxTR_HIDE_ROOT*/ | wxTR_HAS_BUTTONS), 
+			wxBORDER_SUNKEN /*| wxTR_MULTIPLE /*| wxTR_HIDE_ROOT*/ | wxTR_HAS_BUTTONS), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
