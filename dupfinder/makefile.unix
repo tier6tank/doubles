@@ -32,6 +32,7 @@ name := dupf
 namegui := dupfgui
 ifeq ($(cygwin), 1)
 name := $(name).exe
+namegui := $(namegui).exe
 endif
 version := 
 wxconfigopt := --static
