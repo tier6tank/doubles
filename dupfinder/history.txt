@@ -1,4 +1,4 @@
-Date : 2008/3/29 16:21
+Date : 2008/3/29 16:21 ------- dupfinder v0.43
 Set version number to 0.43
 Some fixes according to new single selection style
 
