@@ -97,7 +97,6 @@ TODO/IDEAS:
 + including the right header (or remove it completely) done.
 + shortening long filename in restriction info? Not important any more, because removed
 - what about a program icon?
-- foreground/background as in 7-zip 
 + pause as in 7-zip has it now. 
 - again: reducing memory consumption (circa 200 MB with circa 803,000 files)
 + batch file for windows me dupf console mode done.
@@ -193,4 +192,7 @@ TODO/IDEAS:
 - create cache class (move code to cache class)
 - solve problem where selecion doesn't get selected if clicking right
 - clicking on header: copy filenames
-
+- foreground/background as in 7-zip 
+- dialog 1 description format
+- progress display when filling list?
+- command line program --version
