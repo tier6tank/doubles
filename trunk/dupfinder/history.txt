@@ -1,4 +1,7 @@
 Date : 2008/3/30
+Auto expanding root item
+
+Date : 2008/3/30
 Dialog 1 desc changed
 Progress bar added, and DisplayResults() moved to idle Routine
 
