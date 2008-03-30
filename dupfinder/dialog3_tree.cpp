@@ -570,6 +570,8 @@ void DupFinderDlg3::DisplayResults() {
 
 	// wResultList->ExpandAllChildren(wResultList->GetRootItem());
 
+	wResultList->Expand(wResultList->GetRootItem());
+
 	DeleteOrphanedHeaders();
 
 	// enable repaint
