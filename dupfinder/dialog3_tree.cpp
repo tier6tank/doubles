@@ -29,7 +29,7 @@ DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent,
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) , 
 		dupfinder(_dupf), duplicates(_dupf.GetDuplicates()), parent(_parent), 
 		RestrictToDir(_T("")), bRestrictToDir(false), 
-		bRestrictToMask(false)
+		bRestrictToMask(false), bFirstIdle(true)
 {
 }
 
@@ -44,6 +44,8 @@ enum {
 	TYPE_ROOT, 
 	TYPE_NONE
 };
+
+#define MAX_PROGRESS 1000
 
 class TreeItemData : public wxTreeItemData {
 public:
@@ -106,6 +108,7 @@ enum {
 	ID_EXPANDALL, 
 	ID_COLLAPSEALL, 
 	ID_HARDLINKALL, 
+	ID_PROGRESS, 
 
 	// menu
 
@@ -141,6 +144,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
 	EVT_TREE_ITEM_COLLAPSING(ID_RESULTLIST, DupFinderDlg3::OnCollapsing)
 	EVT_BUTTON(ID_HARDLINKALL, 	DupFinderDlg3::OnHardlinkAll)
+	EVT_IDLE(			DupFinderDlg3::OnIdle)
 
 	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
@@ -159,9 +163,15 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 	wxDialog::OnInitDialog(event);
 
 	CreateControls();
-	DisplayResults();
 
 	CenterOnScreen();
+}
+
+void DupFinderDlg3::OnIdle(wxIdleEvent &WXUNUSED(event)) {
+	if(bFirstIdle) {
+		DisplayResults();
+		bFirstIdle = false;
+	}
 }
 
 void DupFinderDlg3::CreateControls() {
@@ -308,6 +318,14 @@ void DupFinderDlg3::CreateControls() {
 		0, 
 		wxALIGN_RIGHT);
 
+	expandsizer->Add(
+		wProgress = new wxGauge(this, ID_PROGRESS, MAX_PROGRESS), 
+		1000, 
+		wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	wProgress->Hide();
+
 	expandsizer->AddStretchSpacer(1);
 
 	/*	
@@ -320,12 +338,13 @@ void DupFinderDlg3::CreateControls() {
 	expandsizer->Add(
 		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
 		0, 
-		wxALIGN_RIGHT);
+		wxALIGN_RIGHT | wxLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
 
 	expandsizer->Add(
 		new wxButton(this, ID_COLLAPSEALL, _T("Collapse all")), 
 		0, 
-		wxLEFT | wxALIGN_RIGHT,  
+		wxLEFT | wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL,  
 		10);
 
 	resultssizer->Add(
@@ -425,6 +444,9 @@ void DupFinderDlg3::DisplayResults() {
 	list<File>::iterator it3;
 	// bool bHaveFont = false;
 	wxFont font, boldfont;
+	int item;
+	TreeItemData *itemdata;
+	int i, size, percentage = -1;
 
 	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
@@ -435,7 +457,9 @@ void DupFinderDlg3::DisplayResults() {
 	}
 
 	// disable all repaint until the end of the function
-	// wResultList->Freeze();
+	wProgress->Show();
+	GetSizer()->Layout();
+	this->Enable(false);
 
 	wResultList->DeleteAllItems();
 	wxString tmp;
@@ -451,7 +475,9 @@ void DupFinderDlg3::DisplayResults() {
 	wxTreeItemId rootItem = wResultList->AddRoot(tmp);
 	wResultList->SetItemData(rootItem, new TreeItemData(TYPE_ROOT));
 
-	for(it = duplicates.begin(); it != duplicates.end(); it++) {
+	size = duplicates.size();
+
+	for(it = duplicates.begin(), i = 0; it != duplicates.end(); it++, i++) {
 		bool bDisplay;
 		multiset<list<File>::iterator, less_fileiterator> matching;
 
@@ -521,6 +547,13 @@ void DupFinderDlg3::DisplayResults() {
 				wResultList->SetItemData(item, itemdata);
 			}
 		}
+
+		if((i*MAX_PROGRESS)/size != percentage) {
+			
+			percentage = (i*MAX_PROGRESS)/size;
+			wProgress->SetValue(percentage);
+			wxTheApp->Yield();
+		}			
 	}
 
 	// no items in list?
@@ -535,12 +568,15 @@ void DupFinderDlg3::DisplayResults() {
 		wResultList->SetItemData(id, nothing);
 	}
 
-	wResultList->ExpandAllChildren(wResultList->GetRootItem());
+	// wResultList->ExpandAllChildren(wResultList->GetRootItem());
 
 	DeleteOrphanedHeaders();
 
 	// enable repaint
-	// wResultList->Thaw();
+	wProgress->Hide();
+	GetSizer()->Layout();
+	this->Enable(true);
+
 
 }
 
@@ -1108,32 +1144,26 @@ void DupFinderDlg3::OnExpandAll(wxCommandEvent &WXUNUSED(event))
 {
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
+	wxTreeItemId root = wResultList->GetRootItem();
 
-	// wResultList->Freeze();
-
-	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
+	for(i = wResultList->GetFirstChild(root, cookie);
 		i.IsOk();
-		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
+		i = wResultList->GetNextChild(root, cookie)) {
 		wResultList->Expand(i);
 	}
-
-	// wResultList->Thaw();
 }
 
 void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 {
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
+	wxTreeItemId root = wResultList->GetRootItem();
 
-	// wResultList->Freeze();
-
-	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
+	for(i = wResultList->GetFirstChild(root, cookie);
 		i.IsOk();
-		i = wResultList->GetNextChild(wResultList->GetRootItem(), cookie)) {
+		i = wResultList->GetNextChild(root, cookie)) {
 		wResultList->Collapse(i);
 	}
-
-	// wResultList->Thaw();
 }
 
 

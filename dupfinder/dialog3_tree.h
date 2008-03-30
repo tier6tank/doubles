@@ -98,6 +98,8 @@ public:
 
 	void OnCollapsing(wxTreeEvent &);
 
+	void OnIdle(wxIdleEvent &);
+
 private:
 	static bool bHardLinkWarning;
 
@@ -111,6 +113,7 @@ private:
 	wxCheckBox *wRestrictToDir;
 	wxCheckBox *wRestrictToMask;
 	wxTextCtrl *wMask;
+	wxGauge    *wProgress;
 	
 	DupFinderDlg *parent;
 
@@ -120,6 +123,8 @@ private:
 
 	wxTreeItemId rightClickedItem;
 
+	bool bFirstIdle;
+	
 	DECLARE_EVENT_TABLE()
 };
 
