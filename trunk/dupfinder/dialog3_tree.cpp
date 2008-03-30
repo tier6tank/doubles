@@ -435,7 +435,7 @@ void DupFinderDlg3::DisplayResults() {
 	}
 
 	// disable all repaint until the end of the function
-	wResultList->Freeze();
+	// wResultList->Freeze();
 
 	wResultList->DeleteAllItems();
 	wxString tmp;
@@ -540,7 +540,7 @@ void DupFinderDlg3::DisplayResults() {
 	DeleteOrphanedHeaders();
 
 	// enable repaint
-	wResultList->Thaw();
+	// wResultList->Thaw();
 
 }
 
@@ -1109,7 +1109,7 @@ void DupFinderDlg3::OnExpandAll(wxCommandEvent &WXUNUSED(event))
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
 
-	wResultList->Freeze();
+	// wResultList->Freeze();
 
 	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
 		i.IsOk();
@@ -1117,7 +1117,7 @@ void DupFinderDlg3::OnExpandAll(wxCommandEvent &WXUNUSED(event))
 		wResultList->Expand(i);
 	}
 
-	wResultList->Thaw();
+	// wResultList->Thaw();
 }
 
 void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
@@ -1125,7 +1125,7 @@ void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
 
-	wResultList->Freeze();
+	// wResultList->Freeze();
 
 	for(i = wResultList->GetFirstChild(wResultList->GetRootItem(), cookie);
 		i.IsOk();
@@ -1133,7 +1133,7 @@ void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 		wResultList->Collapse(i);
 	}
 
-	wResultList->Thaw();
+	// wResultList->Thaw();
 }
 
 
