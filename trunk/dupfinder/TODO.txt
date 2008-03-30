@@ -193,6 +193,8 @@ TODO/IDEAS:
 - solve problem where selecion doesn't get selected if clicking right
 - clicking on header: copy filenames
 - foreground/background as in 7-zip 
-- dialog 1 description format
++ dialog 1 description format done.
 - progress display when filling list?
 - command line program --version
+- exclude from search
+- return to old nice list!!!!!!!!!!!!!! OR: accelarate somehow speed of tree ctrl
