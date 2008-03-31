@@ -198,3 +198,8 @@ TODO/IDEAS:
 - command line program --version
 - exclude from search
 - return to old nice list!!!!!!!!!!!!!! OR: accelarate somehow speed of tree ctrl
+- different titles for every dialog
+- restore delete_but_this functionality
+- display statistics in text ctrl/task bar !!! (move wxFont)
+- rename dbl.cpp to dupfinder.cpp
+- rename files and fit makefiles 

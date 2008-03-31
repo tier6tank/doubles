@@ -580,6 +580,9 @@ static void deleteline(int n) {
 #endif
 
 bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &size) {
+	// for testing
+	// return true;
+
 	bool bResult;
 	static char *b1, *b2;
 	char *pb1, *pb2;

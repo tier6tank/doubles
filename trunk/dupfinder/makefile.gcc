@@ -44,6 +44,12 @@ outdir := $(outdir)$(version)
 
 nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads \
 	-D__WXMSW__ -DHAVE_W32API_H -W -Wall -Wextra
+
+# USE_TREECTRL
+ifeq (0,1)
+nopchopt = -DUSE_TREECTRL
+endif
+
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
@@ -64,7 +70,7 @@ nopchopt := $(nopchopt) $(dbg) $(uniopt)
 libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h
-headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
 
@@ -108,7 +114,7 @@ $(outdir)\dialog1.o: dialog1.cpp $(headersgui)
 $(outdir)\dialog2.o: dialog2.cpp $(headersgui)
 	g++ $(opt) -c -o $@ dialog2.cpp
 
-$(outdir)\dialog3.o: dialog3.cpp $(headersgui)
+$(outdir)\dialog3.o: dialog3.cpp dialog3_list.cpp $(headersgui)
 	g++ $(opt) -c -o $@ dialog3.cpp
 
 $(outdir)\file.o: file.cpp $(headers)
