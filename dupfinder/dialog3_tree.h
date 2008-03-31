@@ -18,6 +18,12 @@
  *
  */
 
+#ifndef USE_TREECTRL
+
+#include "dialog3_list.h"
+
+#else
+
 #ifndef DIALOG_3_H
 #define DIALOG_3_H
 
@@ -130,3 +136,7 @@ private:
 
 
 #endif
+
+
+#endif // USE_TREECTRL
+

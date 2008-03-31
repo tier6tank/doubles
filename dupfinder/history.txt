@@ -1,7 +1,10 @@
-Date : 2008/3/30
+Date : 2008/3/31 16:14
+Restored the list version of dialog3
+
+Date : 2008/3/30 16:57
 Auto expanding root item
 
-Date : 2008/3/30
+Date : 2008/3/30 16:06
 Dialog 1 desc changed
 Progress bar added, and DisplayResults() moved to idle Routine
 

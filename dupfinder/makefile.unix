@@ -47,6 +47,11 @@ endif
 outdir := $(outdir)$(version)
 
 nopchopt := `wx-config $(wxconfigopt) --cxxflags` -DwxUSE_STD_IOSTREAM=1 -W -Wall -Wextra
+
+ifeq (0,1)
+nopchopt := $(nopchopt) -DUSE_TREECTRL
+endif
+
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
@@ -60,7 +65,7 @@ nopchopt := $(nopchopt) $(dbg)
 
 libs = `wx-config $(wxconfigopt) --libs`
 headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
-headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h
+headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h
 
 all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
@@ -107,7 +112,7 @@ $(outdir)/dialog1.o: dialog1.cpp $(headersgui)
 $(outdir)/dialog2.o: dialog2.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog2.o dialog2.cpp
 
-$(outdir)/dialog3.o: dialog3.cpp $(headersgui)
+$(outdir)/dialog3.o: dialog3.cpp dialog3_list.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog3.o dialog3.cpp
 
 

@@ -20,6 +20,12 @@
 
 #include "stdinc.h"
 
+#ifndef USE_TREECTRL
+
+#include "dialog3_list.cpp"
+
+#else
+
 #include "dialog3.h"
 #include "os_cc_specific.h"
 
@@ -203,7 +209,7 @@ void DupFinderDlg3::CreateControls() {
 	resultssizer->Add(
 		wResultList = new wxTreeCtrl(this, ID_RESULTLIST, 
 			wxDefaultPosition, wxSize(wxDefaultSize.GetWidth(), 180), 
-			wxBORDER_SUNKEN /*| wxTR_MULTIPLE /*| wxTR_HIDE_ROOT*/ | wxTR_HAS_BUTTONS), 
+			wxBORDER_SUNKEN /*| wxTR_MULTIPLE \*| wxTR_HIDE_ROOT*/ | wxTR_HAS_BUTTONS), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -462,6 +468,7 @@ void DupFinderDlg3::DisplayResults() {
 	this->Enable(false);
 
 	wResultList->DeleteAllItems();
+
 	wxString tmp;
 	DuplicateFilesStats stats;
 	dupfinder.GetStats(stats);
@@ -1221,3 +1228,6 @@ void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
 {
 	
 }
+
+
+#endif // ifdef USE_TREECTRL

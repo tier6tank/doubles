@@ -29,7 +29,10 @@
 #include <wx/listctrl.h>
 #include <wx/aboutdlg.h>
 #include <wx/clipbrd.h>
+#ifdef USE_TREECTRL
 #include <wx/treectrl.h>
+#endif
+#include <wx/gauge.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
