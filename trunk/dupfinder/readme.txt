@@ -46,9 +46,10 @@ Step 1)
 
   --- Unix specific: 
 
-  Configure the library with the following command line and then build and install it:
+  Configure the library with the following command line and then build and install it;
+  the [] brackets mean that you can omit the argument if you want: 
 
-      ./configure --with-gtk --disable-shared [--enable-debug] 
+      ./configure --with-gtk [--disable-shared] [--enable-debug] 
       make 
       make install # as root
 
@@ -65,12 +66,19 @@ Step 2)
   the program build: they are "debug" and "unicode" (windows 
   only). For all options, the valid values are
   0 for off and 1 for on.
-  "debug" determines whether to build a debug version or a 
-  retail version. Enabled by default. 
-  "unicode" determines whether to build a unicode version of 
-  the program (windows only). That option mainly exists for
-  supporting the old (95, 98, ME) windows versions, which do
-  not support unicode. It is enabled by default. 
+
+  - "debug" determines whether to build a debug version or a 
+    retail version. Enabled by default. 
+  - "unicode" determines whether to build a unicode version of 
+    the program (windows only). That option mainly exists for
+    supporting the old (95, 98, ME) windows versions, which do
+    not support unicode. It is enabled by default. 
+  - "static" determines whether to link wxWidgets statically 
+    (results in bigger executables, but removes the dependency on
+    a shared wxWidgets library installed), or to link at runtime. 
+    Default value is on. You have to have installed a matching 
+    wxWidgets version (build with --disable-shared for a static 
+    version). Unix only. 
 
   --- Windows specific:
 
@@ -99,17 +107,17 @@ Step 2)
   (note that you have to follow the steps for unix in step 1 first, using --with-msw instead
   of --with-gtk):
 
-	make -f makefile.unix cygwin=1 [debug=0/1]
+	make -f makefile.unix cygwin=1 [debug=0/1] [static=0/1]
 
-  The compiled files are stored under unix[d]. 
+  The compiled files are stored under unix[d][_shared]. 
 
   --- Unix specific:
 
   Method 1: For building the program in unix with gcc, type the following:
 
-  	make -f makefile.unix [debug=0/1]
+  	make -f makefile.unix [debug=0/1] [static=0/1]
 
-  The compiled files are stored under unix[d].
+  The compiled files are stored under unix[d][_shared]. You don't have to run the configure script!
 
 
   Method 2: Take the configure way (but note that this is still experimental, 
