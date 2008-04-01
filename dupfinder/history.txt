@@ -1,3 +1,6 @@
+Date : 2008/4/1 15:10
+Completed forking two version of dialog3 (tree/list ctrl)
+
 Date : 2008/3/31 17:26
 Updated makefile.unix (there is no conflict with a possibly existing unicode version any more,
 as the ansi version is explicitly forced), and changed configure.in to be more descriptive 

@@ -203,3 +203,5 @@ TODO/IDEAS:
 - display statistics in text ctrl/task bar !!! (move wxFont)
 - rename dbl.cpp to dupfinder.cpp
 - rename files and fit makefiles 
+- let enable/disable static 
+- wxdir 
