@@ -1,3 +1,7 @@
+Date : 2008/4/1 16:23
+Fixed Yield bug
+Added static option to makefile.unix
+
 Date : 2008/4/1 15:10
 Completed forking two version of dialog3 (tree/list ctrl)
 
