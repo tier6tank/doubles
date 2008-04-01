@@ -20,12 +20,6 @@
 
 #include "stdinc.h"
 
-#ifndef USE_TREECTRL
-
-#include "dialog3_list.cpp"
-
-#else
-
 #include "dialog3.h"
 #include "os_cc_specific.h"
 
@@ -1229,5 +1223,3 @@ void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
 	
 }
 
-
-#endif // ifdef USE_TREECTRL

@@ -71,7 +71,7 @@ opt = $(opt) $(dbg) $(uniopt)
 libs = wxbase28$(version).lib PSDK\shlwapi.lib wxzlib$(dbgversion).lib PSDK\user32.lib
 libsgui = wxbase28$(version).lib wxmsw28$(version)_adv.lib wxmsw28$(version)_core.lib wxzlib$(dbgversion).lib PSDK\shlwapi.lib PSDK\user32.lib PSDK\gdi32.lib PSDK\comctl32.lib PSDK\comdlg32.lib PSDK\oleaut32.lib PSDK\rpcrt4.lib
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
-headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
 
@@ -111,7 +111,7 @@ $(outdir)\dialog1.obj: dialog1.cpp $(headersgui)
 $(outdir)\dialog2.obj: dialog2.cpp $(headersgui)
 	bcc32 $(opt) -c -o"$@" dialog2.cpp
 
-$(outdir)\dialog3.obj: dialog3.cpp dialog3_list.cpp $(headersgui)
+$(outdir)\dialog3.obj: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
 	bcc32 $(opt) -c -o"$@" dialog3.cpp
 
 run:
