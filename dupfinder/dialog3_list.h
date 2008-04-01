@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef DIALOG_3_H
-#define DIALOG_3_H
+#ifndef DIALOG_3_H_LIST
+#define DIALOG_3_H_LIST
 
 #include "stdinc.h"
 using namespace std;
@@ -29,7 +29,7 @@ using namespace std;
 class DupFinderDlg3 : public wxDialog
 {
 public:
-	DupFinderDlg3(DupFinderDlg *, findfileinfo &);
+	DupFinderDlg3(DupFinderDlg *, DuplicateFilesFinder &);
 	
 	~DupFinderDlg3();
 
@@ -91,10 +91,17 @@ public:
 	void OnMaskChange(wxCommandEvent &);
 	void OnDirChange(wxCommandEvent &);
 
+	void OnHardlinkAll(wxCommandEvent &);
+
+	void OnDeleteButThis(wxCommandEvent &);
+
+	void OnIdle(wxIdleEvent &);
+
 private:
 	static bool bHardLinkWarning;
 
-	findfileinfo ffi;
+	DuplicateFilesFinder &dupfinder;
+	list<DuplicatesGroup> &duplicates;
 
 	wxListView *wResultList;
 	wxCheckBox *wConfDelete;
@@ -104,12 +111,17 @@ private:
 	wxCheckBox *wRestrictToDir;
 	wxCheckBox *wRestrictToMask;
 	wxTextCtrl *wMask;
+	wxGauge    *wProgress;
 	
 	DupFinderDlg *parent;
 
 	wxFileName RestrictToDir;
 	bool bRestrictToDir;
 	bool bRestrictToMask;
+
+	int rightClickedItem;
+
+	bool bFirstIdle;
 
 	DECLARE_EVENT_TABLE()
 };
