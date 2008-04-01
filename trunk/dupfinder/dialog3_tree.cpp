@@ -169,8 +169,8 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 
 void DupFinderDlg3::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	if(bFirstIdle) {
-		DisplayResults();
 		bFirstIdle = false;
+		DisplayResults();
 	}
 }
 
