@@ -70,7 +70,7 @@ Step 2)
   - "debug" determines whether to build a debug version or a 
     retail version. Enabled by default. 
   - "unicode" determines whether to build a unicode version of 
-    the program (windows only). That option mainly exists for
+    the program (Windows only). That option mainly exists for
     supporting the old (95, 98, ME) windows versions, which do
     not support unicode. It is enabled by default. 
   - "static" determines whether to link wxWidgets statically 
@@ -79,6 +79,8 @@ Step 2)
     Default value is on. You have to have installed a matching 
     wxWidgets version (build with --disable-shared for a static 
     version). Unix only. 
+  - "wxdir" should point to the path in which wxWidgets is installed
+    (Windows only). Defaults to "C:\wx". 
 
   --- Windows specific:
 
