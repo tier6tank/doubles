@@ -24,10 +24,13 @@ debug = 1
 unicode =1
 !endif
 
+!ifndef wxdir
+wxdir = C:\wx
+!endif
+
 outdir = vc
 name = dupf
 namegui = dupfgui
-wxdir = C:\wx
 version = 
 
 !if $(unicode)==1
