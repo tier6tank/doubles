@@ -22,3 +22,9 @@ fi
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
+echo 'Warning: this is only an incomplete version of a configure system'
+echo '         for this project. Better build the program via '
+echo '         make -f makefile.unix'
+echo '         and ignore any errors the configure system possibly gives. '
+echo '         Also read the file readme.txt, section \"Compiling\". '

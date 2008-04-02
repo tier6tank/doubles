@@ -18,10 +18,16 @@
  *
  */
 
-#ifndef DIALOG_3_H
-#define DIALOG_3_H
+#ifndef DIALOG_3_H_TREE
+#define DIALOG_3_H_TREE
 
 #include "stdinc.h"
+
+// temporarily removed this from stdinc.h
+#ifdef USE_TREECTRL
+#include <wx/treectrl.h>
+#endif
+
 using namespace std;
 #include "dbl.h"
 #include "dialog1.h"
@@ -130,4 +136,3 @@ private:
 
 
 #endif
-
