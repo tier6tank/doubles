@@ -199,10 +199,11 @@ TODO/IDEAS:
 - exclude from search
 + return to old nice list!!!!!!!!!!!!!! OR: accelarate somehow speed of tree ctrl. 
   Two versions of dialog3, one with list, one with tree
-- different titles for every dialog
-- restore delete_but_this functionality
-- display statistics in text ctrl/task bar !!! (move wxFont)
++ different titles for every dialog.
++ restore delete_but_this functionality done.
++ display statistics in text ctrl/task bar !!! (move wxFont) done.
 - rename dbl.cpp to dupfinder.cpp
 + rename files and fit makefiles  done.
 - let enable/disable static unix yes, windows still to do!
 + wxdir in Windows makefiles done.
+- autoreconfig

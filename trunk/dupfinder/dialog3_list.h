@@ -46,8 +46,8 @@ public:
 	void OnListItemRightClick(wxListEvent &);
 	void OnListItemActivated(wxListEvent &);
 
-	void OnOpenFile(wxCommandEvent &);
-	void OnOpenDir(wxCommandEvent &);
+	void OnOpenFile(wxCommandEvent &); 
+	void OnOpenDir(wxCommandEvent &); 
 	void OnCopyFileName(wxCommandEvent &);
 	void OnDelete(wxCommandEvent &);
 	void OnSymLink(wxCommandEvent &);
@@ -60,7 +60,7 @@ public:
 
 	void OnListKeyDown(wxListEvent &);
 
-	void DeleteFiles();
+	void DeleteFiles(const list<int> &);
 
 	void GetSelectedFilenameCount(int &count);
 	int GetFirstSelectedFilename();
@@ -97,6 +97,8 @@ public:
 
 	void OnIdle(wxIdleEvent &);
 
+	void DeleteSelection();
+
 private:
 	static bool bHardLinkWarning;
 
@@ -106,7 +108,6 @@ private:
 	wxListView *wResultList;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
-	// wxStaticText *wRestrictInfo;
 	wxCheckBox *wSubDirs;
 	wxCheckBox *wRestrictToDir;
 	wxCheckBox *wRestrictToMask;
@@ -122,7 +123,7 @@ private:
 	int rightClickedItem;
 
 	bool bFirstIdle;
-
+	
 	DECLARE_EVENT_TABLE()
 };
 

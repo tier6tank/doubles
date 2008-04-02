@@ -25,7 +25,7 @@
 
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, 
 		DuplicateFilesFinder &_dupf) 
-	: wxDialog(NULL, -1, _T("Duplicate Files Finder"), wxDefaultPosition, wxDefaultSize, 
+	: wxDialog(NULL, -1, _T("Duplicate Files Finder - Results"), wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX) , 
 		dupfinder(_dupf), duplicates(_dupf.GetDuplicates()), parent(_parent), 
 		RestrictToDir(_T("")), bRestrictToDir(false), 
@@ -47,10 +47,10 @@ enum {
 
 #define MAX_PROGRESS 1000
 
-class TreeItemData : public wxTreeItemData {
+class ItemData : public wxTreeItemData {
 public:
-	TreeItemData(int _type ) : type(_type) { data.mygroup = NULL; }
-	virtual ~TreeItemData() {}
+	ItemData(int _type ) : type(_type) { data.mygroup = NULL; }
+	virtual ~ItemData() {}
 
 	virtual const wxTreeItemId &GetId() const { return id; }
 	virtual void SetId(const wxTreeItemId &_id) { id = _id; }
@@ -169,6 +169,8 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 
 void DupFinderDlg3::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	if(bFirstIdle) {
+		// this MUST be first
+		// for avoiding double calls to DisplayResults
 		bFirstIdle = false;
 		DisplayResults();
 	}
@@ -442,10 +444,8 @@ struct less_fileiterator : public less<list<File>::iterator > {
 void DupFinderDlg3::DisplayResults() {
 	list<DuplicatesGroup>::iterator it;
 	list<File>::iterator it3;
-	// bool bHaveFont = false;
-	wxFont font, boldfont;
 	int item;
-	TreeItemData *itemdata;
+	ItemData *itemdata;
 	int i, size, percentage = -1;
 
 	if(duplicates.empty()) {
@@ -456,13 +456,14 @@ void DupFinderDlg3::DisplayResults() {
 		return;
 	}
 
-	// disable all repaint until the end of the function
+	// enable progress display
 	wProgress->Show();
 	GetSizer()->Layout();
 	this->Enable(false);
 
 	wResultList->DeleteAllItems();
 
+	// display stats
 	wxString tmp;
 	DuplicateFilesStats stats;
 	dupfinder.GetStats(stats);
@@ -474,7 +475,7 @@ void DupFinderDlg3::DisplayResults() {
 		((double)stats.nWastedSpace.GetValue())/1024/1024);
 
 	wxTreeItemId rootItem = wResultList->AddRoot(tmp);
-	wResultList->SetItemData(rootItem, new TreeItemData(TYPE_ROOT));
+	wResultList->SetItemData(rootItem, new ItemData(TYPE_ROOT));
 
 	size = duplicates.size();
 
@@ -509,8 +510,6 @@ void DupFinderDlg3::DisplayResults() {
 		}
 
 		if(bDisplay) {
-			TreeItemData *itemdata;
-
 			wxString tmp;
 			tmp.Printf(_T("%u equal files of size %") wxLongLongFmtSpec _T("u"), 
 				it->files.size(), it->size.GetValue());
@@ -519,16 +518,7 @@ void DupFinderDlg3::DisplayResults() {
 
 			item = wResultList->AppendItem(wResultList->GetRootItem(), tmp);
 
-			/* if(!bHaveFont) {
-				boldfont = font = wResultList->GetItemFont(item);
-				boldfont.SetWeight(wxFONTWEIGHT_BOLD);
-				boldfont.SetUnderlined(true);
-				bHaveFont = true;
-			}
-		
-			wResultList->SetItemFont(item, boldfont); */
-
-			itemdata = new TreeItemData(TYPE_HEADER);
+			itemdata = new ItemData(TYPE_HEADER);
 			itemdata->SetGroup(&*it);
 
 			wResultList->SetItemData(item, itemdata);
@@ -537,7 +527,7 @@ void DupFinderDlg3::DisplayResults() {
 
 			for(it3 = it->files.begin(); it3 != it->files.end(); it3++) {
 				item = wResultList->AppendItem(rootitem, it3->GetName());
-				itemdata = new TreeItemData(TYPE_ITEM);
+				itemdata = new ItemData(TYPE_ITEM);
 				itemdata->SetGroup(&*it);
 				itemdata->SetIt(it3);
 					
@@ -559,13 +549,13 @@ void DupFinderDlg3::DisplayResults() {
 
 	// no items in list?
 	if(wResultList->GetChildrenCount(wResultList->GetRootItem()) == 0) {
-		TreeItemData *nothing;
+		ItemData *nothing;
 		wxTreeItemId id = wResultList->AppendItem(wResultList->GetRootItem(), _T("No items in this view. "));
-		nothing = new TreeItemData(TYPE_NONE);
+		nothing = new ItemData(TYPE_NONE);
 		wResultList->SetItemData(id, nothing);
 		// strangely, this has to be added for the item to be shown
 		id = wResultList->AppendItem(id, _T("No items"));
-		nothing = new TreeItemData(TYPE_NONE);
+		nothing = new ItemData(TYPE_NONE);
 		wResultList->SetItemData(id, nothing);
 	}
 
@@ -622,7 +612,7 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 void DupFinderDlg3::OnTreeItemActivated(wxTreeEvent &event) 
 {
 	if(event.GetItem().IsOk()) {
-		TreeItemData *data = (TreeItemData *)wResultList->GetItemData(event.GetItem());
+		ItemData *data = (ItemData *)wResultList->GetItemData(event.GetItem());
 		if(data->GetType() == TYPE_ITEM) {
 			OpenDir(event.GetItem());
 		} 
@@ -631,7 +621,7 @@ void DupFinderDlg3::OnTreeItemActivated(wxTreeEvent &event)
 
 void DupFinderDlg3::OpenDir(const wxTreeItemId &i) {
 	if(i.IsOk()) {
-		TreeItemData *data = (TreeItemData *)wResultList->GetItemData(i);
+		ItemData *data = (ItemData *)wResultList->GetItemData(i);
 		if(data->GetType() == TYPE_ITEM) {
 			wxFileName filename = data->GetIt()->GetName();
 
@@ -644,7 +634,7 @@ void DupFinderDlg3::OpenDir(const wxTreeItemId &i) {
 
 void DupFinderDlg3::OpenFile(const wxTreeItemId &i) {
 	if(i.IsOk()) {
-		TreeItemData *data = (TreeItemData *)wResultList->GetItemData(i);
+		ItemData *data = (ItemData *)wResultList->GetItemData(i);
 		if(data->GetType() == TYPE_ITEM) {
 			::wxLaunchDefaultBrowser(data->GetIt()->GetName());
 		}
@@ -654,7 +644,7 @@ void DupFinderDlg3::OpenFile(const wxTreeItemId &i) {
 void DupFinderDlg3::OnTreeItemRightClick(wxTreeEvent &event)
 {
 	wxMenu * popupmenu = new wxMenu();
-	TreeItemData *data = (TreeItemData *)wResultList->GetItemData(event.GetItem());
+	ItemData *data = (ItemData *)wResultList->GetItemData(event.GetItem());
 
 	rightClickedItem = event.GetItem();
 
@@ -725,7 +715,7 @@ int DupFinderDlg3::GetSelectedFilenameCount(const wxArrayTreeItemIds &selected)
 
 	count = 0;
 	for(i = 0; i < selected.GetCount(); i++) {
-		if(((TreeItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
+		if(((ItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
 			count++;
 		}
 	}
@@ -737,7 +727,7 @@ int DupFinderDlg3::GetFirstSelectedFilename(const wxArrayTreeItemIds &selected)
 {
 	unsigned int i;
 	for(i = 0; i < selected.GetCount(); i++) {
-		if(((TreeItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
+		if(((ItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
 			break;
 		}
 	}
@@ -747,7 +737,7 @@ int DupFinderDlg3::GetFirstSelectedFilename(const wxArrayTreeItemIds &selected)
 int DupFinderDlg3::GetNextSelectedFilename(const wxArrayTreeItemIds &selected, unsigned int i)
 {
 	for(i++; i < selected.GetCount(); i++) {
-		if(((TreeItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
+		if(((ItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
 			break;
 		}
 	}
@@ -771,14 +761,14 @@ void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 			i != -1; 
 			i = GetNextSelectedFilename(selected, i), j++) {
 			tmp.Printf(_T("\"%s\"%s"), 
-				((TreeItemData *)wResultList->GetItemData(selected[i]))
+				((ItemData *)wResultList->GetItemData(selected[i]))
 					->GetIt()->GetName().c_str(), 
 				j == count-1 ? _T("") : _T(" ") );
 			filename.Append(tmp);
 		}
 	}
 	else {
-		filename = ((TreeItemData *)wResultList->GetItemData(
+		filename = ((ItemData *)wResultList->GetItemData(
 			selected[GetFirstSelectedFilename(selected)]) )->GetIt()->GetName();
 	}
 
@@ -816,7 +806,7 @@ void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 
 		if(count == 1) {
 			tmp.Printf(_T("Do you really want to delete \n\"%s?\" "), 
-				((TreeItemData *)wResultList->GetItemData(
+				((ItemData *)wResultList->GetItemData(
 					selected[GetFirstSelectedFilename(selected)] ))
 					->GetIt()->GetName().c_str() );
 		}
@@ -835,7 +825,7 @@ void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 		i = GetFirstSelectedFilename(selected);
 		while(i != -1) {
 
-			TreeItemData *data = (TreeItemData *)wResultList->GetItemData(selected[i]);\
+			ItemData *data = (ItemData *)wResultList->GetItemData(selected[i]);\
 			assert(data->GetType() == TYPE_ITEM);
 			filename = data->GetIt()->GetName();
 
@@ -864,10 +854,8 @@ void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 		wResultList->Delete(*rit);
 	}
 	
-
 	DeleteOrphanedHeaders();
 }
-
 
 void DupFinderDlg3::ReturnToParent() {
 
@@ -878,8 +866,6 @@ void DupFinderDlg3::ReturnToParent() {
 
 void DupFinderDlg3::OnTreeKeyDown(wxTreeEvent &event)
 {
-	// wxTreeItemId focus = wResultList->GetFocusedItem();
-
 	switch(event.GetKeyCode()) {
 	/*case WXK_RETURN:
 		OpenDir(focus);
@@ -966,7 +952,7 @@ void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
 {
-	TreeItemData *data = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
+	ItemData *data = (ItemData *)wResultList->GetItemData(rightClickedItem);
 	if(data->GetType() == TYPE_ITEM) {
 		wxFileName filename = data->GetIt()->GetName();
 
@@ -990,9 +976,8 @@ void DupFinderDlg3::OnRestToDir(wxCommandEvent & WXUNUSED(event))
 void DupFinderDlg3::OnRestToSDir(wxCommandEvent &WXUNUSED(event)) 
 {
 	MenuRestToDir(true);
-}	
+}
 
-		
 void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 	wxDirDialog dirch(this);
 
@@ -1010,7 +995,6 @@ void DupFinderDlg3::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 		wDirName->SetValue(dirch.GetPath());
 	}
 }
-
 
 void DupFinderDlg3::OnSymLink(wxCommandEvent & WXUNUSED(event)) {
 	CreateLink(CreateSymLink, _T("symbolic"));
@@ -1047,7 +1031,7 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	wxTreeItemId i;
 	wxTreeItemIdValue cookie;
 
-	TreeItemData *target_data = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
+	ItemData *target_data = (ItemData *)wResultList->GetItemData(rightClickedItem);
 	if(target_data->GetType() != TYPE_ITEM) {
 		return;
 	}
@@ -1060,11 +1044,11 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	for(i = wResultList->GetFirstChild(parent, cookie);
 		i.IsOk();
 		i = wResultList->GetNextChild(parent, cookie)) {
-		TreeItemData *data = (TreeItemData *)wResultList->GetItemData(i);
+		ItemData *data = (ItemData *)wResultList->GetItemData(i);
 		assert(data->GetType() == TYPE_ITEM);
 
 		bError = false;
-		if(rightClickedItem != i) {
+		if(i != rightClickedItem) {
 			wxFileName file = data->GetIt()->GetName();
 
 			wxString tmpfile = wxFileName::CreateTempFileName(file.GetPathWithSep());
@@ -1173,10 +1157,10 @@ void DupFinderDlg3::OnCollapseAll(wxCommandEvent &WXUNUSED(event))
 void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 {
 	wxTreeItemId group;
-	TreeItemData *targetdata;
+	ItemData *targetdata;
 	list<wxTreeItemId> delete_these;
 
-	targetdata = (TreeItemData *)wResultList->GetItemData(rightClickedItem);
+	targetdata = (ItemData *)wResultList->GetItemData(rightClickedItem);
 	
 	if(targetdata->GetType() == TYPE_ITEM) {
 
@@ -1212,7 +1196,7 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 void DupFinderDlg3::OnCollapsing(wxTreeEvent & event)
 {
 	// do not let root item be collapsed
-	if( ((TreeItemData *)wResultList->GetItemData(event.GetItem())) 
+	if( ((ItemData *)wResultList->GetItemData(event.GetItem())) 
 		-> GetType() == TYPE_ROOT) {
 		event.Veto();
 	}
@@ -1220,6 +1204,10 @@ void DupFinderDlg3::OnCollapsing(wxTreeEvent & event)
 
 void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
 {
-	
+
 }
+
+
+
+
 

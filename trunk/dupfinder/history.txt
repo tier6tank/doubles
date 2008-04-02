@@ -1,3 +1,9 @@
+Date : 2008/4/2 15:30
+Synchronizing dialog3_list.* and dialog3_tree.*
+Every dialog a different title
+Delete all files but this works now int list version
+Warning in configure script
+
 Date : 2008/4/1 17:21
 Todo update, fixed Yield bug also in tree version!
 

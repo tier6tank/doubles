@@ -24,6 +24,8 @@
 
 #include "stdinc.h"
 
+// #define USE_TREECTRL
+
 #ifndef USE_TREECTRL
 
 #include "dialog3_list.cpp"
