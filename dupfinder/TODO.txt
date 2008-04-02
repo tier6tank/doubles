@@ -207,3 +207,4 @@ TODO/IDEAS:
 - let enable/disable static unix yes, windows still to do!
 + wxdir in Windows makefiles done.
 - autoreconfig
+- perhaps showing the statistics somewhere else...

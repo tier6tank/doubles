@@ -99,6 +99,10 @@ public:
 
 	void DeleteSelection();
 
+	int GetHeader(int);
+
+	bool IsValidItem(int);
+
 private:
 	static bool bHardLinkWarning;
 
