@@ -47,6 +47,8 @@ enum {
 
 #define MAX_PROGRESS 1000
 
+#define DATA_OFFSET 1
+
 class ItemData  {
 public:
 	ItemData(int _type ) : type(_type) { data.mygroup = NULL; }
@@ -536,9 +538,9 @@ void DupFinderDlg3::DisplayResults() {
 	}
 
 	// no items (except statistics) in list?
-	if(wResultList->GetItemCount() == 1) {
+	if(wResultList->GetItemCount() == DATA_OFFSET) {
 		itemdata = new ItemData(TYPE_NONE);
-		item = wResultList->InsertItem(1, _T("No items in this view. "));
+		item = wResultList->InsertItem(DATA_OFFSET, _T("No items in this view. "));
 		wResultList->SetItemData(item, (long)itemdata);
 	}
 
@@ -617,12 +619,14 @@ void DupFinderDlg3::OpenFile(long i) {
 
 void DupFinderDlg3::OnListItemRightClick(wxListEvent &event)
 {
-	wxMenu * popupmenu = new wxMenu();
-
 	rightClickedItem = event.GetIndex();
 
-	assert(rightClickedItem >= 0 && rightClickedItem < wResultList->GetItemCount());
-	
+	if(!IsValidItem(rightClickedItem)) {
+		return;
+	}
+
+	wxMenu * popupmenu = new wxMenu();
+
 	if(((ItemData *)event.GetData())->GetType() == TYPE_ITEM) {
 		bool bAddSep;	
 		
@@ -938,7 +942,7 @@ void DupFinderDlg3::ClearList() {
 
 void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
 {
-	if(!(rightClickedItem >= 0 && rightClickedItem < wResultList->GetItemCount()) ) {
+	if(!IsValidItem(rightClickedItem) ) {
 		return;
 	}
 
@@ -1015,7 +1019,7 @@ void DupFinderDlg3::OnHardLink(wxCommandEvent & WXUNUSED(event)) {
 
 void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxString &), const wxString &type)
 {
-	if(!(rightClickedItem >= 0 && rightClickedItem < wResultList->GetItemCount())) {
+	if(!IsValidItem(rightClickedItem)) {
 		return;
 	}
 
@@ -1028,12 +1032,7 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	int i;
 	list<int> remove_me;
 
-	for(i = rightClickedItem; i >= 0; i--) {
-		if(((ItemData *)wResultList->GetItemData(i))->GetType() == TYPE_HEADER) {
-			i++;
-			break;
-		}
-	}
+	i = GetHeader(rightClickedItem)+1;
 
 	bStickyError = false;
 	for((void)i; i < wResultList->GetItemCount(); i++) { 
@@ -1128,7 +1127,7 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 	int count;
 	list<int> delete_this;
 
-	if(!(rightClickedItem >= 0 && rightClickedItem < wResultList->GetItemCount()) ) {
+	if(!IsValidItem(rightClickedItem)) {
 		return;
 	}
 
@@ -1136,11 +1135,7 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 		return;
 	}
 
-	for(i = rightClickedItem; 
-		i >= 0 && ((ItemData *)wResultList->GetItemData(i))->GetType() != TYPE_HEADER; 
-		i--) { }
-
-	header = i;
+	header = GetHeader(rightClickedItem);
 
 	count = wResultList->GetItemCount();
 
@@ -1162,7 +1157,21 @@ void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
 
 }
 
+int DupFinderDlg3::GetHeader(int item) 
+{
+	int i;
 
+	assert(item >= DATA_OFFSET);
 
+	for(i = item; 
+		i >= 0 && ((ItemData *)wResultList->GetItemData(i))->GetType() != TYPE_HEADER; 
+		i--) { }
 
+	return i;
+}
+
+bool DupFinderDlg3::IsValidItem(int item)
+{
+	return (item >= DATA_OFFSET && item < wResultList->GetItemCount());
+}
 
