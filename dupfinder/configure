@@ -2183,6 +2183,13 @@ am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
 
 
 
+echo 'Warning: this is only an incomplete version of a configure system'
+echo '         for this project. Better build the program via '
+echo '         make -f makefile.unix'
+echo '         and ignore any errors the configure system possibly gives. '
+echo '         Also read the file readme.txt, section "Compiling". '
+sleep 10
+
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -4438,3 +4445,10 @@ if test "$no_create" != yes; then
   # would make configure fail if this is the last instruction.
   $ac_cs_success || { (exit 1); exit 1; }
 fi
+
+
+echo 'Warning: this is only an incomplete version of a configure system'
+echo '         for this project. Better build the program via '
+echo '         make -f makefile.unix'
+echo '         and ignore any errors the configure system possibly gives. '
+echo '         Also read the file readme.txt, section "Compiling". '
