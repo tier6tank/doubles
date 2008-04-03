@@ -426,7 +426,6 @@ struct less_fileiterator : public less<list<File>::iterator > {
 void DupFinderDlg3::DisplayResults() {
 	list<DuplicatesGroup>::iterator it;
 	list<File>::iterator it3;
-	bool bHaveFont = false;
 	wxFont font, boldfont;
 	int item;
 	ItemData *itemdata;
