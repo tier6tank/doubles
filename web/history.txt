@@ -1,6 +1,0 @@
-Date : 2008/3/28
-Added byte by byte comparison
-
-Date : 2008/3/26
-Merged two sentences in one (grammar error)
-
