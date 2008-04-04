@@ -1,3 +1,6 @@
+Date : 2008/4/4 15:05
+Todo update, some ideas from Arif Ali Syed
+
 Date : 2008/4/3 14:57 ---- version 0.44
 Warning fix (bHaveFont)
 version number 0.44
