@@ -1,0 +1,128 @@
+#
+#   dupfinder - search for duplicate files
+#   Copyright (C) 2007-2008 Matthias Boehm
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+
+ifndef debug
+debug = 1
+endif
+ifndef unicode
+unicode = 1
+endif
+
+ifndef wxdir
+wxdir = C:\wx
+endif
+
+outdir := gcc
+name = dupf
+namegui = dupfgui
+version := 
+dbgv := 
+
+ifeq ($(unicode),1)
+version := $(version)u
+endif
+
+ifeq ($(debug),1)
+version := $(version)d
+dbgv := $(dbgv)d
+endif
+
+outdir := $(outdir)$(version)
+
+nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads \
+	-D__WXMSW__ -DHAVE_W32API_H -W -Wall -Wextra
+
+# USE_TREECTRL
+ifeq (0,1)
+nopchopt = -DUSE_TREECTRL
+endif
+
+opt := $(nopchopt) -include ./$(outdir)/stdinc.h
+
+ifeq ($(debug),1)
+dbg = -D_DEBUG -DDEBUG -g -O0 -D__WXDEBUG__
+else
+dbg = -DNDEBUG  
+endif
+
+ifeq ($(unicode),1)
+uniopt = -D_UNICODE -DUNICODE -DwxUSE_UNICODE=1
+else
+uniopt = 
+endif
+
+opt := $(opt) $(dbg) $(uniopt)
+nopchopt := $(nopchopt) $(dbg) $(uniopt)
+
+libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid -lole32
+libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
+
+all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
+
+$(outdir): 
+	-@if not exist $(outdir) mkdir $(outdir)
+
+$(outdir)\$(name).exe: $(outdir)\stdinc.h.gch $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o
+	g++ $(opt) -o "$(outdir)\$(name).exe" $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o $(libs)
+ifneq ($(debug),1)
+	strip -s $(outdir)\$(name).exe
+endif
+
+$(outdir)\dbl.o: dbl.cpp $(headers)
+	g++ $(opt) -c -o $@ dbl.cpp
+
+$(outdir)\dupf.o: dupf.cpp $(headers)
+	g++ $(opt) -c -o $@ dupf.cpp
+
+$(outdir)\os_cc_specific.o: os_cc_specific.cpp $(headers)
+	g++ $(opt) -c -o $@ os_cc_specific.cpp
+
+$(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
+	g++ $(nopchopt) -c -x c++ -o $(outdir)\stdinc.h.gch stdinc.h
+
+$(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
+		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
+		$(outdir)\file.o
+	g++ $(opt) -mwindows -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
+		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
+		$(outdir)\file.o $(libsgui)
+ifneq ($(debug),1)
+	strip -s $(outdir)\$(namegui).exe
+endif
+
+$(outdir)\dupfgui.o: dupfgui.cpp $(headersgui)
+	g++ $(opt) -c -o $@ dupfgui.cpp
+
+$(outdir)\dialog1.o: dialog1.cpp $(headersgui)
+	g++ $(opt) -c -o $@ dialog1.cpp
+
+$(outdir)\dialog2.o: dialog2.cpp $(headersgui)
+	g++ $(opt) -c -o $@ dialog2.cpp
+
+$(outdir)\dialog3.o: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
+	g++ $(opt) -c -o $@ dialog3.cpp
+
+$(outdir)\file.o: file.cpp $(headers)
+	g++ $(opt) -c -o $@ file.cpp
+
+
+run:
+	-$(outdir)\$(name).exe
