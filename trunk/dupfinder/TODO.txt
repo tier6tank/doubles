@@ -208,3 +208,7 @@ TODO/IDEAS:
 + wxdir in Windows makefiles done.
 + autoreconfig done.
 - perhaps showing the statistics somewhere else...
+- fixing too much files problem
+- automatically marking files
+- marking all files of one directory and then all duplicate files of files in this directory
+- checkboxes in front of file items?
