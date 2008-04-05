@@ -212,3 +212,6 @@ TODO/IDEAS:
 - automatically marking files
 - marking all files of one directory and then all duplicate files of files in this directory
 - checkboxes in front of file items?
+- shared library for windows
+- build with wxWidgets as dll
+- replace __MINGWVERSION by __MINGW32__ or whatever is correct (also other). 

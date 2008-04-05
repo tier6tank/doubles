@@ -26,7 +26,7 @@ using namespace std;
 #include "profile.h"
 #include "dupf.h"
 
-// int _tmain(int argc, _TCHAR *argv[]) 
+// int _tmain(int argc, _TCHAR *_argv[]) 
 // {
 // a little bit ugly, this DECLARE_MAIN
 // that's because of mingw32 build which
@@ -52,8 +52,6 @@ DECLARE_MAIN
 
 	tstart = clock();
 
-	argv++;
-	argc--;
 
 	if(argc == 0) {
 		DisplayHelp();
@@ -69,36 +67,36 @@ DECLARE_MAIN
 
 	// get general options
 	for(i = 0; i < argc && argv[i][0] == _T('-'); i++) {
-		if(_tcscmp(argv[i], _T("-r")) == 0
-			|| _tcscmp(argv[i], _T("--reverse")) == 0) {
+		if(argv[i] == _T("-r")
+			|| argv[i] == _T("--reverse")) {
 			bReverse = true;
 			nOptions += 1;
 		}
-		else if(_tcscmp(argv[i], _T("-o")) == 0 ||
-			_tcscmp(argv[i], _T("--out")) == 0) {
+		else if(argv[i] == _T("-o") ||
+			argv[i] == _T("--out")) {
 			bool bResult;
-			if(!argv[i+1]) {
+			if(i+1 >= argc) {
 				_ftprintf(stderr, _T("Error: Filename expected! \n"));
 				return 1;
 			}
 			bResult = fOutput.Create(argv[i+1], true);
 			if(!bResult) {
-				_ftprintf(stderr, _T("Error: Cannot open %s! \n"), argv[i+1]);
+				_ftprintf(stderr, _T("Error: Cannot open %s! \n"), argv[i+1].c_str());
 				return 1;
 			}
 			nOptions += 2;
 			i++;
 		} 
-		else if (_tcscmp(argv[i], _T("-q")) == 0 || 
-			_tcscmp(argv[i], _T("--quiet")) == 0) {
+		else if (argv[i] == _T("-q") || 
+			argv[i] == _T("--quiet")) {
 			bQuiet = true;
 			nOptions += 1;
-		} else if(_tcscmp(argv[i], _T("-h")) == 0 || 
-			_tcscmp(argv[i], _T("--help")) == 0) {
+		} else if(argv[i] == _T("-h") || 
+			argv[i] == _T("--help")) {
 			bHelp = true;
 			nOptions += 1;
 		} else {
-			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
+			_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i].c_str());
 			return 1;
 		}
 	}
@@ -125,8 +123,8 @@ DECLARE_MAIN
 		pi.Mask = wxEmptyString;
 
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
-			if(_tcscmp(argv[i], _T("--min")) == 0) {
-				if(argv[i+1]) {
+			if(argv[i] == _T("--min")) {
+				if(i+1 < argc) {
 					wxULongLong_t _nMinSize;
 					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMinSize) == 0) {
 						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
@@ -139,8 +137,8 @@ DECLARE_MAIN
 				}
 				i++;
 			}
-			else if(_tcscmp(argv[i], _T("--max")) == 0) {
-				if(argv[i+1]) {
+			else if(argv[i] == _T("--max")) {
+				if(i + 1 < argc) {
 					wxULongLong_t _nMaxSize;
 					if(_stscanf_s(argv[i+1], _T("%") wxLongLongFmtSpec _T("u"), &_nMaxSize) == 0) {
 						_ftprintf(stderr, _T("Error in command line: Number expected! \n"));
@@ -157,17 +155,17 @@ DECLARE_MAIN
 				}
 				i++;
 			}
-			else if(_tcscmp(argv[i], _T("-n")) == 0 || 
-				_tcscmp(argv[i], _T("--norecurse")) == 0) {
+			else if(argv[i] == _T("-n") || 
+				argv[i] == _T("--norecurse")) {
 				pi.bGoIntoSubDirs = false;
 			}
-			else if(_tcscmp(argv[i], _T("-h")) == 0 ||
-				_tcscmp(argv[i], _T("--hidden")) == 0) {
+			else if(argv[i] == _T("-h") ||
+				argv[i] == _T("--hidden")) {
 				pi.bSearchHidden = true;
 			}
-			else if(_tcscmp(argv[i], _T("-m")) == 0 ||
-				_tcscmp(argv[i], _T("--mask")) == 0) {
-				if(!argv[i+1]) {
+			else if(argv[i] == _T("-m") ||
+				argv[i] == _T("--mask")) {
+				if(i+1 >= argc) {
 					_ftprintf(stderr, _T("Error: expression expected! \n"));
 					return 1;
 				}
@@ -175,7 +173,7 @@ DECLARE_MAIN
 				i ++;
 			}
 			else {
-				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i]);
+				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i].c_str());
 				return 1;
 			}
 		}
@@ -258,19 +256,19 @@ DECLARE_MAIN
 	int days = sumseconds/60/60/24;
 
 	if(days) {
-		_stprintf_s(szDays, tmpsize, _T("%i d, "), days);
-		_stprintf_s(szHours, tmpsize, _T("%i h, "), hours);
-		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
+		::wxSnprintf(szDays, tmpsize, _T("%i d, "), days);
+		::wxSnprintf(szHours, tmpsize, _T("%i h, "), hours);
+		::wxSnprintf(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else if(hours) {
-		_stprintf_s(szHours, tmpsize, _T("%i h, "), hours);
-		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
+		::wxSnprintf(szHours, tmpsize, _T("%i h, "), hours);
+		::wxSnprintf(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else if(minutes) { 
-		_stprintf_s(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
+		::wxSnprintf(szMinutes, tmpsize, _T("%i min, %i sec"), minutes, seconds);
 	}
 	else {
-		_stprintf_s(szMinutes, tmpsize, _T("%.2f sec"), dseconds);
+		::wxSnprintf(szMinutes, tmpsize, _T("%.2f sec"), dseconds);
 	}
 
 	if(!bQuiet) {

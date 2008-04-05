@@ -1,3 +1,8 @@
+Date : 2008/4/5 20:09
+Readme compiling section completely rewritten
+Unicode support for Unix added (and removed some stuff 
+from os_cc_specific*)
+
 Date : 2008/4/4 15:05
 Todo update, some ideas from Arif Ali Syed
 

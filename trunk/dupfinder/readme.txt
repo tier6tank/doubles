@@ -34,102 +34,96 @@ Then click on Go! and wait, until the results page is displayed.
 COMPILING:
 ----------
 
-Supported are on windows these compilers:
-Borland c++, Microsoft c++, Mingw, Cygwin
+0) General
 
-On unix, use either the provided makefile (makefile.unix, recommended), 
-or the configure script (still experimental!). 
-
-Step 1)
-
-  Download the wxWidgets library (if you don't have it installed yet). 
-
-  --- Unix specific: 
-
-  Configure the library with the following command line and then build and install it;
-  the [] brackets mean that you can omit the argument if you want: 
-
-      ./configure --with-gtk [--disable-shared] [--enable-debug] 
-      make 
-      make install # as root
-
-  Decide yourself if you want to create a debug version. 
-
-  --- Windows specific:
-
-  In the docs directory you find information about how to install
-  the library with your preferred compiler. 
-
-Step 2)
-
-  There are a few options for the makefiles which determine 
-  the program build: they are "debug" and "unicode" (windows 
-  only). For all options, the valid values are
-  0 for off and 1 for on.
+  Each makefile accepts some options. Use "option=1" to enable
+  an option and "option=0" to disable it. 
 
   - "debug" determines whether to build a debug version or a 
     retail version. Enabled by default. 
+
   - "unicode" determines whether to build a unicode version of 
-    the program (Windows only). That option mainly exists for
+    the program. That option mainly exists for
     supporting the old (95, 98, ME) windows versions, which do
     not support unicode. It is enabled by default. 
+
   - "static" determines whether to link wxWidgets statically 
     (results in bigger executables, but removes the dependency on
-    a shared wxWidgets library installed), or to link at runtime. 
+    a shared wxWidgets library). Currently Unix only option. 
     Default value is on. You have to have installed a matching 
     wxWidgets version (build with --disable-shared for a static 
-    version). Unix only. 
+    version). 
+
   - "wxdir" should point to the path in which wxWidgets is installed
     (Windows only). Defaults to "C:\wx". 
 
-  --- Windows specific:
 
-  For each compiler, there is a special makefile: 
+1) Windows
 
-  For building the program with visual c++ - compiler, just type the following: 
+  Supported are on windows these compilers:
+  Borland c++, Microsoft c++, Mingw, Cygwin 
+  (Watcom is currently not supported because of the lack
+  of a working STL library). 
 
-  	nmake -f makefile.vc [debug=0/1] [unicode=0/1]
+  a) First, you have to build wxWidgets with your preferred compiler. 
+     Refer to the documentation in the doc directory. 
+     As options, use either "BUILD=release" or "BUILD=debug" and
+     either "UNICODE=1" or "UNICODE=0". 
 
-  The compiled files are stored under vc[u][d]. 
+  b) For each compiler exists a seperate makefile, and the 
+     intermediate files and executables will placed in a 
+     directory of which the name depends on the compiler and 
+     on the build options. 
+     Usually, a "d" is appended to signalize debug versions, 
+     and a "u" is appended to signalize unicode versions. 
 
-  For building the program with borland c++, type the following:
- 
-	make -f makefile.bcc [-Ddebug=0/1] [-Dunicode=0/1]
+     Microsoft C++ compiler: 
+       Makefile: makefile.vc 
+       Directory: vc*
+       Example: nmake -f makefile.vc debug=0 unicode=1
 
-  The compiled files are stored under bcc[u][d]. 
+     Borland C++ compiler:
+       Makefile: makefile.bcc
+       Directory: bcc*
+       Example: make -f makefile.bcc -Ddebug=0 -Dunicode=1
 
-  For building the program with mingw, type the following (on the windows 
-  command line, not on msys or another unix emulation shell!):
+     Mingw compiler (see also note below): 
+       Makefile: makefile.gcc
+       Directory: gcc*
+       Example: mingw32-make -f makefile.gcc debug=0 unicode=1
+       Note: mingw32-make must be called from the windows commandline
+             (cmd.exe)! 
 
-  	mingw32-make -f makefile.gcc [debug=0/1] [unicode=0/1]
-
-  The compiled files are stored under gcc[u][d]. 
-
-  If you don't have mingw but only cygwin, you can build the program that way
-  (note that you have to follow the steps for unix in step 1 first, using --with-msw instead
-  of --with-gtk):
-
-	make -f makefile.unix cygwin=1 [debug=0/1] [static=0/1]
-
-  The compiled files are stored under unix[d][_shared]. 
-
-  --- Unix specific:
-
-  Method 1: For building the program in unix with gcc, type the following:
-
-  	make -f makefile.unix [debug=0/1] [static=0/1]
-
-  The compiled files are stored under unix[d][_shared]. You don't have to run the configure script!
+     Cygwin compiler: see Unix section
 
 
-  Method 2: Take the configure way (but note that this is still experimental, 
-  and produces non-optimized executables with debug info, hence the stripping
-  below):
 
-	./configure
-	make
-	strip -S dupfgui
-	strip -S dupf
+2) Unix
+
+  a) First you have to install wxWidgets. Use either a package of 
+     your distribution (e.g. Debian 4.0: libwxgtk2.6-dev), or download
+     the newest version of wxWidgets from 
+     http://sourceforge.net/projects/wxWindows. Choose a version with 
+     GTK support. 
+     In the latter case, you have to configure wxWidgets with the same options
+     which you will later use when building the actual program. 
+     Use either: --enable-debug or --disable-debug, --enable-shared or 
+     --disable-shared, --enable-unicode or --disable-unicode. When using cygwin, 
+     you must add --with-msw as configure option; when you are compiling the
+     program on a Unix sytem, use --with-gtk. You can 
+     also build more than one wxWidgets version. For more detailed information
+     see the documentation of wxWidgets. 
+     Note that you have to have a GTK development library installed. 
+
+  b) Then you have to build the program via the makefile makefile.unix.
+     Example: make -f makefile.unix unicode=1 debug=0
+     All output files go to a specific directory, of which the name depends on 
+     the build options. It starts always with unix, then there is an
+     "u" added for a unicode version, a "d" added for debug versions, and a 
+     "_shared" for shared versions. 
+
+     A configure system is present, but by far not complete yet. Please don't use
+     it. 
  
 
 LICENSE:
