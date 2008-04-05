@@ -24,46 +24,6 @@ using namespace std;
 
 #include "os_cc_specific.h"
 
-#if !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400)
-
-// sprintf_s, scanf_s, ... aren't defined
-// so wrap them into the old functions (where buffer overflows unfortunately *can* occur!)
-
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) ((x) = (x))
-#endif
-
-int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... ) {
-	UNREFERENCED_PARAMETER(buflen);
-
-	va_list marker;
-	va_start (marker, format);
-	int nResult;
-
-	nResult = _vstprintf(buffer, format, marker);
-
-	va_end(marker);
-	return nResult;
-}
-
-_TCHAR * _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b) {
-	UNREFERENCED_PARAMETER(nLength);
-	return _tcscpy(a, b);
-}
-
-_TCHAR * _tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b) {
-	UNREFERENCED_PARAMETER(nLength);
-	return _tcscat(a, b);
-}
-
-int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode) {
-	*ppf = _tfopen(filename, mode);
-	return (*ppf != NULL);
-}
-
-
-#endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
-
 #ifdef _WIN32
 
 void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDirTraverser &sink) 
@@ -253,7 +213,7 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 bool IsSymLink(const wxString &filename) {
 	struct stat st;
 
-	if(lstat(filename, &st) == 0) {
+	if(lstat(filename.fn_str(), &st) == 0) {
 		return S_ISLNK(st.st_mode) ? true : false;
 	}
 	else {
@@ -268,7 +228,7 @@ bool IsSymLinkSupported() {
 }
 
 bool CreateSymLink(const wxString &oldpath, const wxString &newpath) {
-	return symlink(oldpath, newpath) == 0;
+	return symlink(oldpath.fn_str(), newpath.fn_str()) == 0;
 }
 
 bool IsHardLinkSupported() {
@@ -277,7 +237,7 @@ bool IsHardLinkSupported() {
 }
 
 bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
-	return link(oldpath, newpath) == 0;
+	return link(oldpath.fn_str(), newpath.fn_str()) == 0;
 }
 
 #endif

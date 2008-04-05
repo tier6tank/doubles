@@ -25,6 +25,10 @@ ifndef static
 static = 1
 endif
 
+ifndef unicode
+unicode=1
+endif
+
 #define cygwin if cygwin is used (adds .exe to program file name)
 
 ifndef cygwin
@@ -39,10 +43,17 @@ name := $(name).exe
 namegui := $(namegui).exe
 endif
 version := 
-wxconfigopt := --unicode=no
+wxconfigopt := --universal=no
 
 ifeq ($(static),1)
 wxconfigopt := $(wxconfigopt) --static
+endif
+
+ifeq ($(unicode),1)
+wxconfigopt := $(wxconfigopt) --unicode=yes
+version := $(version)u
+else
+wxconfigopt := $(wxconfigopt) --unicode=no
 endif
 
 ifeq ($(debug),1)

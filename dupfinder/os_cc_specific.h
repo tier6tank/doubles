@@ -23,7 +23,20 @@
 #define __OS_CC_SPECIFIC_H_123
 
 #if !defined(_WIN32) || ( defined(_WIN32) && defined(__GNUC__) && !defined(__MINGW32__) )
-/* unix provides no unicode, at least not like the windows platform does */
+
+#if defined(_UNICODE) || defined(UNICODE)
+
+#ifndef _T
+#define _T(a) L ## a
+#endif
+
+#define _TCHAR wchar_t
+#define _tmain wmain
+#define _ftprintf fwprintf
+// secure not needed (only with strings)
+#define _stscanf_s swscanf 
+
+#else // !defined(UNICODE)
 
 #ifndef _T
 #define _T(a) a
@@ -32,64 +45,48 @@
 #define _TCHAR char
 #define _tmain main
 #define _ftprintf fprintf
-#define _tcscmp strcmp
-#define _tcscpy strcpy
-#define _tprintf printf
-#define _stprintf sprintf
-#define _tcscat strcat
-#define _tfopen fopen
-#define _vstprintf vsprintf
-#define _fputts fputs
-#define _tcslen strlen
+// secure not needed (only with strings)
+#define _stscanf_s sscanf
 
-#define _stscanf_s sscanf_s
-#define _tcscpy_s strcpy_s
-#define _stprintf_s sprintf_s
-#define _stscanf_s sscanf_s
-#define _tcscat_s strcat_s
-#define _tfopen_s fopen_s
+#endif // defined (UNICODE)
 
 #endif /* !defined(_WIN32) */
 
-#if !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400)
+// MingW/unix  does not support unicode wmain
 
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) ((x) = (x))
-#endif
+// the following macro does that:
 
-int _stprintf_s(_TCHAR *buffer, int buflen, const _TCHAR *format, ... );
-_TCHAR* _tcscpy_s(_TCHAR *a, int nLength, const _TCHAR *b);
-_TCHAR *_tcscat_s(_TCHAR *a, int nLength, const _TCHAR *b);
-int _tfopen_s(FILE **ppf, const _TCHAR *filename, const _TCHAR *mode);
+// loading *_TCHAR* argv over to *wxChar*
 
-#ifndef _stscanf_s
-#define _stscanf_s _stscanf
-#endif
+// note: no need exceptionally to delete argv, because 1) it is only a small piece
+// of memory, and 2) there would be a delete [] argv necessarry
+// in front of every return instruction
+// perhaps if i have the time, i'll change it...
 
-#define sscanf_s sscanf
+#if ( (defined(__MINGW32_VERSION) && defined(_WIN32)) || defined(__UNIX__) ) && (defined(_UNICODE) || defined(UNICODE) )
 
-#endif /* !defined(_MSC_VER) || (defined(_MSC_VER) && _MSC_VER < 1400) */
-
-
-// MingW does not support unicode wmain
-#if defined(__MINGW32_VERSION) && defined(_WIN32) && defined(_UNICODE)
 #define DECLARE_MAIN int main(int argc, char *_argv[]) { \
-	wchar_t **argv = new wchar_t *[argc+1]; \
-	argv[argc] = NULL; \
-	{ char **__ptr; int __i; \
-	for(__ptr = _argv, __i = 0; __ptr[0] != NULL; __ptr++, __i++) { \
-		int __length = strlen(__ptr[0])+1; \
-		argv[__i] = new wchar_t[__length*2]; \
-		/*mbstowcs(argv[__i], _argv[__i], __length*2);*/MultiByteToWideChar( \
-			CP_THREAD_ACP, \
-			0, \
-			_argv[__i], \
-			-1, \
-			argv[__i], \
-			__length*2); \
-	} } 
+	/* xxx yyy;  uncomment this for testing */ \
+	_argv++; \
+	argc--; \
+	 \
+	wxString *argv = new wxString[argc]; \
+	{ int i; \
+		for(i = 0; i < argc; i++) { \
+			argv[i] = wxString(_argv[i], wxConvLocal); \
+		} \
+	}
 #else
-#define DECLARE_MAIN int _tmain(int argc, _TCHAR * argv[]) {
+#define DECLARE_MAIN int _tmain(int argc, _TCHAR * _argv[]) { \
+	_argv++; \
+	argc--; \
+	 \
+	wxString *argv = new wxString[argc]; \
+	{ int i;  \
+		for(i = 0; i < argc; i++) { \
+			argv[i] = _argv[i]; \
+		} \
+	}
 #endif /* defined(__MINGW32_VERSION) */
 
 struct FileData
