@@ -1,3 +1,10 @@
+Date : 2008/4/6 16:51
+Shared build works now for all windows compilers
+Added makefile.all
+Removing C string functions (replacing them by wxWidgets functions)
+Clarified a bit os_cc_specific.cpp and os_cc_specific_includes.h (#ifs )
+Readme changes
+
 Date : 2008/4/5 20:09
 Readme compiling section completely rewritten
 Unicode support for Unix added (and removed some stuff 

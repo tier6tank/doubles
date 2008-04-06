@@ -22,7 +22,6 @@
 
 #include "stdinc.h"
 #include "dupfgui.h"
-#include "stdinc.h"
 #include "dbl.h"
 #include "dialog1.h"
 
@@ -32,7 +31,6 @@ public:
 	virtual int OnExit();
 
 };
-
 
 IMPLEMENT_APP(DupFinderApp)
 

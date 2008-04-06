@@ -215,3 +215,8 @@ TODO/IDEAS:
 - shared library for windows
 - build with wxWidgets as dll
 - replace __MINGWVERSION by __MINGW32__ or whatever is correct (also other). 
+- symbolic links = .lnk on Windows?!!
+- increase speed by reading only 1 sector of every file!
+- enable optimize wxWidgets??
+- retest on unix
+- cygwin unicode build

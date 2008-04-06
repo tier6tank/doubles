@@ -22,7 +22,16 @@
 #ifndef __OS_CC_SPECIFIC_H_123
 #define __OS_CC_SPECIFIC_H_123
 
-#if !defined(_WIN32) || ( defined(_WIN32) && defined(__GNUC__) && !defined(__MINGW32__) )
+// secure function unknown to !Microsoft Visual C++
+#ifndef _MSC_VER
+
+#define _stscanf_s _stscanf
+
+#endif /* !def(_MSC_VER) */
+
+// cygwin does not have a _t -> wide/single char mapping (tchar.h)
+
+#if defined (__CYGWIN__)
 
 #if defined(_UNICODE) || defined(UNICODE)
 
@@ -34,7 +43,7 @@
 #define _tmain wmain
 #define _ftprintf fwprintf
 // secure not needed (only with strings)
-#define _stscanf_s swscanf 
+#define _stscanf swscanf
 
 #else // !defined(UNICODE)
 
@@ -46,13 +55,14 @@
 #define _tmain main
 #define _ftprintf fprintf
 // secure not needed (only with strings)
-#define _stscanf_s sscanf
+#define _stscanf sscanf
 
 #endif // defined (UNICODE)
 
-#endif /* !defined(_WIN32) */
+#endif /* defined (__CYGWIN__) */
 
-// MingW/unix  does not support unicode wmain
+
+// MingW/unix?/cygwin? (all gcc?)  don't support unicode wmain
 
 // the following macro does that:
 
@@ -63,7 +73,7 @@
 // in front of every return instruction
 // perhaps if i have the time, i'll change it...
 
-#if ( (defined(__MINGW32_VERSION) && defined(_WIN32)) || defined(__UNIX__) ) && (defined(_UNICODE) || defined(UNICODE) )
+#if defined(__MINGW32__)
 
 #define DECLARE_MAIN int main(int argc, char *_argv[]) { \
 	/* xxx yyy;  uncomment this for testing */ \
@@ -77,6 +87,7 @@
 		} \
 	}
 #else
+
 #define DECLARE_MAIN int _tmain(int argc, _TCHAR * _argv[]) { \
 	_argv++; \
 	argc--; \
@@ -87,7 +98,8 @@
 			argv[i] = _argv[i]; \
 		} \
 	}
-#endif /* defined(__MINGW32_VERSION) */
+#endif /* defined(__MINGW32__) */
+
 
 struct FileData
 {

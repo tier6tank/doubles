@@ -80,17 +80,17 @@ COMPILING:
      Microsoft C++ compiler: 
        Makefile: makefile.vc 
        Directory: vc*
-       Example: nmake -f makefile.vc debug=0 unicode=1
+       Example: nmake -f makefile.vc debug=0 unicode=1 static=1
 
      Borland C++ compiler:
        Makefile: makefile.bcc
        Directory: bcc*
-       Example: make -f makefile.bcc -Ddebug=0 -Dunicode=1
+       Example: make -f makefile.bcc -Ddebug=0 -Dunicode=1 static=0
 
      Mingw compiler (see also note below): 
        Makefile: makefile.gcc
        Directory: gcc*
-       Example: mingw32-make -f makefile.gcc debug=0 unicode=1
+       Example: mingw32-make -f makefile.gcc debug=0 unicode=1 static=0
        Note: mingw32-make must be called from the windows commandline
              (cmd.exe)! 
 
@@ -115,8 +115,15 @@ COMPILING:
      see the documentation of wxWidgets. 
      Note that you have to have a GTK development library installed. 
 
+
+     Cygwin notes to configure options:
+ 
+     - use --with-msw instead of --with-gtk
+     - specify --disable-std_string when using --enable-unicode, 
+       else you will get compiling errors.
+
   b) Then you have to build the program via the makefile makefile.unix.
-     Example: make -f makefile.unix unicode=1 debug=0
+     Example: make -f makefile.unix unicode=1 debug=0 static=1
      All output files go to a specific directory, of which the name depends on 
      the build options. It starts always with unix, then there is an
      "u" added for a unicode version, a "d" added for debug versions, and a 
