@@ -23,6 +23,9 @@ endif
 ifndef unicode
 unicode = 1
 endif
+ifndef static
+static = 1
+endif
 
 ifndef wxdir
 wxdir = C:\wx
@@ -31,8 +34,10 @@ endif
 outdir := gcc
 name = dupf
 namegui = dupfgui
+
 version := 
 dbgv := 
+libpath := gcc
 
 ifeq ($(unicode),1)
 version := $(version)u
@@ -43,9 +48,16 @@ version := $(version)d
 dbgv := $(dbgv)d
 endif
 
-outdir := $(outdir)$(version)
+ifneq ($(static),1)
+stversion = _shared
+libpath := $(libpath)_dll
+else
+libpath := $(libpath)_lib
+endif
 
-nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\gcc_lib\msw$(version)" -mthreads \
+outdir := $(outdir)$(version)$(stversion)
+
+nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\$(libpath)\msw$(version)" -mthreads \
 	-D__WXMSW__ -DHAVE_W32API_H -W -Wall -Wextra
 
 # USE_TREECTRL
@@ -53,7 +65,6 @@ ifeq (0,1)
 nopchopt = -DUSE_TREECTRL
 endif
 
-opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 ifeq ($(debug),1)
 dbg = -D_DEBUG -DDEBUG -g -O0 -D__WXDEBUG__
@@ -67,20 +78,27 @@ else
 uniopt = 
 endif
 
-opt := $(opt) $(dbg) $(uniopt)
-nopchopt := $(nopchopt) $(dbg) $(uniopt)
+ifneq ($(static),1)
+staticopt = -DWXUSINGDLL
+else
+staticopt = 
+endif
 
-libs = -L$(wxdir)\lib\gcc_lib -lwxbase28$(version) -lshlwapi  -luuid -lole32
+nopchopt := $(nopchopt) $(dbg) $(uniopt) $(staticopt)
+
+opt := $(nopchopt) -include ./$(outdir)/stdinc.h
+
+libs = -L$(wxdir)\lib\$(libpath) -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
 
-all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe
+all: $(outdir) $(outdir)\stdinc.h.gch $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
-$(outdir)\$(name).exe: $(outdir)\stdinc.h.gch $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o
+$(outdir)\$(name).exe: $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o
 	g++ $(opt) -o "$(outdir)\$(name).exe" $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(name).exe
@@ -126,3 +144,17 @@ $(outdir)\file.o: file.cpp $(headers)
 
 run:
 	-$(outdir)\$(name).exe
+
+
+
+dll1 = wxbase28$(version)_gcc_custom.dll
+dll2 = wxmsw28$(version)_core_gcc_custom.dll
+dll3 = wxmsw28$(version)_adv_gcc_custom.dll
+
+copy_dll: 
+ifeq ($(static),0)
+	@if not exist $(outdir)\$(dll1) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll1)" $(outdir)
+	@if not exist $(outdir)\$(dll2) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll2)" $(outdir)
+	@if not exist $(outdir)\$(dll3) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll3)" $(outdir)
+endif
+

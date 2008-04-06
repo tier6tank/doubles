@@ -55,8 +55,9 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 		do
 		{
-			if(!(_tcscmp(fd.cFileName, _T(".")) == 0 || 
-			   _tcscmp(fd.cFileName, _T("..")) == 0) || flags & wxDIR_DOTDOT) {
+			if(!( wxString(fd.cFileName) == _T(".") || 
+				wxString(fd.cFileName) == _T("..") ) 
+				|| flags & wxDIR_DOTDOT) {
 				if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY 
 					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
 					wxString Down;
@@ -105,8 +106,9 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 		do
 		{
-			if(!(_tcscmp(fd.cFileName, _T(".")) == 0 || 
-			   _tcscmp(fd.cFileName, _T("..")) == 0) || flags & wxDIR_DOTDOT) {
+			if(!(wxString(fd.cFileName) == _T(".") || 
+			   	wxString(fd.cFileName) == _T("..")  )
+				|| flags & wxDIR_DOTDOT) {
 				if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
 					FileData data;

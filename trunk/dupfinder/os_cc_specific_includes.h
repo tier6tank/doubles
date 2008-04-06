@@ -25,11 +25,13 @@
 #include <windows.h>
 #include <shlwapi.h>
 
-#ifdef __MINGW32__
+#ifndef __CYGWIN__
 #include <tchar.h>
 #endif
 
 #endif /* _Win32 */
+
+
 
 /* perhaps better if !defined(_WIN32) && defined(__GNUC__) ???? */
 #ifdef __UNIX__
