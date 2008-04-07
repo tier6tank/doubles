@@ -29,9 +29,9 @@
 
 #endif /* !def(_MSC_VER) */
 
-// cygwin does not have a _t -> wide/single char mapping (tchar.h)
+// cygwin/gcc (on unix!, not mingw) does not have a _t -> wide/single char mapping (tchar.h)
 
-#if defined (__CYGWIN__)
+#if defined (__CYGWIN__) || (defined(__GNUC__) && !defined(__MINGW32__) )
 
 #if defined(_UNICODE) || defined(UNICODE)
 
@@ -62,7 +62,7 @@
 #endif /* defined (__CYGWIN__) */
 
 
-// MingW/unix?/cygwin? (all gcc?)  don't support unicode wmain
+// MingW/unix/cygwin? (all gcc?)  don't support unicode wmain
 
 // the following macro does that:
 
@@ -73,7 +73,8 @@
 // in front of every return instruction
 // perhaps if i have the time, i'll change it...
 
-#if defined(__MINGW32__)
+/* perhaps add cygwin later, perhaps even __GNUC__ is enough later */
+#if defined(__MINGW32__) || (defined(__GNUC__) && !defined(__MINGW32__) && !defined(__CYGWIN__) )
 
 #define DECLARE_MAIN int main(int argc, char *_argv[]) { \
 	/* xxx yyy;  uncomment this for testing */ \
