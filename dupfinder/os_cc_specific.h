@@ -75,6 +75,7 @@
 
 /* perhaps add cygwin later, perhaps even __GNUC__ is enough later */
 #if defined(__MINGW32__) || (defined(__GNUC__) && !defined(__MINGW32__) && !defined(__CYGWIN__) )
+// #if defined(__GNUC__) // or that?
 
 #define DECLARE_MAIN int main(int argc, char *_argv[]) { \
 	/* xxx yyy;  uncomment this for testing */ \
