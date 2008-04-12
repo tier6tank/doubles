@@ -29,6 +29,8 @@
 #include <tchar.h>
 #endif
 
+#include <shlobj.h>
+
 #endif /* _Win32 */
 
 

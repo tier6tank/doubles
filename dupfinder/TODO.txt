@@ -215,7 +215,7 @@ TODO/IDEAS:
 + shared library for windows done.
 + build with wxWidgets as dll done.
 + replace __MINGWVERSION by __MINGW32__ or whatever is correct (also other). done.
-- symbolic links = .lnk on Windows?!!
++ symbolic links = .lnk on Windows?!! done!
 - increase speed by reading only 1 sector of every file!
 + enable optimize wxWidgets?? no need to do this, is enabled by default
 + retest on unix done.
@@ -223,3 +223,5 @@ TODO/IDEAS:
   getting the wxWidgets build on cygwin (unicode not supported)
 + shared instead of static (makefile option) done.
 - reorder tree (->src, ->include)
+- detecting symbolic links on windows
+  instead of testing on file extention, test file content for detecting symbolic windows links?!

@@ -38,6 +38,8 @@ IMPLEMENT_APP(DupFinderApp)
 bool DupFinderApp::OnInit() {
 	DupFinderDlg *maindlg = new DupFinderDlg (NULL);
 
+	DUPF_INITIALIZE_COM
+
 	maindlg->Show(true);
 	SetTopWindow(maindlg);
 
@@ -45,6 +47,9 @@ bool DupFinderApp::OnInit() {
 }
 
 int DupFinderApp::OnExit() {
+
+	DUPF_UNINITIALIZE_COM
+
 	return 0;
 }
 

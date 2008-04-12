@@ -1,3 +1,6 @@
+Date : 2008/4/12 15:43
+Added windows symbolic link creation support (.lnk)
+
 Date : 2008/4/12 12:15
 Added makeall.sh
 Fixed Unix makefile bug (unrecognized shared)

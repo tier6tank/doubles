@@ -22,12 +22,17 @@
 #ifndef __OS_CC_SPECIFIC_H_123
 #define __OS_CC_SPECIFIC_H_123
 
+/*****************************************************************************/
+
 // secure function unknown to !Microsoft Visual C++
 #ifndef _MSC_VER
 
 #define _stscanf_s _stscanf
 
 #endif /* !def(_MSC_VER) */
+
+
+/*****************************************************************************/
 
 // cygwin/gcc (on unix!, not mingw) does not have a _t -> wide/single char mapping (tchar.h)
 
@@ -61,6 +66,7 @@
 
 #endif /* defined (__CYGWIN__) */
 
+/*****************************************************************************/
 
 // MingW/unix/cygwin? (all gcc?)  don't support unicode wmain
 
@@ -102,6 +108,8 @@
 	}
 #endif /* defined(__MINGW32__) */
 
+/*****************************************************************************/
+
 
 struct FileData
 {
@@ -122,6 +130,18 @@ public:
 template <class T> T & unconst(const T & x) {
 	return const_cast<T &>(x);
 }
+
+/*****************************************************************************/
+
+#ifdef _WIN32
+	#define DUPF_INITIALIZE_COM ::CoInitialize(NULL);
+	#define DUPF_UNINITIALIZE_COM ::CoUninitialize();
+#else
+	#define DUPF_INITIALIZE_COM
+	#define DUPF_UNINITIALIZE_COM
+#endif
+
+/*****************************************************************************/
 
 // prototypes
 
