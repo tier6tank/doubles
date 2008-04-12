@@ -587,7 +587,7 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.SetName(_T("Duplicate Files Finder"));
 	info.SetVersion(_T("gui 0.44"));
 	
-#ifdef __MINGW32_VERSION
+#ifdef __MINGW32__
 	wxMessageBox(_T("Duplicate Files Finder version 0.44\n")
 		_T("Find and delete duplicate files\n\nCopyright Matthias Boehm 2008"));
 #else
