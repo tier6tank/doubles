@@ -221,3 +221,4 @@ TODO/IDEAS:
 - retest on unix
 - cygwin unicode build
 - getting the wxWidgets build on cygwin
++ shared instead of static (makefile option) done.

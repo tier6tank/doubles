@@ -23,8 +23,8 @@ endif
 ifndef unicode
 unicode = 1
 endif
-ifndef static
-static = 1
+ifndef shared
+shared = 0
 endif
 
 ifndef wxdir
@@ -48,7 +48,7 @@ version := $(version)d
 dbgv := $(dbgv)d
 endif
 
-ifneq ($(static),1)
+ifeq ($(shared),1)
 stversion = _shared
 libpath := $(libpath)_dll
 else
@@ -78,13 +78,13 @@ else
 uniopt = 
 endif
 
-ifneq ($(static),1)
-staticopt = -DWXUSINGDLL
+ifeq ($(shared),1)
+sharedopt = -DWXUSINGDLL
 else
-staticopt = 
+sharedopt = 
 endif
 
-nopchopt := $(nopchopt) $(dbg) $(uniopt) $(staticopt)
+nopchopt := $(nopchopt) $(dbg) $(uniopt) $(sharedopt)
 
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
@@ -152,7 +152,7 @@ dll2 = wxmsw28$(version)_core_gcc_custom.dll
 dll3 = wxmsw28$(version)_adv_gcc_custom.dll
 
 copy_dll: 
-ifeq ($(static),0)
+ifeq ($(shared),1)
 	@if not exist $(outdir)\$(dll1) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll1)" $(outdir)
 	@if not exist $(outdir)\$(dll2) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll2)" $(outdir)
 	@if not exist $(outdir)\$(dll3) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll3)" $(outdir)
