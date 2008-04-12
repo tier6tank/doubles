@@ -134,18 +134,88 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 }
 
-bool IsSymLink(const wxString &) {
-	// windows has no symlinks
+bool IsSymLink(const wxString &WXUNUSED(filename)) {
+	// if name ends on ".lnk", it is a symbolic windows link!
+	// actually, there should be a test, whether it's really 
+	// a symbolic link or just a file with .lnk ending!
+	/* wxFileName name(filename);
+	return name.GetExt() == _T("lnk");  */
 	return false;
 }
 
 bool IsSymLinkSupported() {
-	return false;
+	// use .lnk files for symbolic links
+	return true;
 }
 
-bool CreateSymLink(const wxString &WXUNUSED(d1), const wxString &WXUNUSED(d2)) {
-	// don't even try it - windows
-	return false;
+// copied from PSDK documentation
+// ***************************************************************************
+// CreateLink - uses the Shell's IShellLink and IPersistFile interfaces 
+//              to create and store a shortcut to the specified object. 
+//
+// Returns the result of calling the member functions of the interfaces. 
+//
+// Parameters:
+// lpszPathObj  - address of a buffer containing the path of the object. 
+// lpszPathLink - address of a buffer containing the path where the 
+//                Shell link is to be stored. 
+// lpszDesc     - address of a buffer containing the description of the 
+//                Shell link. 
+
+HRESULT CreateLink(LPCTSTR lpszPathObj, LPCTSTR lpszPathLink, LPCTSTR lpszDesc) 
+{ 
+	HRESULT hres; 
+	IShellLink* psl; 
+ 
+	// Get a pointer to the IShellLink interface. 
+	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, 
+                            IID_IShellLink, (LPVOID*)&psl); 
+	if (SUCCEEDED(hres)) 
+	{ 
+		IPersistFile* ppf; 
+ 
+		// Set the path to the shortcut target and add the description. 
+		psl->SetPath(lpszPathObj); 
+		psl->SetDescription(lpszDesc); 
+
+ 
+		// Query IShellLink for the IPersistFile interface for saving the 
+		// shortcut in persistent storage. 
+		hres = psl->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf); 
+ 
+		if (SUCCEEDED(hres))
+		{
+#if !( defined (_UNICODE) || defined(UNICODE) )
+			size_t length = wxConvFile.ToWChar(NULL, 0, lpszPathLink);
+			wchar_t * UnicodePath = new wchar_t [length];
+			size_t res = wxConvFile.ToWChar(UnicodePath, length, lpszPathLink);
+			assert(res != wxCONV_FAILED);
+#else
+			const wchar_t *UnicodePath = lpszPathLink;
+#endif
+			// Save the link by calling IPersistFile::Save. 
+
+			hres = ppf->Save(UnicodePath, TRUE); 
+			ppf->Release(); 
+#if !( defined (_UNICODE) || defined(UNICODE) )
+			delete [] UnicodePath;
+#endif
+
+		} 
+		psl->Release(); 
+	} 
+	return hres; 
+}
+
+
+bool CreateSymLink(const wxString &source, const wxString &_target) {
+	wxString target = _target;
+	target.Append(_T(".lnk"));
+	if(wxFile::Exists(target)) {
+		return false;
+	} else {
+		return SUCCEEDED( CreateLink(source, target, _T("Link created by Duplicate Files Finder")) );
+	}
 }
 
 bool IsHardLinkSupported() {
@@ -160,11 +230,11 @@ bool IsHardLinkSupported() {
 }
 
 bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
-// assume that defined _UNICODE means the Win NT family, 
-// and not defined _UNICODE means the Win 9x family
-// this is because CreateHardLink is exported to be linked at runtime
-// with a dll, but on windows 9x/ME, that link cannot be resolved, 
-// so the program doesn't start at all
+	// assume that defined _UNICODE means the Win NT family, 
+	// and not defined _UNICODE means the Win 9x family
+	// this is because CreateHardLink is exported to be linked at runtime
+	// with a dll, but on windows 9x/ME, that link cannot be resolved, 
+	// so the program doesn't start at all
 #if defined( _UNICODE) || defined(UNICODE)
 	return CreateHardLink(newpath.fn_str(), oldpath.fn_str(), NULL);
 #else
