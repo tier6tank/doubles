@@ -46,7 +46,9 @@ version :=
 wxconfigopt := --universal=no
 
 ifneq ($(shared),1)
-wxconfigopt := $(wxconfigopt) --static
+wxconfigopt := $(wxconfigopt) --static=yes
+else
+wxconfigopt := $(wxconfigopt) --static=no
 endif
 
 ifeq ($(unicode),1)

@@ -218,7 +218,7 @@ TODO/IDEAS:
 - symbolic links = .lnk on Windows?!!
 - increase speed by reading only 1 sector of every file!
 + enable optimize wxWidgets?? no need to do this, is enabled by default
-- retest on unix
++ retest on unix done.
 ! cygwin unicode build
   getting the wxWidgets build on cygwin (unicode not supported)
 + shared instead of static (makefile option) done.
