@@ -23,8 +23,8 @@ debug = 1
 !ifndef unicode
 unicode = 1
 !endif
-!ifndef static
-static = 1
+!ifndef shared
+shared = 0
 !endif
 
 !ifndef wxdir
@@ -49,7 +49,7 @@ dbgversion = d
 !else
 !endif
 
-!if $(static)!=1
+!if $(shared)==1
 stversion = _shared
 libpath = $(libpath)_dll
 !else
@@ -80,11 +80,13 @@ uniopt = -D_UNICODE -DUNICODE -WU -DwxUSE_UNICODE=1
 uniopt = 
 !endif
 
-!if $(static)!=1
-staticopt = -DWXUSINGDLL
+!if $(shared)==1
+sharedopt = -DWXUSINGDLL
+!else
+sharedopt = 
 !endif
 
-opt_ = $(opt_) $(dbg) $(uniopt) $(staticopt)
+opt_ = $(opt_) $(dbg) $(uniopt) $(sharedopt)
 
 opt = $(opt_) -tWC
 optgui = $(opt_) -tW
@@ -147,7 +149,7 @@ dll2 = wxmsw28$(version)_core_bcc_custom.dll
 dll3 = wxmsw28$(version)_adv_bcc_custom.dll
 
 copy_dll: 
-!if $(static)==0
+!if $(shared)==1
 	@if not exist $(outdir)\$(dll1) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll1)" $(outdir)
 	@if not exist $(outdir)\$(dll2) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll2)" $(outdir)
 	@if not exist $(outdir)\$(dll3) xcopy /Y "$(wxdir)\lib\$(libpath)\$(dll3)" $(outdir)

@@ -46,11 +46,13 @@ COMPILING:
     the program. That option mainly exists for
     supporting the old (95, 98, ME) windows versions, which do
     not support unicode. It is enabled by default. 
+    Cygwin does not support Unicode at the moment. 
 
-  - "static" determines whether to link wxWidgets statically 
+  - "shared" determines whether to link wxWidgets statically 
     (results in bigger executables, but removes the dependency on
-    a shared wxWidgets library). Currently Unix only option. 
-    Default value is on. You have to have installed a matching 
+    a shared wxWidgets library) or whether it links with a dynamic
+    loaded shared library.
+    Default value is off. You have to have installed a matching 
     wxWidgets version (build with --disable-shared for a static 
     version). 
 
@@ -80,17 +82,17 @@ COMPILING:
      Microsoft C++ compiler: 
        Makefile: makefile.vc 
        Directory: vc*
-       Example: nmake -f makefile.vc debug=0 unicode=1 static=1
+       Example: nmake -f makefile.vc debug=0 unicode=1 shared=0
 
      Borland C++ compiler:
        Makefile: makefile.bcc
        Directory: bcc*
-       Example: make -f makefile.bcc -Ddebug=0 -Dunicode=1 static=0
+       Example: make -f makefile.bcc -Ddebug=0 -Dunicode=1 shared=1
 
      Mingw compiler (see also note below): 
        Makefile: makefile.gcc
        Directory: gcc*
-       Example: mingw32-make -f makefile.gcc debug=0 unicode=1 static=0
+       Example: mingw32-make -f makefile.gcc debug=0 unicode=1 shared=1
        Note: mingw32-make must be called from the windows commandline
              (cmd.exe)! 
 
@@ -123,7 +125,7 @@ COMPILING:
        else you will get compiling errors.
 
   b) Then you have to build the program via the makefile makefile.unix.
-     Example: make -f makefile.unix unicode=1 debug=0 static=1
+     Example: make -f makefile.unix unicode=1 debug=0 shared=0
      All output files go to a specific directory, of which the name depends on 
      the build options. It starts always with unix, then there is an
      "u" added for a unicode version, a "d" added for debug versions, and a 

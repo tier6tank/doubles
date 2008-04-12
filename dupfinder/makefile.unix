@@ -21,8 +21,8 @@ ifndef debug
 debug = 1
 endif
 
-ifndef static
-static = 1
+ifndef shared
+shared = 0
 endif
 
 ifndef unicode
@@ -45,7 +45,7 @@ endif
 version := 
 wxconfigopt := --universal=no
 
-ifeq ($(static),1)
+ifneq ($(shared),1)
 wxconfigopt := $(wxconfigopt) --static
 endif
 
@@ -63,7 +63,7 @@ else
 wxconfigopt := $(wxconfigopt) --debug=no
 endif
 
-ifneq ($(static),1)
+ifeq ($(shared),1)
 version:= $(version)_shared
 endif
 
