@@ -98,7 +98,7 @@ public:
 	// that later will be changed
 	void SetGui(GuiInfo *_gui) { gui = _gui; }
 
-	void GetStats(DuplicateFilesStats &_stats) const { _stats = stats; }
+	void CalculateStats(DuplicateFilesStats &_stats) const;
 
 private:
 	// private structures
@@ -176,8 +176,6 @@ private:
 	multiset_fileinfosize sortedbysize;
 
 	list<DuplicatesGroup> duplicates;
-
-	DuplicateFilesStats stats;
 
 
 private:

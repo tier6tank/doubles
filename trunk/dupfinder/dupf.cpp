@@ -231,7 +231,7 @@ DECLARE_MAIN
 
 	DuplicateFilesStats stats;
 
-	dupf.GetStats(stats);
+	dupf.CalculateStats(stats);
 
 	list<DuplicatesGroup> &duplicates = dupf.GetDuplicates();
 

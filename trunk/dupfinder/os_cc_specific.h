@@ -27,85 +27,85 @@
 // secure function unknown to !Microsoft Visual C++
 #ifndef _MSC_VER
 
-#define _stscanf_s _stscanf
+	// secure not needed (only with strings)
+	#define _stscanf_s _stscanf
 
 #endif /* !def(_MSC_VER) */
 
 
 /*****************************************************************************/
 
-// cygwin/gcc (on unix!, not mingw) does not have a _t -> wide/single char mapping (tchar.h)
+// cygwin/gcc (on unix!, not mingw) don't have a _t -> wide/single char mapping (tchar.h)
 
 #if defined (__CYGWIN__) || (defined(__GNUC__) && !defined(__MINGW32__) )
 
-#if defined(_UNICODE) || defined(UNICODE)
+	#if defined(_UNICODE) || defined(UNICODE)
 
-#ifndef _T
-#define _T(a) L ## a
-#endif
+		#ifndef _T
+		#define _T(a) L ## a
+		#endif
 
-#define _TCHAR wchar_t
-#define _tmain wmain
-#define _ftprintf fwprintf
-// secure not needed (only with strings)
-#define _stscanf swscanf
+		#define _TCHAR wchar_t
+		#define _tmain wmain
+		#define _ftprintf fwprintf
+		#define _stscanf swscanf
 
-#else // !defined(UNICODE)
+	#else // !defined(UNICODE)
 
-#ifndef _T
-#define _T(a) a
-#endif
+		#ifndef _T
+		#define _T(a) a
+		#endif
 
-#define _TCHAR char
-#define _tmain main
-#define _ftprintf fprintf
-// secure not needed (only with strings)
-#define _stscanf sscanf
+		#define _TCHAR char
+		#define _tmain main
+		#define _ftprintf fprintf
+		#define _stscanf sscanf
 
-#endif // defined (UNICODE)
+	#endif // defined (UNICODE)
 
-#endif /* defined (__CYGWIN__) */
+#endif /* defined (__CYGWIN__) || */
 
 /*****************************************************************************/
 
 // MingW/unix/cygwin? (all gcc?)  don't support unicode wmain
-
+//
 // the following macro does that:
-
+//
 // loading *_TCHAR* argv over to *wxChar*
-
+// 
 // note: no need exceptionally to delete argv, because 1) it is only a small piece
 // of memory, and 2) there would be a delete [] argv necessarry
 // in front of every return instruction
 // perhaps if i have the time, i'll change it...
+//
+// perhaps even __GNUC__ is enough later 
 
-/* perhaps add cygwin later, perhaps even __GNUC__ is enough later */
 #if defined(__MINGW32__) || (defined(__GNUC__) && !defined(__MINGW32__) && !defined(__CYGWIN__) )
 // #if defined(__GNUC__) // or that?
 
-#define DECLARE_MAIN int main(int argc, char *_argv[]) { \
-	/* xxx yyy;  uncomment this for testing */ \
-	_argv++; \
-	argc--; \
-	 \
-	wxString *argv = new wxString[argc]; \
-	{ int i; \
-		for(i = 0; i < argc; i++) { \
-			argv[i] = wxString(_argv[i], wxConvLocal); \
-		} \
-	}
+	#define DECLARE_MAIN int main(int argc, char *_argv[]) { \
+		/* xxx yyy;  uncomment this for testing */ \
+		_argv++; \
+		argc--; \
+		 \
+		wxString *argv = new wxString[argc]; \
+		{ int i; \
+			for(i = 0; i < argc; i++) { \
+				argv[i] = wxString(_argv[i], wxConvLocal); \
+			} \
+		}
 #else
 
-#define DECLARE_MAIN int _tmain(int argc, _TCHAR * _argv[]) { \
-	_argv++; \
-	argc--; \
-	 \
-	wxString *argv = new wxString[argc]; \
-	{ int i;  \
-		for(i = 0; i < argc; i++) { \
-			argv[i] = _argv[i]; \
-		} \
-	}
+	#define DECLARE_MAIN int _tmain(int argc, _TCHAR * _argv[]) { \
+		_argv++; \
+		argc--; \
+		 \
+		wxString *argv = new wxString[argc]; \
+		{ int i;  \
+			for(i = 0; i < argc; i++) { \
+				argv[i] = _argv[i]; \
+			} \
+		}
 #endif /* defined(__MINGW32__) */
 
 /*****************************************************************************/

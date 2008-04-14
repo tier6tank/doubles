@@ -110,13 +110,6 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 	list<fileinfoequal>::iterator it2;
 	DuplicatesGroup dupl;
 
-	stats.nDuplicateFiles = 0;
-	stats.nWastedSpace = 0;
-	stats.nFilesWithDuplicates = 0;
-
-	stats.fAverageSpeed = 0;
-	stats.nBytesRead = 0;
-
 	for(it1 = sortedbysize.begin(); 
 		!sortedbysize.empty(); 
 		it1 = sortedbysize.begin()) {
@@ -124,10 +117,6 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 		for(it2 = unconst(*it1).equalfiles.begin(); 
 			!it1->equalfiles.empty(); 
 			it2 = unconst(*it1).equalfiles.begin()) {
-
-			stats.nFilesWithDuplicates++;
-			stats.nDuplicateFiles += it2->files.size()-1;
-			stats.nWastedSpace += wxULongLong(it2->files.size()-1)*it1->size;
 
 			dupl.files = it2->files;
 			// immediately delete memory not needed, to be keeping memory 
@@ -139,6 +128,27 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 	}
 
 	assert(sortedbysize.empty());
+}
+
+void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
+{
+	list<DuplicatesGroup>::const_iterator it;
+
+	stats.nDuplicateFiles = 0;
+	stats.nWastedSpace = 0;
+	stats.nFilesWithDuplicates = 0;
+
+	stats.fAverageSpeed = 0;
+	stats.nBytesRead = 0;
+
+	for(it = duplicates.begin(); 
+		it != duplicates.end(); 
+		it++) {
+
+		stats.nFilesWithDuplicates++;
+		stats.nDuplicateFiles += it->files.size()-1;
+		stats.nWastedSpace += wxULongLong(it->files.size()-1)*it->size;
+	}
 }
 
 DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, const SearchPathInfo *ppi, 

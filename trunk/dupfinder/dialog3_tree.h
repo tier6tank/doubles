@@ -81,6 +81,8 @@ public:
 
 	void RestrictViewToDir(const wxString &);
 
+	void ClearList();
+
 	void OnRestToDir(wxCommandEvent &);
 	void OnRestToSDir(wxCommandEvent &);
 	
@@ -106,6 +108,8 @@ public:
 
 	void OnIdle(wxIdleEvent &);
 
+	void RefreshStats();
+
 private:
 	static bool bHardLinkWarning;
 
@@ -120,6 +124,7 @@ private:
 	wxCheckBox *wRestrictToMask;
 	wxTextCtrl *wMask;
 	wxGauge    *wProgress;
+	wxStaticBoxSizer *wStats;
 	
 	DupFinderDlg *parent;
 
