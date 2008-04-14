@@ -1,3 +1,8 @@
+Date : 2008/4/14 15:48
+Reformatted os_cc_specific.h
+Added dyamic statistics display
+Moved statistics to Results StaticBoxSizer
+
 Date : 2008/4/12 15:43
 Added windows symbolic link creation support (.lnk)
 

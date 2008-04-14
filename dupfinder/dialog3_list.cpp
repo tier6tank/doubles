@@ -47,9 +47,7 @@ enum {
 
 #define MAX_PROGRESS 1000
 
-#define DATA_OFFSET 1
-
-class ItemData  {
+class ItemData {
 public:
 	ItemData(int _type ) : type(_type) { data.mygroup = NULL; }
 	~ItemData() {}
@@ -183,6 +181,7 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *expandsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
+	wStats = resultssizer;
 	
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
@@ -427,6 +426,7 @@ void DupFinderDlg3::DisplayResults() {
 	list<DuplicatesGroup>::iterator it;
 	list<File>::iterator it3;
 	wxFont font, boldfont;
+	bool bHaveFont = false;
 	int item;
 	ItemData *itemdata;
 	int i, size, percentage = -1;
@@ -439,34 +439,15 @@ void DupFinderDlg3::DisplayResults() {
 		return;
 	}
 
-	// enable progress display and
-	// disable all repaint until the end of the function
+	// enable progress display
 	wProgress->Show();
 	GetSizer()->Layout();
 	this->Enable(false);
+
+	// disable all repaint until the end of the function
 	wResultList->Freeze();
 	
 	ClearList();
-
-	// display stats
-	wxString tmp;
-	DuplicateFilesStats stats;
-	dupfinder.GetStats(stats);
-
-	tmp.Printf(_T("Statistics: %") wxLongLongFmtSpec _T("u duplicates of %") 
-		wxLongLongFmtSpec _T("u files consume %.2f mb"), 
-		stats.nDuplicateFiles.GetValue(), 
-		stats.nFilesWithDuplicates.GetValue(), 
-		((double)stats.nWastedSpace.GetValue())/1024/1024);
-
-	item = wResultList->InsertItem(0, tmp);
-	wResultList->SetItemData(item, (long)(new ItemData(TYPE_NONE)) );
-
-	boldfont = font = wResultList->GetItemFont(item);
-	boldfont.SetWeight(wxFONTWEIGHT_BOLD);
-	boldfont.SetUnderlined(true);
-
-	wResultList->SetItemBackgroundColour(item, wxColor(200, 255, 200));
 
 	size = duplicates.size();
 
@@ -506,6 +487,13 @@ void DupFinderDlg3::DisplayResults() {
 				it->files.size(), it->size.GetValue());
 
 			item = wResultList->InsertItem(wResultList->GetItemCount()+1, tmp);
+
+			if(!bHaveFont) {
+				boldfont = font = wResultList->GetItemFont(item);
+				boldfont.SetWeight(wxFONTWEIGHT_BOLD);
+				boldfont.SetUnderlined(true);
+				bHaveFont = true;
+			}
 			
 			wResultList->SetItemFont(item, boldfont);
 
@@ -536,19 +524,23 @@ void DupFinderDlg3::DisplayResults() {
 		}			
 	}
 
-	// no items (except statistics) in list?
-	if(wResultList->GetItemCount() == DATA_OFFSET) {
+	// no items in list?
+	if(wResultList->GetItemCount() == 0) {
 		itemdata = new ItemData(TYPE_NONE);
-		item = wResultList->InsertItem(DATA_OFFSET, _T("No items in this view. "));
+		item = wResultList->InsertItem(0, _T("No items in this view. "));
 		wResultList->SetItemData(item, (long)itemdata);
 	}
 
 	DeleteOrphanedHeaders();
 
+	RefreshStats();
+
 	// enable all again
 	wProgress->Hide();
 	GetSizer()->Layout();
 	this->Enable(true);
+
+	// enable repaint again
 	wResultList->Thaw();
 	wResultList->Refresh();
 
@@ -833,6 +825,8 @@ void DupFinderDlg3::DeleteFiles(const list<int> & delete_this)
 	}
 	
 	DeleteOrphanedHeaders();
+
+	RefreshStats();
 }
 
 void DupFinderDlg3::ReturnToParent() {
@@ -1107,6 +1101,8 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 			_T("undefined state. I recommend repeating the whole search. "), 
 			_T("Sorry, an error which actually (almost) cannot happen"), wxOK | wxICON_ERROR, this);
 	}
+
+	RefreshStats();
 }
 
 void DupFinderDlg3::OnMaskChange(wxCommandEvent &WXUNUSED(event)) 
@@ -1160,7 +1156,7 @@ int DupFinderDlg3::GetHeader(int item)
 {
 	int i;
 
-	assert(item >= DATA_OFFSET);
+	assert(item >= 0);
 
 	for(i = item; 
 		i >= 0 && ((ItemData *)wResultList->GetItemData(i))->GetType() != TYPE_HEADER; 
@@ -1171,6 +1167,22 @@ int DupFinderDlg3::GetHeader(int item)
 
 bool DupFinderDlg3::IsValidItem(int item)
 {
-	return (item >= DATA_OFFSET && item < wResultList->GetItemCount());
+	return (item >= 0 && item < wResultList->GetItemCount());
 }
 
+void DupFinderDlg3::RefreshStats()
+{
+	// display stats
+	wxString tmp;
+	DuplicateFilesStats stats;
+
+	dupfinder.CalculateStats(stats);
+
+	tmp.Printf(_T("R&esults (%") wxLongLongFmtSpec _T("u duplicates of %") 
+		wxLongLongFmtSpec _T("u files consume %.2f mb)"), 
+		stats.nDuplicateFiles.GetValue(), 
+		stats.nFilesWithDuplicates.GetValue(), 
+		((double)stats.nWastedSpace.GetValue())/1024/1024);
+
+	wStats->GetStaticBox()->SetLabel(tmp);
+}

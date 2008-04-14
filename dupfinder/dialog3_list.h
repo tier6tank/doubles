@@ -103,6 +103,8 @@ public:
 
 	bool IsValidItem(int);
 
+	void RefreshStats();
+
 private:
 	static bool bHardLinkWarning;
 
@@ -117,6 +119,7 @@ private:
 	wxCheckBox *wRestrictToMask;
 	wxTextCtrl *wMask;
 	wxGauge    *wProgress;
+	wxStaticBoxSizer *wStats;
 	
 	DupFinderDlg *parent;
 

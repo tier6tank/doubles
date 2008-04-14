@@ -225,3 +225,6 @@ TODO/IDEAS:
 - reorder tree (->src, ->include)
 - detecting symbolic links on windows
   instead of testing on file extention, test file content for detecting symbolic windows links?!
+- get symbolic file name function  (for windows, because windows needs .lnk appended for links)
+- statistics dynamic
+- update headers

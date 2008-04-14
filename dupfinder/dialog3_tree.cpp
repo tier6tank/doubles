@@ -50,10 +50,10 @@ enum {
 class ItemData : public wxTreeItemData {
 public:
 	ItemData(int _type ) : type(_type) { data.mygroup = NULL; }
-	virtual ~ItemData() {}
+	~ItemData() {}
 
-	virtual const wxTreeItemId &GetId() const { return id; }
-	virtual void SetId(const wxTreeItemId &_id) { id = _id; }
+	const wxTreeItemId &GetId() const { return id; }
+	void SetId(const wxTreeItemId &_id) { id = _id; }
 
 	void SetGroup(DuplicatesGroup *_mygroup) {
 		// assert(type == TYPE_HEADER);
@@ -191,6 +191,7 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *controlssizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *expandsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
+	wStats = resultssizer;
 	
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
@@ -461,20 +462,13 @@ void DupFinderDlg3::DisplayResults() {
 	GetSizer()->Layout();
 	this->Enable(false);
 
-	wResultList->DeleteAllItems();
+	// disable all repaint until the end of the function
+	// disabled because wxTreeCtrl doesn't work well with it
+	// wResultList->Freeze();
 
-	// display stats
-	wxString tmp;
-	DuplicateFilesStats stats;
-	dupfinder.GetStats(stats);
+	ClearList();
 
-	tmp.Printf(_T("Duplicate files: %") wxLongLongFmtSpec _T("u duplicates of %") 
-		wxLongLongFmtSpec _T("u files consume %.2f mb"), 
-		stats.nDuplicateFiles.GetValue(), 
-		stats.nFilesWithDuplicates.GetValue(), 
-		((double)stats.nWastedSpace.GetValue())/1024/1024);
-
-	wxTreeItemId rootItem = wResultList->AddRoot(tmp);
+	wxTreeItemId rootItem = wResultList->AddRoot(_T("Duplicate files"));
 	wResultList->SetItemData(rootItem, new ItemData(TYPE_ROOT));
 
 	size = duplicates.size();
@@ -559,18 +553,24 @@ void DupFinderDlg3::DisplayResults() {
 		wResultList->SetItemData(id, nothing);
 	}
 
+	// too slow!
 	// wResultList->ExpandAllChildren(wResultList->GetRootItem());
 
 	wResultList->Expand(wResultList->GetRootItem());
 
 	DeleteOrphanedHeaders();
 
-	// enable repaint
+	RefreshStats();
+
+	// enable all again
 	wProgress->Hide();
 	GetSizer()->Layout();
 	this->Enable(true);
 
-
+	// enable repaint again
+	// disabled (see above)
+	// wResultList->Thaw();
+	// wResultList->Refresh();
 }
 
 void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
@@ -855,6 +855,8 @@ void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 	}
 	
 	DeleteOrphanedHeaders();
+
+	RefreshStats();
 }
 
 void DupFinderDlg3::ReturnToParent() {
@@ -948,6 +950,10 @@ void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 	bRestrictToDir = false;
 	bRestrictToMask = false;
 	DisplayResults();
+}
+
+void DupFinderDlg3::ClearList() {
+	wResultList->DeleteAllItems();
 }
 
 void DupFinderDlg3::MenuRestToDir(bool bSubDirs)
@@ -1115,6 +1121,8 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 			_T("undefined state. I recommend repeating the whole search. "), 
 			_T("Sorry, an error which actually (almost) cannot happen"), wxOK | wxICON_ERROR, this);
 	}
+
+	RefreshStats();
 }
 
 void DupFinderDlg3::OnMaskChange(wxCommandEvent &WXUNUSED(event)) 
@@ -1207,6 +1215,22 @@ void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
 
 }
 
+void DupFinderDlg3::RefreshStats()
+{
+	// display stats
+	wxString tmp;
+	DuplicateFilesStats stats;
+
+	dupfinder.CalculateStats(stats);
+
+	tmp.Printf(_T("R&esults (%") wxLongLongFmtSpec _T("u duplicates of %") 
+		wxLongLongFmtSpec _T("u files consume %.2f mb)"), 
+		stats.nDuplicateFiles.GetValue(), 
+		stats.nFilesWithDuplicates.GetValue(), 
+		((double)stats.nWastedSpace.GetValue())/1024/1024);
+
+	wStats->GetStaticBox()->SetLabel(tmp);
+}
 
 
 
