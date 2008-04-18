@@ -61,8 +61,8 @@ nopchopt := -mwin32 -mno-cygwin -I"$(wxdir)\include" -I"$(wxdir)\lib\$(libpath)\
 	-D__WXMSW__ -DHAVE_W32API_H -W -Wall -Wextra
 
 # USE_TREECTRL
-ifeq (0,1)
-nopchopt = -DUSE_TREECTRL
+ifeq (1,1)
+nopchopt := $(nopchopt) -DDUPF_USE_TREECTRL
 endif
 
 
@@ -91,7 +91,7 @@ opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 libs = -L$(wxdir)\lib\$(libpath) -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h
-headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
 
 all: $(outdir) $(outdir)\stdinc.h.gch $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
@@ -118,10 +118,10 @@ $(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o
+		$(outdir)\file.o $(outdir)\treectrl.o
 	g++ $(opt) -mwindows -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o $(libsgui)
+		$(outdir)\file.o $(outdir)\treectrl.o $(libsgui)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(namegui).exe
 endif
@@ -140,6 +140,9 @@ $(outdir)\dialog3.o: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
 
 $(outdir)\file.o: file.cpp $(headers)
 	g++ $(opt) -c -o $@ file.cpp
+
+$(outdir)\treectrl.o: treectrl.cpp $(headersgui)
+	g++ $(opt) -c -o $@ treectrl.cpp
 
 
 run:

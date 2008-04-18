@@ -26,6 +26,7 @@
 using namespace std;
 #include "dbl.h"
 #include "dialog1.h"
+#include "treectrl.h"
 
 class DupFinderDlg3 : public wxDialog
 {
@@ -63,9 +64,9 @@ public:
 
 	void DeleteFiles(const wxArrayTreeItemIds &);
 
-	int GetSelectedFilenameCount(const wxArrayTreeItemIds &);
-	int GetFirstSelectedFilename(const wxArrayTreeItemIds &);
-	int GetNextSelectedFilename(const wxArrayTreeItemIds &, unsigned int i);
+	unsigned int GetSelectedFilenameCount(const wxArrayTreeItemIds &);
+	unsigned int GetFirstSelectedFilename(const wxArrayTreeItemIds &);
+	unsigned int GetNextSelectedFilename(const wxArrayTreeItemIds &, unsigned int i);
 
 	void DeleteOrphanedHeaders();
 
@@ -97,8 +98,6 @@ public:
 
 	void OnDeleteButThis(wxCommandEvent &);
 
-	void OnCollapsing(wxTreeEvent &);
-
 	void OnIdle(wxIdleEvent &);
 
 	void RefreshStats();
@@ -109,7 +108,7 @@ private:
 	DuplicateFilesFinder &dupfinder;
 	list<DuplicatesGroup> &duplicates;
 
-	wxTreeCtrl *wResultList;
+	TreeCtrl *wResultList;
 	wxCheckBox *wConfDelete;
 	wxTextCtrl *wDirName;
 	wxCheckBox *wSubDirs;
