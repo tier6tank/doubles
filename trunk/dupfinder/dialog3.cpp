@@ -26,7 +26,8 @@
 
 // #define USE_TREECTRL
 
-#ifndef USE_TREECTRL
+// #ifndef USE_TREECTRL
+#if 0
 
 #include "dialog3_list.cpp"
 
