@@ -23,11 +23,6 @@
 
 #include "stdinc.h"
 
-// temporarily removed this from stdinc.h
-#ifdef USE_TREECTRL
-#include <wx/treectrl.h>
-#endif
-
 using namespace std;
 #include "dbl.h"
 #include "dialog1.h"
@@ -99,8 +94,6 @@ public:
 
 	void OnExpandAll(wxCommandEvent &);
 	void OnCollapseAll(wxCommandEvent &);
-
-	void OnHardlinkAll(wxCommandEvent &);
 
 	void OnDeleteButThis(wxCommandEvent &);
 

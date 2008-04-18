@@ -107,7 +107,6 @@ enum {
 	ID_MASK, 
 	ID_EXPANDALL, 
 	ID_COLLAPSEALL, 
-	ID_HARDLINKALL, 
 	ID_PROGRESS, 
 
 	// menu
@@ -143,7 +142,6 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_BUTTON(ID_EXPANDALL, 	DupFinderDlg3::OnExpandAll)
 	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
 	EVT_TREE_ITEM_COLLAPSING(ID_RESULTLIST, DupFinderDlg3::OnCollapsing)
-	EVT_BUTTON(ID_HARDLINKALL, 	DupFinderDlg3::OnHardlinkAll)
 	EVT_IDLE(			DupFinderDlg3::OnIdle)
 
 	// Menu events
@@ -206,7 +204,8 @@ void DupFinderDlg3::CreateControls() {
 	resultssizer->Add(
 		wResultList = new wxTreeCtrl(this, ID_RESULTLIST, 
 			wxDefaultPosition, wxSize(wxDefaultSize.GetWidth(), 180), 
-			wxBORDER_SUNKEN /*| wxTR_MULTIPLE \*| wxTR_HIDE_ROOT*/ | wxTR_HAS_BUTTONS), 
+			wxBORDER_SUNKEN /*| wxTR_MULTIPLE */ \
+				| wxTR_HIDE_ROOT | wxTR_LINES_AT_ROOT | wxTR_HAS_BUTTONS), 
 		1, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -330,13 +329,6 @@ void DupFinderDlg3::CreateControls() {
 	wProgress->Hide();
 
 	expandsizer->AddStretchSpacer(1);
-
-	/*	
-	expandsizer->Add(
-		new wxButton(this, ID_HARDLINKALL, _T("Hardlink all")), 
-		0,
-		wxALIGN_RIGHT);
-	*/
 
 	expandsizer->Add(
 		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
@@ -1208,11 +1200,6 @@ void DupFinderDlg3::OnCollapsing(wxTreeEvent & event)
 		-> GetType() == TYPE_ROOT) {
 		event.Veto();
 	}
-}
-
-void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
-{
-
 }
 
 void DupFinderDlg3::RefreshStats()

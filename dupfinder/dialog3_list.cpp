@@ -100,7 +100,6 @@ enum {
 	ID_RESTTODIR,
 	ID_RESTTOMASK, 
 	ID_MASK, 
-	ID_HARDLINKALL, 
 	ID_PROGRESS, 
 
 	// menu
@@ -133,7 +132,6 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg3::OnDirChange)
 	EVT_BUTTON(ID_GETDIR, 		DupFinderDlg3::OnGetDir)
 	EVT_TEXT(ID_MASK, 		DupFinderDlg3::OnMaskChange)
-	EVT_BUTTON(ID_HARDLINKALL, 	DupFinderDlg3::OnHardlinkAll)
 	EVT_IDLE(			DupFinderDlg3::OnIdle)
 
 	// Menu events
@@ -322,10 +320,6 @@ void DupFinderDlg3::CreateControls() {
 	/*
 	expandsizer->AddStretchSpacer(1);
 
-	expandsizer->Add(
-		new wxButton(this, ID_HARDLINKALL, _T("Hardlink all")), 
-		0,
-		wxALIGN_RIGHT);
 	*/
 
 	resultssizer->Add(
@@ -1145,11 +1139,6 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 	}
 
 	DeleteFiles(delete_this);
-}
-
-void DupFinderDlg3::OnHardlinkAll(wxCommandEvent &WXUNUSED(event))
-{
-
 }
 
 int DupFinderDlg3::GetHeader(int item) 

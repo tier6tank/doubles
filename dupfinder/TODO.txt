@@ -64,7 +64,7 @@ TODO/IDEAS:
 + heap corruption when canceling in windows! (still there?) outdated.
 ! checking that there are no double &<> in dialog boxes (sticky todo)
 + fixing those massive memory leaks which occur when interrupted (via bContinue = false) done via File
-- supporting unix unicode build
++ supporting unix unicode build works now.
 + ALL memory cleanup with gui (nearly impossible?) perhaps struct to class? outdated
 + instead of yielding creating a new thread? no. Much simpler the way it is. 
 + context menu (delete, create hard-/symlink, open folder) done
@@ -117,11 +117,11 @@ TODO/IDEAS:
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
 - exchange if !__WIN32 by if __UNIX__
-- adding unicode support for linux/unix not necessary, but would be nice
++ adding unicode support for linux/unix not necessary, but would be nice done, see above
 -----------
 + IsSymLinkSupported should take volume argument or something like this not necessary
 + remove some things in os_cc_specific (e.g. DWORD, LONG, ...) done.
-- displaying info (size of all duplicates) in gui version as well
++ displaying info (size of all duplicates) in gui version as well done.
 + make filenames not reappear when View is updated!!!!!!!!! done.
 + delete processed files (deleted/symlinked) from internal list!!!!!!!!! done.
 + do some actions (hard-/softlink) on more than one file? not possible
@@ -146,7 +146,7 @@ TODO/IDEAS:
   overviewable, perhaps also aligning all elements vertically...
 - implement native searching routine also for unix. not at the moment
 + remove updateview from dialog3 . done.
-- more descriptive name for dialogs??
+- more descriptive class names for dialogs??
 + instead/additional to match mask "contain string"? no. 
 + reducing width of result dialog done.
 + with items associated information (ItemData) static. doesn't work
@@ -207,7 +207,7 @@ TODO/IDEAS:
 + let enable/disable static unix yes, windows still to do! done.
 + wxdir in Windows makefiles done.
 + autoreconfig done.
-- perhaps showing the statistics somewhere else...
++ perhaps showing the statistics somewhere else... done (StaticBox sixer)
 - fixing too much files problem
 - automatically marking files
 - marking all files of one directory and then all duplicate files of files in this directory
@@ -226,5 +226,6 @@ TODO/IDEAS:
 - detecting symbolic links on windows
   instead of testing on file extention, test file content for detecting symbolic windows links?!
 - get symbolic file name function  (for windows, because windows needs .lnk appended for links)
-- statistics dynamic
+- statistics dynamic, yes, but performance?
 - update headers
+- allow *.abc;*.def;*.xxx masks

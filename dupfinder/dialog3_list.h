@@ -91,8 +91,6 @@ public:
 	void OnMaskChange(wxCommandEvent &);
 	void OnDirChange(wxCommandEvent &);
 
-	void OnHardlinkAll(wxCommandEvent &);
-
 	void OnDeleteButThis(wxCommandEvent &);
 
 	void OnIdle(wxIdleEvent &);
