@@ -58,8 +58,8 @@ opt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
 	-nologo
 
 # Use treectrl
-!if 0 
-opt = $(opt) -DUSE_TREECTRL
+!if 1 
+opt = $(opt) -DDUPF_USE_TREECTRL
 !endif
 
 
@@ -88,7 +88,7 @@ opt = $(opt) $(dbg) $(uniopt) $(sharedopt)
 libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
-headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
@@ -100,7 +100,8 @@ $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj
 	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
-	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj
+	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj \
+	$(outdir)\treectrl.obj
 	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
@@ -129,6 +130,9 @@ $(outdir)\dialog2.obj: dialog2.cpp $(headersgui)
 
 $(outdir)\dialog3.obj: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
 	cl $(opt) -c dialog3.cpp
+
+$(outdir)\treectrl.obj: treectrl.cpp $(headersgui)
+	cl $(opt) -c treectrl.cpp
 
 run:
 	-$(outdir)\$(name).exe
