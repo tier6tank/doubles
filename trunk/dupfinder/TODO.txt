@@ -226,6 +226,7 @@ TODO/IDEAS:
 - detecting symbolic links on windows
   instead of testing on file extention, test file content for detecting symbolic windows links?!
 - get symbolic file name function  (for windows, because windows needs .lnk appended for links)
-- statistics dynamic, yes, but performance?
++ statistics dynamic, yes, but performance? enough performance
 - update headers
 - allow *.abc;*.def;*.xxx masks
++ one only duplicate file counted in statistics? no, but now. 

@@ -145,9 +145,11 @@ void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
 		it != duplicates.end(); 
 		it++) {
 
-		stats.nFilesWithDuplicates++;
-		stats.nDuplicateFiles += it->files.size()-1;
-		stats.nWastedSpace += wxULongLong(it->files.size()-1)*it->size;
+		if(it->files.size() > 1) {
+			stats.nFilesWithDuplicates++;
+			stats.nDuplicateFiles += it->files.size()-1;
+			stats.nWastedSpace += wxULongLong(it->files.size()-1)*it->size;
+		}
 	}
 }
 
