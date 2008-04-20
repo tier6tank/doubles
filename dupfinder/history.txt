@@ -1,3 +1,6 @@
+Date : 2008/4/20 12:03
+Statistics now more accurately
+
 Date : 2008/4/18 16:56
 Created class TreeCtrl and implementated it for wxTreeCtrl as wrapper
 Warning fixes
