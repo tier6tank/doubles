@@ -166,13 +166,38 @@ DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, 
 	__insert.QuadPart = 0;
 #endif
 	tlast = time(NULL);
+
+	/*-----------*/
+	wxStringTokenizer tok(ppi->ExcludeMask);
+
+	while (tok.HasMoreTokens()) {
+		ExcludeMasks.push_back(tok.GetNextToken());
+	}
+	/*-----------*/
 }
+
+
 
 wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnFile(const wxString &filename, const wxULongLong *pSize)
 {
 	if(IsSymLink(filename)) {
 		return UpdateInfo(NULL);
 	}
+
+	/*-----------*/
+	bool bMatches = false;
+	for(list<wxString>::iterator it = ExcludeMasks.begin(); it != ExcludeMasks.end(); it ++) {
+		if(filename.Matches(*it) ) {
+			bMatches = true;
+			break;
+		}
+	}
+
+	if(bMatches) { 
+		return UpdateInfo(NULL);
+	}
+	/*-----------*/
+
 	STARTTIME(__OnFile);
 	// fileinfo fi;
 	File f;
@@ -283,12 +308,32 @@ wxDirTraverseResult DuplicateFilesFinder::AddFileToList::UpdateInfo(const wxStri
 
 static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString &mask, int flags) 
 {
-#ifdef FINDFILES_USE_WXWIDGETS
-	return root.Traverse(sink, mask, flags) != (size_t)-1;
+#if defined( FINDFILES_USE_WXWIDGETS )
+	bool bSuccess = true;
+	wxStringTokenizer tok(mask, GetPathSepChar());
+	while(tok.HasMoreTokens()) {
+		wxString curmask = tok.GetNextToken();
+		size_t result = root.Traverse(sink, curmask, flags);
+		bSuccess = bSuccess && result != (size_t)-1;
+	}
+
+	return bSuccess;
 #else
-	Traverse(root.GetName(), mask, flags, sink);
+	wxStringTokenizer tok(mask, GetPathSepChar());
+	int length = tok.CountTokens();
+	wxString *masks = new wxString[length];
+
+	int i = 0;
+	while(tok.HasMoreTokens()) {
+		masks[i] = tok.GetNextToken();
+		i++;
+	}
+	Traverse(root.GetName(), masks, length, flags, sink);
+
+	delete [] masks;
+
 	return true;
-#endif
+#endif /* FINDFILES_USE_WXWIDGETS */
 }
 
 void	DuplicateFilesFinder::FindFiles()

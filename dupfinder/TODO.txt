@@ -230,3 +230,8 @@ TODO/IDEAS:
 - update headers
 - allow *.abc;*.def;*.xxx masks
 + one only duplicate file counted in statistics? no, but now. 
+- Defaults
+- Help 
+- * filemask check entfernen
+- test exclude code
+- removed unnecessary if's (os_cc_specific)

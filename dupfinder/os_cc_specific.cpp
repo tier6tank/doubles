@@ -26,7 +26,8 @@ using namespace std;
 
 #ifdef _WIN32
 
-void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDirTraverser &sink) 
+void Traverse(const wxString &RootDir, const wxString *mask, int nMask, 
+	/* wxString (*exclmask)[], int nExclMask, */ int flags, wxExtDirTraverser &sink) 
 {
 	WIN32_FIND_DATA fd;
 	wxString Dir;
@@ -34,6 +35,7 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 	HANDLE hFind;
 	bool bNoEnd;
 	bool bEnd = false;
+	int i;
 
 	wxFileName tmp = wxFileName::DirName(RootDir);
 
@@ -41,7 +43,7 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 	// first search directories
 
-	if(flags & wxDIR_DIRS && !bEnd) {
+	if(flags & wxDIR_DIRS /*&& !bEnd*/) {
 
 		Search = Dir;
 		Search.Append(_T("*"));
@@ -55,11 +57,13 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 		do
 		{
-			if(!( wxString(fd.cFileName) == _T(".") || 
-				wxString(fd.cFileName) == _T("..") ) 
-				|| flags & wxDIR_DOTDOT) {
-				if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY 
-					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
+			if(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY 
+				&& ( !(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) 
+				|| flags & wxDIR_HIDDEN )) {
+
+				if(!( wxString(fd.cFileName) == _T(".") || 
+					wxString(fd.cFileName) == _T("..") )) {
+				
 					wxString Down;
 					Down = Dir;
 					Down.Append(fd.cFileName);
@@ -72,7 +76,7 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 					}
 				
 					if(result != wxDIR_IGNORE) {
-						Traverse(Down, mask, flags, sink); 
+						Traverse(Down, mask, nMask, /*exclmask, nExclMask, */flags, sink); 
 					}
 				}
 			}
@@ -89,49 +93,63 @@ void Traverse(const wxString &RootDir, const wxString &mask, int flags, wxExtDir
 
 	if(flags & wxDIR_FILES && !bEnd) {
 
-		Search = Dir;
-		if(mask == wxEmptyString) {
-			Search.Append(_T("*"));
-		} else {
-			Search.Append(mask);
-		}
+		for(i = 0; i < nMask; i++) {
 
-		hFind = FindFirstFile(
-			Search, 
-			&fd);
+			assert(mask[i] != wxEmptyString);
+			Search = Dir;
+			Search.Append(mask[i]);
 
-		if(hFind == INVALID_HANDLE_VALUE) {
-			return;
-		}
+			hFind = FindFirstFile(
+				Search, 
+				&fd);
 
-		do
-		{
-			if(!(wxString(fd.cFileName) == _T(".") || 
-			   	wxString(fd.cFileName) == _T("..")  )
-				|| flags & wxDIR_DOTDOT) {
-				if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-					&& (!(fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) || flags & wxDIR_HIDDEN)) {
-					FileData data;
-					data.name = Dir;
-					data.name.Append(fd.cFileName);
-					data.size = wxULongLong(fd.nFileSizeHigh, fd.nFileSizeLow);
-					
-					wxDirTraverseResult result = sink.OnExtFile(data);
-					
-					if(result == wxDIR_STOP) {
-						bEnd = true;
-						break;
-					}
-				}
+			if(hFind == INVALID_HANDLE_VALUE) {
+				continue; 
 			}
 
-			bNoEnd = FindNextFile(hFind, &fd);
+			do
+			{
+				if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					&& (!( fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) 
+					|| flags & wxDIR_HIDDEN )) {
+
+					/* can be removed ?! */
+					if(!( wxString(fd.cFileName) == _T(".") || 
+					   	wxString(fd.cFileName) == _T("..") )) {
+
+						bool bMatches = false;
+						/*for(j = 0; j < nExclMask; j++) {
+							if(wxString(fd.cFileName).Matches((*exclmask)[j]) ) {
+								bMatches = true;
+								break;
+							}
+						}
+						bMatches = true; */
+
+						if(!bMatches) {
+					
+							FileData data;
+							data.name = Dir;
+							data.name.Append(fd.cFileName);
+							data.size = wxULongLong(fd.nFileSizeHigh, fd.nFileSizeLow);
+							
+							wxDirTraverseResult result = sink.OnExtFile(data);
+							
+							if(result == wxDIR_STOP) {
+								bEnd = true;
+								break;
+							}
+						}
+					}
+				}
+
+				bNoEnd = FindNextFile(hFind, &fd);
 	
-		} while(bNoEnd);
+			} while(bNoEnd);
 
-		FindClose(hFind);
+			FindClose(hFind);
+		}
 	}
-
 }
 
 bool IsSymLink(const wxString &WXUNUSED(filename)) {
@@ -242,7 +260,7 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 #endif
 }
 
-#endif
+#endif /* _WIN32 */
 
 
 #if defined( __UNIX__ ) && !defined(_WIN32)
@@ -312,5 +330,22 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 	return link(oldpath.fn_str(), newpath.fn_str()) == 0;
 }
 
-#endif
+#endif /* __UNIX __ */
+
+wxChar GetPathSepChar() {
+	wxPlatformInfo pi;
+	if(pi.GetOperatingSystemId() & wxOS_UNIX) {
+		return ':';
+	}
+	else if (pi.GetOperatingSystemId() & wxOS_WINDOWS) {
+		return ';';
+	}
+	else {
+		
+		wxLogFatalError(_T("Unknown OS! "));
+		abort();
+	}
+}
+
+
 
