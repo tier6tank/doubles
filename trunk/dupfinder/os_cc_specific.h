@@ -153,7 +153,10 @@ bool CreateSymLink(const wxString &, const wxString &);
 bool IsHardLinkSupported();
 bool CreateHardLink(const wxString &, const wxString &);
 
-void Traverse(const wxString &, const wxString &, int, wxExtDirTraverser &);
+void Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
+	int, wxExtDirTraverser &);
+
+wxChar GetPathSepChar();
 
 
 

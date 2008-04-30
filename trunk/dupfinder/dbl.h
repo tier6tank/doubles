@@ -39,6 +39,7 @@ struct SearchPathInfo
 	bool bGoIntoSubDirs;
 	bool bSearchHidden;
 	wxString Mask;
+	wxString ExcludeMask;
 };
 
 // that is still subject to change
@@ -150,6 +151,7 @@ private:
 		wxString curdir;
 		bool bDirChanged;
 		wxULongLong &nFiles;
+		list<wxString> ExcludeMasks;
 
 	#ifdef PROFILE
 	public:

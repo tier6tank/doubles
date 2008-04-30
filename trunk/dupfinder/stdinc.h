@@ -31,6 +31,7 @@
 #include <wx/clipbrd.h>
 #include <wx/gauge.h>
 #include <wx/treectrl.h>
+#include <wx/tokenzr.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
