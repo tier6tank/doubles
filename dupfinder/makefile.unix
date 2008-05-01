@@ -73,8 +73,8 @@ outdir := $(outdir)$(version)
 
 nopchopt := `wx-config $(wxconfigopt) --cxxflags` -DwxUSE_STD_IOSTREAM=1 -W -Wall -Wextra
 
-ifeq (0,1)
-nopchopt := $(nopchopt) -DUSE_TREECTRL
+ifeq (1,1)
+nopchopt := $(nopchopt) -DDUPF_USE_TREECTRL
 endif
 
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
