@@ -89,8 +89,8 @@ opt := $(opt) $(dbg)
 nopchopt := $(nopchopt) $(dbg)
 
 libs = `wx-config $(wxconfigopt) --libs`
-headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
-headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h
+headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h 
+headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
 
 all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 
@@ -105,10 +105,11 @@ ifneq ($(debug),1)
 endif
 
 $(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
-	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o
+	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o \
+	$(outdir)/treectrl.o
 	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
 		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o \
-		$(libs)
+		$(outdir)/treectrl.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(namegui)
 endif
@@ -140,6 +141,8 @@ $(outdir)/dialog2.o: dialog2.cpp $(headersgui)
 $(outdir)/dialog3.o: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
 	g++ $(opt) -c -o $(outdir)/dialog3.o dialog3.cpp
 
+$(outdir)/treectrl.o: treectrl.cpp $(headersgui)
+	g++ $(opt) -c -o $(outdir)/treectrl.o treectrl.cpp
 
 run:
 	-$(outdir)/$(name)

@@ -235,3 +235,4 @@ TODO/IDEAS:
 + * filemask check entfernen done.
 + test exclude code done.
 - removed unnecessary if's (os_cc_specific)
+- add to desc of dialog 3 ".. you can also mark more than one file"
