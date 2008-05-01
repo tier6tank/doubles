@@ -120,7 +120,8 @@ DECLARE_MAIN
 		pi.nMaxSize = 0;
 		pi.bGoIntoSubDirs = true;
 		pi.bSearchHidden = false;
-		pi.Mask = wxEmptyString;
+		pi.Include = wxEmptyString;
+		pi.Exclude = wxEmptyString;
 
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
 			if(argv[i] == _T("--min")) {
@@ -163,14 +164,23 @@ DECLARE_MAIN
 				argv[i] == _T("--hidden")) {
 				pi.bSearchHidden = true;
 			}
-			else if(argv[i] == _T("-m") ||
-				argv[i] == _T("--mask")) {
+			else if(argv[i] == _T("-i") ||
+				argv[i] == _T("--include")) {
 				if(i+1 >= argc) {
 					_ftprintf(stderr, _T("Error: expression expected! \n"));
 					return 1;
 				}
-				pi.Mask = argv[i+1];
+				pi.Include = argv[i+1];
 				i ++;
+			}
+			else if(argv[i] == _T("-e") || 
+				argv[i] == _T("--exclude")) {
+				if(i+1 >= argc) {
+					_ftprintf(stderr, _T("Error: argument expected! \n"));
+					return 1;
+				}
+				pi.Exclude = argv[i+1];
+				i++;
 			}
 			else {
 				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i].c_str());
@@ -182,6 +192,11 @@ DECLARE_MAIN
 			_ftprintf(stderr, _T("Error: Maximal size must be greater than minimal size. \n"));
 			return 1;
 		}
+
+		if(pi.Include == _T("")) {
+			pi.Include = _T("*");
+		}
+
 		dupf.AddPath(pi);
 	}
 
@@ -415,5 +430,6 @@ void DisplayHelp()
 	_ftprintf(stderr, _T("       --max x    : Ignore files larger than x (in bytes)\n"));
 	_ftprintf(stderr, _T("-n   | --norecurse: do not recurse into subdirectories\n"));
 	_ftprintf(stderr, _T("-h   | --hidden   : include hidden files in search (default: off)\n"));
-	_ftprintf(stderr, _T("-m   | --mask x   : limit your search to those files which match the file mask\n"));
+	_ftprintf(stderr, _T("-i   | --include x: search files which match the file mask\n"));
+	_ftprintf(stderr, _T("-e   | --exclude x: exclude files which match mask\n"));
 }

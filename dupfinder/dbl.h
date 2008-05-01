@@ -38,8 +38,8 @@ struct SearchPathInfo
 	wxULongLong nMaxSize; // if 0, no max size
 	bool bGoIntoSubDirs;
 	bool bSearchHidden;
-	wxString Mask;
-	wxString ExcludeMask;
+	wxString Include;
+	wxString Exclude;
 };
 
 // that is still subject to change

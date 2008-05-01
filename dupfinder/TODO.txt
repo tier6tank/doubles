@@ -196,7 +196,7 @@ TODO/IDEAS:
 + dialog 1 description format done.
 + progress display when filling list? done.
 - command line program --version
-- exclude from search
++ exclude from search
 + return to old nice list!!!!!!!!!!!!!! OR: accelarate somehow speed of tree ctrl. 
   Two versions of dialog3, one with list, one with tree
 + different titles for every dialog.
@@ -216,7 +216,7 @@ TODO/IDEAS:
 + build with wxWidgets as dll done.
 + replace __MINGWVERSION by __MINGW32__ or whatever is correct (also other). done.
 + symbolic links = .lnk on Windows?!! done!
-- increase speed by reading only 1 sector of every file!
+- increase speed by reading only 1 sector of every file first!
 + enable optimize wxWidgets?? no need to do this, is enabled by default
 + retest on unix done.
 ! cygwin unicode build
@@ -228,10 +228,10 @@ TODO/IDEAS:
 - get symbolic file name function  (for windows, because windows needs .lnk appended for links)
 + statistics dynamic, yes, but performance? enough performance
 - update headers
-- allow *.abc;*.def;*.xxx masks
++ allow *.abc;*.def;*.xxx masks done.
 + one only duplicate file counted in statistics? no, but now. 
-- Defaults
++ Defaults button done.
 - Help 
-- * filemask check entfernen
-- test exclude code
++ * filemask check entfernen done.
++ test exclude code done.
 - removed unnecessary if's (os_cc_specific)

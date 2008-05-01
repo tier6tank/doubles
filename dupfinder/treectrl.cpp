@@ -73,8 +73,9 @@ unsigned int TreeCtrl::GetChildrenCount(const TreeItemId &id, bool rec) const {
 	return control->GetChildrenCount(id, rec);
 }
 
-void TreeCtrl::ExpandAllChildren(const TreeItemId &id ) {
-	control->ExpandAllChildren(id);
+void TreeCtrl::ExpandAllChildren(const TreeItemId &WXUNUSED(id) ) {
+	wxLogMessage(_T("ExpandAllChildren with TreeCtrl deactivated (too slow)! "));
+	// control->ExpandAllChildren(id);
 }
 
 void TreeCtrl::Expand(const TreeItemId &id) {

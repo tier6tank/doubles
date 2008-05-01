@@ -64,6 +64,10 @@ public:
 
 	void ReturnToMe();
 
+	void SetDefaults();
+
+	void OnDefaults(wxCommandEvent &);
+
 private:
 	void CleanUp();
 
@@ -72,8 +76,8 @@ private:
 	wxCheckBox *wRecursive;
 	wxCheckBox *wHidden;
 	wxTextCtrl *wMinSize;
-	wxCheckBox *wMaskEnable;
-	wxTextCtrl *wMask;
+	wxTextCtrl *wInclude;
+	wxTextCtrl *wExclude;
 	wxTextCtrl *wMaxSize;
 
 	DuplicateFilesFinder dupfinder;
