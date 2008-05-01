@@ -88,9 +88,16 @@ endif
 opt := $(opt) $(dbg) 
 nopchopt := $(nopchopt) $(dbg)
 
-libs = `wx-config $(wxconfigopt) --libs`
+libs := `wx-config $(wxconfigopt) --libs`
 headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h 
 headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
+
+ifeq ($(cygwin),1)
+ifeq ($(shared),1)
+# for Windows CoCreateInstance and IID_IPersistFile
+libs := $(libs) -lole32 -luuid
+endif
+endif
 
 all: $(outdir) $(outdir)/$(name) $(outdir)/$(namegui)
 

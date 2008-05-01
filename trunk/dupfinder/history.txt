@@ -1,3 +1,8 @@
+Date : 2008/5/1 18:52
+Makefile.unix works now also with shared build on cygwin
+Keywords props deleted
+unix makefile works now on both cygwin and unix
+
 Date : 2008/5/1 16:42
 Exclude text field in GUI
 Exclude option in console program
