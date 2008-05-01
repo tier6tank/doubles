@@ -543,7 +543,7 @@ void DupFinderDlg3::DisplayResults() {
 	}
 
 	// too slow!
-	// wResultList->ExpandAllChildren(wResultList->GetRootItem());
+	wResultList->ExpandAllChildren(wResultList->GetRootItem());
 
 	// not necessary, because not visible
 	// wResultList->Expand(wResultList->GetRootItem());

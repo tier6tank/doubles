@@ -34,11 +34,12 @@ enum {
 	// options
 	ID_RECURSIVE, 
 	ID_HIDDEN, 
-	ID_MASKENABLE, 
-	ID_MASK, 
+	ID_INCLUDE, 
+	ID_EXCLUDE, 
 	ID_MINSIZE, 
 	ID_RMALL, 
-	ID_MAXSIZE
+	ID_MAXSIZE, 
+	ID_DEFAULTS
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
@@ -48,7 +49,6 @@ BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_BUTTON(wxID_OK, 		DupFinderDlg::OnOk)
 	// the following is for UpdateView()
 	EVT_TEXT(ID_DIRNAME, 		DupFinderDlg::OnDlgChange)
-	EVT_CHECKBOX(ID_MASKENABLE,  	DupFinderDlg::OnDlgChange)
 	EVT_LIST_ITEM_SELECTED(ID_DIRLIST, DupFinderDlg::OnListSelChange)
 	EVT_LIST_ITEM_DESELECTED(ID_DIRLIST, DupFinderDlg::OnListSelChange)
 	EVT_TEXT(ID_MINSIZE, 		DupFinderDlg::OnDlgChange)
@@ -60,6 +60,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
 	EVT_BUTTON(ID_RMALL, 		DupFinderDlg::OnRemoveAll)
 	EVT_INIT_DIALOG(		DupFinderDlg::OnInitDialog)
 	EVT_BUTTON(wxID_ABOUT, 		DupFinderDlg::OnAbout)
+	EVT_BUTTON(ID_DEFAULTS, 	DupFinderDlg::OnDefaults)
 END_EVENT_TABLE()
 
 
@@ -75,6 +76,8 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 	InitControls();
 
 	CenterOnScreen();
+
+	SetDefaults();
 }
 
 DupFinderDlg::~DupFinderDlg() {
@@ -122,7 +125,7 @@ void DupFinderDlg::CreateControls()
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
 			wxString(_T("Step 1: \nFor each directory to search in fill out the fields\n")
-				_T("below (leave fields you do not need blank), then click on \"Add\"")) ), 
+				_T("below (leave fields you do not need blank), then click on \"Add\". ")) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );
@@ -154,40 +157,52 @@ void DupFinderDlg::CreateControls()
 		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow2->Add(
+	dirrow3->Add(
 		new wxStaticText(this, wxID_STATIC, _T("M&inimal\nfile size: ") ), 
 		0,
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow2->Add(
+	dirrow3->Add(
 		wMinSize = new wxTextCtrl(this, ID_MINSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow2->Add(
+	dirrow3->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Ma&ximal\nfile size: ")), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow2->Add(
+	dirrow3->Add(
 		wMaxSize = new wxTextCtrl(this, ID_MAXSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
 		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow3->Add(
-		wMaskEnable = new wxCheckBox(this, ID_MASKENABLE, _T("Filename &mask: ")), 
+	dirrow2->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Include: ") ), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
-	dirrow3->Add(
-		wMask = new wxTextCtrl(this, ID_MASK, _T("")), 
+	dirrow2->Add(
+		wInclude = new wxTextCtrl(this, ID_INCLUDE, _T("*")), 
+		1, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow2->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Exclude: ") ), 
+		0, 
+		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+	
+	dirrow2->Add(
+		wExclude = new wxTextCtrl(this, ID_EXCLUDE, _T("")), 
 		1, 
 		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -201,7 +216,15 @@ void DupFinderDlg::CreateControls()
 	dirrow4->Add( 
 		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files") ), 
 		0, 
-		wxTOPLEFTRIGHT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow4->AddStretchSpacer(1);
+
+	dirrow4->Add(
+		new wxButton(this, ID_DEFAULTS, _T("&Defaults")), 
+		0, 
+		wxTOPLEFTRIGHT | wxBOTTOM | wxRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	actionssizer->Add(
@@ -302,19 +325,15 @@ void DupFinderDlg::CreateControls()
 
 void DupFinderDlg::InitControls() {
 
-	// enable/disable/check/uncheck all checkboxes,...
-	wRecursive->SetValue(true);
-	wHidden->SetValue(false);
-	wMaskEnable->SetValue(false);
-
 	// add coloumns to dir list control
 	// which order?...
 	wDirList->InsertColumn(1, _T("Subdirs"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(2, _T("Hidden"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 200);
-	wDirList->InsertColumn(4, _T("Mask"), wxLIST_FORMAT_LEFT, 60);
-	wDirList->InsertColumn(5, _T("Min size"), wxLIST_FORMAT_LEFT, 60);
-	wDirList->InsertColumn(6, _T("Max size"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(4, _T("Include"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(5, _T("Exclude"), wxLIST_FORMAT_LEFT, 60);
+	wDirList->InsertColumn(6, _T("Min size"), wxLIST_FORMAT_LEFT, 30);
+	wDirList->InsertColumn(7, _T("Max size"), wxLIST_FORMAT_LEFT, 30);
 
 	
 	// set focus
@@ -324,9 +343,6 @@ void DupFinderDlg::InitControls() {
 void DupFinderDlg::UpdateView() {
 
 	// disable/enable controls
-
-	// mask text field enabled only if mask checkbox is checked
-	wMask->Enable(wMaskEnable->GetValue());
 
 	// add button only enabled if there's a (valid) dir in 
 	// dir text control and there is a valid number/no number
@@ -439,6 +455,8 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 		return;
 	}
 
+	
+
 
 	bResult = wMinSize->GetValue().ToULongLong(&minsize);
 	/* does mingw also support 64-bit parsing ?
@@ -467,7 +485,8 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 	pi.bGoIntoSubDirs = wRecursive->GetValue();
 	pi.bSearchHidden = wHidden->GetValue();
-	pi.Mask = wMaskEnable->GetValue() ? wMask->GetValue() : wxString(_T(""));
+	pi.Include = !wInclude->GetValue().IsEmpty() ? wInclude->GetValue() : wxString(_T("*"));
+	pi.Exclude = wExclude->GetValue();
 
 	AddDir(pi);
 
@@ -477,19 +496,23 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 {
-	wxListItem c1, c2, c3, c4, c5, c6;
+	wxListItem c1, c2, c3, c4, c5, c6, c7;
+	wxString tmp1, tmp2;
+
 	// c1.SetColumn(0); // don't set column, else you will get strange assert messages
 	c2.SetColumn(1);
 	c3.SetColumn(2);
 	c4.SetColumn(3);
 	c5.SetColumn(4);
 	c6.SetColumn(5);
+	c7.SetColumn(6);
 	c1.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_DATA);
 	c2.SetMask(wxLIST_MASK_TEXT);
 	c3.SetMask(wxLIST_MASK_TEXT);
 	c4.SetMask(wxLIST_MASK_TEXT);
 	c5.SetMask(wxLIST_MASK_TEXT);
 	c6.SetMask(wxLIST_MASK_TEXT);
+	c7.SetMask(wxLIST_MASK_TEXT);
 	
 	paths.push_back(pi);
 
@@ -498,11 +521,14 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	c1.SetText(pi.bGoIntoSubDirs ? _T("x") : _T(""));
 	c2.SetText(pi.bSearchHidden ? _T("x") : _T(""));
 	c3.SetText(pi.path);
-	c4.SetText(pi.Mask);
-	c5.SetText(pi.nMinSize.ToString());
-	wxString tmp1 = wxEmptyString;
-	wxString tmp2 = pi.nMaxSize.ToString();
-	c6.SetText(pi.nMaxSize == 0 ? tmp1 : tmp2);
+	c4.SetText(pi.Include);
+	c5.SetText(pi.Exclude);
+	tmp1 = wxEmptyString; // borland ...
+	tmp2 = pi.nMinSize.ToString();
+	c6.SetText(wMinSize->GetValue().IsEmpty() ? tmp1 : tmp2);
+	tmp1 = wxEmptyString;
+	tmp2 = pi.nMaxSize.ToString();
+	c7.SetText(wMaxSize->GetValue().IsEmpty() ? tmp1 : tmp2);
 
 
 	// wDirList->InsertItem(0, _T("tmp"));	
@@ -513,6 +539,7 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	wDirList->SetItem(c4);
 	wDirList->SetItem(c5);
 	wDirList->SetItem(c6);
+	wDirList->SetItem(c7);
 
 }
 
@@ -585,10 +612,10 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
 	info.SetDescription(_T("Find and delete duplicate files"));
 	info.SetName(_T("Duplicate Files Finder"));
-	info.SetVersion(_T("gui 0.44"));
+	info.SetVersion(_T("gui 0.46"));
 	
 #ifdef __MINGW32__
-	wxMessageBox(_T("Duplicate Files Finder version 0.44\n")
+	wxMessageBox(_T("Duplicate Files Finder version 0.46\n")
 		_T("Find and delete duplicate files\n\nCopyright Matthias Boehm 2008"));
 #else
 	// mingw has problems with this
@@ -610,4 +637,29 @@ void DupFinderDlg::CleanUp()
 	dupfinder.Reset();
 }
 
+void DupFinderDlg::SetDefaults()
+{
+	wxPlatformInfo pi;
 
+	wInclude->SetValue(_T("*"));
+	
+	if(pi.GetOperatingSystemId() & wxOS_WINDOWS) {
+		// ignore links on Windows
+		wExclude->SetValue(_T("*.lnk"));
+	}
+	else {
+		wExclude->SetValue(_T(""));
+	}
+	// wDirName->SetValue(_T("");
+	wRecursive->SetValue(true);
+	wHidden->SetValue(false);
+	wMinSize->SetValue(_T(""));
+	wMaxSize->SetValue(_T(""));
+	
+
+
+}
+
+void DupFinderDlg::OnDefaults(wxCommandEvent & WXUNUSED(evt)) {
+	SetDefaults();
+}

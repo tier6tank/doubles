@@ -72,6 +72,18 @@ LARGE_INTEGER fileread;
 // prototypes
 static void	deleteline(int);
 
+#ifdef TEST
+#include "filetest.cpp"
+#endif
+
+
+/******************************************************************************************/
+/********************************                       ***********************************/
+/******************************** DuplicateFilesFinder  ***********************************/
+/********************************    public methods     ***********************************/
+/********************************                       ***********************************/
+/******************************************************************************************/
+
 
 void DuplicateFilesFinder::FindDuplicateFiles() {
 
@@ -153,6 +165,12 @@ void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
 	}
 }
 
+/******************************************************************************************/
+/********************************                       ***********************************/
+/******************************** AddFilesToList class  ***********************************/
+/********************************                       ***********************************/
+/******************************************************************************************/
+
 DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, const SearchPathInfo *ppi, 
 	wxULongLong &_nFiles, 
 	GuiInfo * _guii /*= NULL*/) : sortedbysize(_sbz), pi(ppi), guii(_guii), 
@@ -167,13 +185,11 @@ DuplicateFilesFinder::AddFileToList::AddFileToList(multiset_fileinfosize &_sbz, 
 #endif
 	tlast = time(NULL);
 
-	/*-----------*/
-	wxStringTokenizer tok(ppi->ExcludeMask);
+	wxStringTokenizer tok(ppi->Exclude, GetPathSepChar());
 
 	while (tok.HasMoreTokens()) {
 		ExcludeMasks.push_back(tok.GetNextToken());
 	}
-	/*-----------*/
 }
 
 
@@ -184,7 +200,6 @@ wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnFile(const wxString &
 		return UpdateInfo(NULL);
 	}
 
-	/*-----------*/
 	bool bMatches = false;
 	for(list<wxString>::iterator it = ExcludeMasks.begin(); it != ExcludeMasks.end(); it ++) {
 		if(filename.Matches(*it) ) {
@@ -196,7 +211,6 @@ wxDirTraverseResult DuplicateFilesFinder::AddFileToList::OnFile(const wxString &
 	if(bMatches) { 
 		return UpdateInfo(NULL);
 	}
-	/*-----------*/
 
 	STARTTIME(__OnFile);
 	// fileinfo fi;
@@ -336,6 +350,13 @@ static bool Traverse(const wxDir &root, wxExtDirTraverser &sink, const wxString 
 #endif /* FINDFILES_USE_WXWIDGETS */
 }
 
+/******************************************************************************************/
+/********************************                       ***********************************/
+/******************************** DuplicateFilesFinder  ***********************************/
+/********************************   internal methods    ***********************************/
+/********************************                       ***********************************/
+/******************************************************************************************/
+
 void	DuplicateFilesFinder::FindFiles()
 {
 	fileinfosize fis;
@@ -367,7 +388,7 @@ void	DuplicateFilesFinder::FindFiles()
 		wxString dirname = it3->path;
 		wxDir dir(dirname);
 		STARTTIME(__all);
-		Traverse(dir, traverser, it3->Mask, 
+		Traverse(dir, traverser, it3->Include, 
 			wxDIR_FILES | (it3->bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
 			(it3->bSearchHidden ? wxDIR_HIDDEN : 0));
 		STOPTIME(__all);
@@ -631,10 +652,6 @@ static void deleteline(int n) {
 		_ftprintf(stderr, _T("\b"));
 	}
 }
-
-#ifdef TEST
-#include "filetest.cpp"
-#endif
 
 bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &size) {
 	// for testing

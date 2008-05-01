@@ -1,3 +1,10 @@
+Date : 2008/5/1 16:42
+Exclude text field in GUI
+Exclude option in console program
+changed option -m (mask) to -i (include)
+Defaults button added
+ExpandAllChildren displays message with treectrl
+
 Date : 2008/4/30 17:26
 ..;..;.. masks allowed
 exclude masks infrastructure added 

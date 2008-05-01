@@ -335,15 +335,16 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
 wxChar GetPathSepChar() {
 	wxPlatformInfo pi;
 	if(pi.GetOperatingSystemId() & wxOS_UNIX) {
-		return ':';
+		return _T(':');
 	}
 	else if (pi.GetOperatingSystemId() & wxOS_WINDOWS) {
-		return ';';
+		return _T(';');
 	}
 	else {
 		
 		wxLogFatalError(_T("Unknown OS! "));
 		abort();
+		return _T(' '); // removes warnings
 	}
 }
 
