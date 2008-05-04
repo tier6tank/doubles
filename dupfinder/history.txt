@@ -1,3 +1,7 @@
+Date : 2008/5/4 16:13
+double &_ in dialog controls corrected
+changed some static texts in dialog3. 
+
 Date : 2008/5/1 18:52
 Makefile.unix works now also with shared build on cygwin
 Keywords props deleted

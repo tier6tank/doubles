@@ -222,7 +222,7 @@ void DupFinderDlg::CreateControls()
 	dirrow4->AddStretchSpacer(1);
 
 	dirrow4->Add(
-		new wxButton(this, ID_DEFAULTS, _T("&Defaults")), 
+		new wxButton(this, ID_DEFAULTS, _T("De&faults")), 
 		0, 
 		wxTOPLEFTRIGHT | wxBOTTOM | wxRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
