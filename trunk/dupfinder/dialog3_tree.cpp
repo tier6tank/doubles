@@ -194,8 +194,9 @@ void DupFinderDlg3::CreateControls() {
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
 
 	topsizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Right click on items on the list ")
-			_T("for a list of actions. ") ), 
+		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Select ")
+			_T("one or more files and right click on items in the list ")
+			_T("for a list of actions. \n") ), 
 		0, 
 		wxTOPLEFTRIGHT, 
 		10);
@@ -1196,13 +1197,35 @@ void DupFinderDlg3::RefreshStats()
 	// display stats
 	wxString tmp;
 	DuplicateFilesStats stats;
+	wxString Plural_duplicates;
+	wxString Plural_files;
+	wxString Verb_consume;
 
 	dupfinder.CalculateStats(stats);
 
-	tmp.Printf(_T("R&esults (%") wxLongLongFmtSpec _T("u duplicates of %") 
-		wxLongLongFmtSpec _T("u files consume %.2f mb)"), 
+	if(stats.nDuplicateFiles == 1) {
+		Plural_duplicates = _T("duplicate");
+		Verb_consume = _T("consumes");
+	}
+	else {
+		Plural_duplicates = _T("duplicates");
+		Verb_consume = _T("consume");
+	}
+
+	if(stats.nFilesWithDuplicates == 1) {
+		Plural_files = _T("file");
+	}
+	else {
+		Plural_files = _T("files");
+	}
+
+	tmp.Printf(_T("R&esults (%") wxLongLongFmtSpec _T("u %s of %") 
+		wxLongLongFmtSpec _T("u %s %s %.2f mb)"), 
 		stats.nDuplicateFiles.GetValue(), 
+		Plural_duplicates.c_str(), 
 		stats.nFilesWithDuplicates.GetValue(), 
+		Plural_files.c_str(), 
+		Verb_consume.c_str(), 
 		((double)stats.nWastedSpace.GetValue())/1024/1024);
 
 	wStats->GetStaticBox()->SetLabel(tmp);
