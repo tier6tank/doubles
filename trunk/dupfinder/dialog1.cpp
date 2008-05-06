@@ -125,7 +125,9 @@ void DupFinderDlg::CreateControls()
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, 
 			wxString(_T("Step 1: \nFor each directory to search in fill out the fields\n")
-				_T("below (leave fields you do not need blank), then click on \"Add\". ")) ), 
+				_T("below (leave fields you do not need blank), then click on \"Add\". \n")
+				_T("You can concatenate include and exclude masks (e.g. \"*.txt") ) + 
+				wxString(GetPathSepChar()) + wxString(_T("*.jpg\"). ") ) ), 
 			0, 
 			wxTOPLEFTRIGHT | wxEXPAND, 
 			10 );
