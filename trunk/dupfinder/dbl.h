@@ -42,21 +42,26 @@ struct SearchPathInfo
 	wxString Exclude;
 };
 
-// that is still subject to change
 struct GuiInfo {
-	// vars for step 1
-	wxTextCtrl *out;
-	wxStaticText *nfiles;
+	// control
 	bool bContinue;
-	wxApp * theApp;
-	wxStaticText *cfiles;
 	bool bPause;
+
+	// vars for step 1
 	wxStaticText *wStep1;
 
+	wxTextCtrl *out;
+	wxApp * theApp;
+
+	wxStaticText *nfiles;
+	// wxStaticText *cfiles;
+
 	// vars for step 2
+	wxStaticText *wStep2;
+
 	wxStaticText *wSpeed;
 	wxStaticText *wProgress;
-	wxStaticText *wStep2;
+	wxGauge *wProgressGauge;
 
 	// fonts 
 	wxFont normalfont, boldfont;
@@ -67,39 +72,27 @@ struct DuplicateFilesStats
 	wxULongLong nDuplicateFiles;
 	wxULongLong nWastedSpace;
 	wxULongLong nFilesWithDuplicates;
-
-	// to be implemented
-	wxULongLong nBytesRead;
-	double fAverageSpeed;
 };
 
 // this is the class which does all the work
 
-class DuplicateFilesFinder
+class DuplicateFilesFinder : public wxExtDirTraverser
 {
 public:
-	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet) 
-		: bQuiet(_bQuiet), gui(_gui) {}
-	~DuplicateFilesFinder() {}
+	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet);
+	~DuplicateFilesFinder();
 
-	void AddPath(const SearchPathInfo &path) {
-		paths.push_back(path);
-	}
+	void AddPath(const SearchPathInfo &path);
 
-	void Reset() {
-		paths.clear();
-		duplicates.clear();
-		sortedbysize.clear();
-	}
+	void Reset();
 
 	void FindDuplicateFiles();
 
-	list<DuplicatesGroup> &GetDuplicates() { return duplicates; }
+	list<DuplicatesGroup> &GetDuplicates();
 
-	// that later will be changed
 	void SetGui(GuiInfo *_gui) { gui = _gui; }
 
-	void CalculateStats(DuplicateFilesStats &_stats) const;
+	void CalculateStats(DuplicateFilesStats &) const;
 
 private:
 	// private structures
@@ -125,35 +118,108 @@ private:
 
 	typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
 
+
+private: // private variables
+
+	// paths to search in
+	list<SearchPathInfo> paths;
+
+	// display options
+	// console output?
+	bool bQuiet;
+	// for status display
+	GuiInfo * gui;
+
+	// the final results
+	list<DuplicatesGroup> duplicates;
+
+	// internal data for computation
+	// of duplicate files
+	multiset_fileinfosize sortedbysize;
+	list<wxString> ExcludeMasks;
+	const SearchPathInfo *current_spi;
+
+	enum DupFinderState { 
+		DUPF_STATE_ERROR = -1, 
+		DUPF_STATE_NOT_STARTED_YET = 0, 
+		DUPF_STATE_FIND_FILES, 
+		DUPF_STATE_COMPARE_FILES, 
+		DUPF_STATE_FINISHED
+	};
+	DupFinderState state;
+
+	// variables, which determine
+	// whether status display 
+	// should be updated
+	time_t tlast;
+	bool bFirst;
 	
-	class AddFileToList : public wxExtDirTraverser
-	{
-	public:
-		AddFileToList(multiset_fileinfosize &, const SearchPathInfo *, wxULongLong &, GuiInfo *);
+	// in console version last 
+	// string written on console
+	// (needed for deleteline)
+	wxString output;
 
-		virtual wxDirTraverseResult OnFile(const wxString &, const wxULongLong *);
-		virtual wxDirTraverseResult OnFile(const wxString & filename);
+	// statistics (speed)
+	wxULongLong nBytesRead;
+	wxULongLong nPrevBytesRead;
+	wxULongLong nFilesRead;
+	wxULongLong nPrevFilesRead;
+	wxULongLong nSizesDone;
+	wxULongLong nPrevSizesDone;
 
-		virtual wxDirTraverseResult OnExtFile(const FileData &data);
+	// All bytes (not these only read)
+	// Range from 0 to nSumBytes!
+	wxULongLong nBytesDone; 
+	wxULongLong nPrevBytesDone; 
 
-		virtual wxDirTraverseResult OnDir(const wxString &dirname);
+	// total amount of files/bytes to read/sizes to process
+	wxULongLong nSumFiles;
+	wxULongLong nSumSizes;
+	wxULongLong nSumBytes;
 
-		wxDirTraverseResult UpdateInfo(const wxString *dirname);
+	// current directory searched in for status display
+	wxString curdir;
 
-	private:
-		multiset_fileinfosize & sortedbysize;
-		const SearchPathInfo *pi;
-		time_t tlast;
+private:
+	// private procedures
 	
-		GuiInfo *guii;
+	void	FindFiles();
+	void	GetEqualFiles();
+	void 	ConstructResultList();
 
-		// for status display
-		wxString curdir;
-		bool bDirChanged;
-		wxULongLong &nFiles;
-		list<wxString> ExcludeMasks;
+	bool	YieldAndTestAbort();
 
-	#ifdef PROFILE
+	bool 	CompareFiles(File &, File &, const wxULongLong &);
+
+	bool 	Traverse(const SearchPathInfo *);
+
+	// status output
+	void UpdateStatusDisplay();
+	void ResetLine();
+
+	// prevent direct copies
+	DuplicateFilesFinder(const DuplicateFilesFinder &) : wxExtDirTraverser() {}
+	DuplicateFilesFinder &operator =(const DuplicateFilesFinder &) { return *this; }
+
+public: // wxExtDirTraverser Funktionen
+
+	virtual wxDirTraverseResult OnFile(const wxString &, const wxULongLong *);
+
+	virtual wxDirTraverseResult OnFile(const wxString & filename) {
+		return OnFile(filename, NULL);
+	}
+
+	virtual wxDirTraverseResult OnExtFile(const FileData &data) {
+		return OnFile(data.name, &data.size);
+	}
+
+	virtual wxDirTraverseResult OnDir(const wxString &dirname);
+
+private:
+	wxDirTraverseResult UpdateInfo(const wxString *dirname);
+
+
+#ifdef PROFILE
 	public:
 		LARGE_INTEGER __OnFile;
 		LARGE_INTEGER __OnDir;
@@ -161,37 +227,7 @@ private:
 		LARGE_INTEGER __normalize;
 		LARGE_INTEGER __finddir;
 		LARGE_INTEGER __insert;
-	#endif
-
-	};
-
-private:
-	// private variables
-
-	list<SearchPathInfo> paths;
-
-	bool bQuiet;
-
-	// subject to change
-	GuiInfo * gui;
-
-	multiset_fileinfosize sortedbysize;
-
-	list<DuplicatesGroup> duplicates;
-
-
-private:
-	// private procedures
-	
-	void	FindFiles();
-	void	GetEqualFiles();
-
-	bool 	CompareFiles(File &, File &, const wxULongLong &);
-
-	// prevent direct copies
-	DuplicateFilesFinder(const DuplicateFilesFinder &) {}
-	DuplicateFilesFinder &operator =(const DuplicateFilesFinder &) { return *this; }
-
+#endif
 
 };
 

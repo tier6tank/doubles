@@ -30,12 +30,13 @@ enum {
 	ID_SEARCHDIRNAME = 1, 
 	ID_NFILES, 
 	ID_SHOWMESSAGES, 
-	ID_CFILES, 
+	// ID_CFILES, 
 	ID_PROGRESS, 
 	ID_SPEED, 
 	ID_STEP1, 
 	ID_STEP2, 
-	ID_PAUSE
+	ID_PAUSE, 
+	ID_PROGRESS_GAUGE
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
@@ -73,7 +74,7 @@ void DupFinderDlg2::CreateControls()
 
 	wxStaticBoxSizer *progresssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Progress"));
 	wxBoxSizer *nfilessizer = new wxBoxSizer(wxHORIZONTAL);
-	wxBoxSizer *cfilessizer = new wxBoxSizer(wxHORIZONTAL);
+	// wxBoxSizer *cfilessizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *progress2sizer = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *progress2sizer_2 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *controls = new wxBoxSizer(wxHORIZONTAL);
@@ -113,7 +114,7 @@ void DupFinderDlg2::CreateControls()
 		wxTOPLEFT, 
 		10);
 
-	cfilessizer->Add(
+	/* cfilessizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Considered files: ")), 
 		0, 
 		wxTOP,
@@ -124,6 +125,7 @@ void DupFinderDlg2::CreateControls()
 		1, 
 		wxTOPLEFT, 
 		10);
+	*/
 
 	progress2sizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Progress: ")), 
@@ -157,11 +159,11 @@ void DupFinderDlg2::CreateControls()
 		wxLEFT | wxRIGHT, 
 		10);
 
-	progresssizer->Add(
+	/* progresssizer->Add(
 		cfilessizer, 
 		0, 
 		wxLEFT | wxRIGHT, 
-		10);
+		10); */
 
 	progresssizer->Add(
 		wStep2 = new wxStaticText(this, ID_STEP2, _T("2) Comparing files: ")), 
@@ -178,9 +180,17 @@ void DupFinderDlg2::CreateControls()
 	progresssizer->Add(
 		progress2sizer_2, 
 		0, 
-		wxEXPAND | wxBOTTOM, 
+		wxEXPAND, 
 		10);
 
+	progresssizer->Add(
+		wProgressGauge = new wxGauge(this, ID_PROGRESS_GAUGE, 1000), 
+		0, 
+		wxEXPAND | wxTOPLEFTRIGHT | wxBOTTOM, 
+		10);
+
+	// show it when the progress display works fine
+	// progresssizer->Hide(wProgressGauge);
 
 	topsizer->Add(
 		progresssizer, 
@@ -267,17 +277,18 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		guii.bContinue = true;
 		guii.bPause = false;
 		guii.theApp = wxTheApp;
-		guii.cfiles = wcFiles;
+		// guii.cfiles = wcFiles;
 		guii.wStep1 = wStep1;
 
 		guii.wSpeed = wSpeed;
 		guii.wProgress = wProgress;
 		guii.wStep2 = wStep2;
+		guii.wProgressGauge = wProgressGauge;
 
 		guii.normalfont = wStep1->GetFont();
 		
 		guii.boldfont = guii.normalfont;
-		guii.boldfont.SetWeight(wxFONTWEIGHT_BOLD);		
+		guii.boldfont.SetWeight(wxFONTWEIGHT_BOLD); 
 		
 
 		dupfinder.SetGui(&guii);

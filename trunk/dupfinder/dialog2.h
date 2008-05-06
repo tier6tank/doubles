@@ -63,6 +63,8 @@ private:
 	wxStaticText *wProgress;
 	wxStaticText *wSpeed;
 
+	wxGauge *wProgressGauge;
+
 	GuiInfo guii;
 
 	wxStaticText *wStep1, *wStep2;
