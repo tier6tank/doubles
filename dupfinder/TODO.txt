@@ -244,3 +244,4 @@ TODO/IDEAS:
 - progress gauge in dialog3 acts strange...
 - extend all actions on one file on more than one file if ever possible
   (e.g. DeleteButThis, if only one file is marked each group)
+- PreviousState!
