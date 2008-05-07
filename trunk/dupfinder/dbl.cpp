@@ -106,7 +106,8 @@ void DuplicateFilesFinder::Reset()
 
 	bFirst = true;
 
-	state = DUPF_STATE_NOT_STARTED_YET;
+	state = prevState 
+		= DUPF_STATE_NOT_STARTED_YET;
 	
 	nBytesRead = nPrevBytesRead
 		= nFilesRead 
@@ -654,33 +655,42 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 
 	if(tcurrent - tlast >= REFRESH_INTERVAL || bFirst) {
 		if(gui) {
-			/* let this here until PrevState has been created */
-			tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %")
-				wxLongLongFmtSpec _T("u size(s)"), 
-				nSumFiles.GetValue(), 
-				nSumSizes.GetValue());
+			if(prevState != state) {
+				switch(state) {
+				case DUPF_STATE_FIND_FILES:
+					gui->wStep1->SetFont(gui->boldfont);
+					break;
+				case DUPF_STATE_COMPARE_FILES:
+					gui->wStep1->SetFont(gui->normalfont);
 
-			gui->nfiles->SetLabel(tmp);
+					gui->out->Disable();
+					gui->out->SetValue(_T(""));
 
+					gui->wStep2->SetFont(gui->boldfont);
+
+					break;
+				default:
+					break;
+				}
+			} /* if (prevState != state) */
+
+			if((prevState == DUPF_STATE_FIND_FILES &&
+				state > DUPF_STATE_FIND_FILES) || 
+				state == DUPF_STATE_FIND_FILES) {
+				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %")
+					wxLongLongFmtSpec _T("u size(s)"), 
+					nSumFiles.GetValue(), 
+					nSumSizes.GetValue());
+
+				gui->nfiles->SetLabel(tmp);
+			}
+				
 			switch(state) {
 			case DUPF_STATE_FIND_FILES:
-				/* static */
-				gui->wStep1->SetFont(gui->boldfont);
-
-				/* dynamic */
 				gui->out->SetValue(curdir);
 
 				break;
 			case DUPF_STATE_COMPARE_FILES:
-				/* static */
-				gui->wStep1->SetFont(gui->normalfont);
-
-				gui->out->Disable();
-				gui->out->SetValue(_T(""));
-
-				gui->wStep2->SetFont(gui->boldfont);
-
-				/* dynamic */
 				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %")
 					wxLongLongFmtSpec _T("u size(s)"), 
 					nSumFiles.GetValue(), 
@@ -719,7 +729,8 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 					);
 				gui->wSpeed->SetLabel(tmp);
 
-				gui->wProgressGauge->SetValue((nBytesDone*1000/nSumBytes).GetValue());
+				// gui->wProgressGauge->SetValue((nBytesDone*1000/nSumBytes).GetValue());
+				gui->wProgressGauge->SetValue((nFilesRead*1000/nSumFiles).GetValue());
 				break;
 			default:
 				break;
@@ -747,6 +758,7 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 		nPrevSizesDone = nSizesDone;
 		nPrevFilesRead = nFilesRead;
 		nPrevBytesDone = nBytesDone;
+		prevState = state;
 		tlast = tcurrent;
 		bFirst = false;
 	}

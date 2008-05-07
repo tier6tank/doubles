@@ -146,7 +146,7 @@ private: // private variables
 		DUPF_STATE_COMPARE_FILES, 
 		DUPF_STATE_FINISHED
 	};
-	DupFinderState state;
+	DupFinderState state, prevState;
 
 	// variables, which determine
 	// whether status display 
