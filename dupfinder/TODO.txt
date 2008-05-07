@@ -237,11 +237,11 @@ TODO/IDEAS:
 - removed unnecessary if's (os_cc_specific)
 + add to desc of dialog 3 ".. you can also mark more than one file"
 - makefile.unix "and"
-- percentage in progress view
-- instead of size/size display the bytes read/sum bytes to read 
-- move status display code to extra functions
++ percentage in progress view yes.
++ instead of size/size display the bytes read/sum bytes to read  (files read)
++ move status display code to extra functions done.
 - popupmenu sensitive whether one or more files are selected (?)
 - progress gauge in dialog3 acts strange...
 - extend all actions on one file on more than one file if ever possible
   (e.g. DeleteButThis, if only one file is marked each group)
-- PreviousState!
++ PreviousState! OK

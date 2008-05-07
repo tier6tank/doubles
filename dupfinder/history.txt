@@ -1,3 +1,6 @@
+Date : 2008/5/7 15:10
+prevState removes some unnecessary overhead
+
 Date : 2008/5/6 17:37
 Dialog1 desc changed
 
