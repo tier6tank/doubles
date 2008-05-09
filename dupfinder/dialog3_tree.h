@@ -64,9 +64,9 @@ public:
 
 	void DeleteFiles(const wxArrayTreeItemIds &);
 
-	unsigned int GetSelectedFilenameCount(const wxArrayTreeItemIds &);
-	unsigned int GetFirstSelectedFilename(const wxArrayTreeItemIds &);
-	unsigned int GetNextSelectedFilename(const wxArrayTreeItemIds &, unsigned int i);
+	size_t GetSelectedFilenameCount(const wxArrayTreeItemIds &);
+	size_t GetFirstSelectedFilename(const wxArrayTreeItemIds &);
+	size_t GetNextSelectedFilename(const wxArrayTreeItemIds &, size_t i);
 
 	void DeleteOrphanedHeaders();
 

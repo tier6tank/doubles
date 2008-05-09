@@ -316,8 +316,8 @@ static bool IsAscii(const wxString &string)
 	(void)string;
 	return true;
 #else
-	int size = string.Length();
-	int i;
+	size_t size = string.Length();
+	size_t i;
 
 	for(i = 0; i < size; i++) {
 		if((wchar_t) string[i] > 255) {
@@ -333,7 +333,7 @@ static const char * ToAscii(const wxString &string)
 #if !(defined( _UNICODE) || defined(UNICODE))
 	return string.c_str();
 #else
-	int i, size = string.Length();
+	size_t i, size = string.Length();
 	char *result = new char[size+1];
 
 	for(i = 0; i < size; i++) {

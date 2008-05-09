@@ -422,9 +422,10 @@ void DupFinderDlg3::DisplayResults() {
 	list<File>::iterator it3;
 	wxFont font, boldfont;
 	bool bHaveFont = false;
-	int item;
+	long item;
 	ItemData *itemdata;
-	int i, size, percentage = -1;
+	list<DuplicatesGroup>::size_type i, size;
+	int percentage = -1;
 
 	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
@@ -495,7 +496,12 @@ void DupFinderDlg3::DisplayResults() {
 			itemdata = new ItemData(TYPE_HEADER);
 			itemdata->SetGroup(&*it);
 
+#if wxABI_VERSION >= 20804
+			// that line breaks compatibility with 2.6.0
+			wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
+#else
 			wResultList->SetItemData(item, (long)itemdata);
+#endif
 
 			for(it3 = it->files.begin(); it3 != it->files.end(); it3++) {
 				item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->GetName());
@@ -507,7 +513,12 @@ void DupFinderDlg3::DisplayResults() {
 				if(matching.find(it3) != matching.end()) {
 					wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
 				}
+#if wxABI_VERSION >= 20804
+				// see above
+				wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
+#else
 				wResultList->SetItemData(item, (long)itemdata);
+#endif
 			}
 		}
 
@@ -523,7 +534,12 @@ void DupFinderDlg3::DisplayResults() {
 	if(wResultList->GetItemCount() == 0) {
 		itemdata = new ItemData(TYPE_NONE);
 		item = wResultList->InsertItem(0, _T("No items in this view. "));
+#if wxABI_VERSION >= 20804
+		// compatibility see above
+		wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
+#else
 		wResultList->SetItemData(item, (long)itemdata);
+#endif
 	}
 
 	DeleteOrphanedHeaders();
@@ -550,7 +566,7 @@ void DupFinderDlg3::OnStore(wxCommandEvent &WXUNUSED(event))
 	if(fdlg->ShowModal() == wxID_OK) {
 		wxFile outfile;
 		if(outfile.Create(fdlg->GetPath(), true)) {
-			int count, i;
+			long count, i;
 			count = wResultList->GetItemCount();
 
 			for(i = 0; i < count; i++) {
@@ -665,9 +681,9 @@ void DupFinderDlg3::OnOpenDir(wxCommandEvent &WXUNUSED(event))
 	OpenDir(rightClickedItem);
 }
 
-void DupFinderDlg3::GetSelectedFilenameCount(int &count)
+void DupFinderDlg3::GetSelectedFilenameCount(long &count)
 {
-	int i;
+	long i;
 
 	count = 0;
 	for(i = wResultList->GetFirstSelected(); i != -1; i = wResultList->GetNextSelected(i)) {
@@ -678,9 +694,9 @@ void DupFinderDlg3::GetSelectedFilenameCount(int &count)
 
 }
 
-int DupFinderDlg3::GetFirstSelectedFilename()
+long DupFinderDlg3::GetFirstSelectedFilename()
 {
-	int i;
+	long i;
 	for(i = wResultList->GetFirstSelected(); i != -1; i = wResultList->GetNextSelected(i)) {
 		if(((ItemData *)wResultList->GetItemData(i))->GetType() == TYPE_ITEM) {
 			break;
@@ -689,7 +705,7 @@ int DupFinderDlg3::GetFirstSelectedFilename()
 	return i;
 }
 
-int DupFinderDlg3::GetNextSelectedFilename(int i)
+long DupFinderDlg3::GetNextSelectedFilename(long i)
 {
 	for(i = wResultList->GetNextSelected(i); i != -1; i = wResultList->GetNextSelected(i)) {
 		if(((ItemData *)wResultList->GetItemData(i))->GetType() == TYPE_ITEM) {
@@ -702,7 +718,7 @@ int DupFinderDlg3::GetNextSelectedFilename(int i)
 void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 {
 	wxString filename, tmp;
-	int i, j, count;
+	long i, j, count;
 	
 	GetSelectedFilenameCount(count);
 	
@@ -737,8 +753,8 @@ void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event))
 }
 
 void DupFinderDlg3::DeleteSelection() {
-	int i, count;
-	list<int> delete_this;
+	long i, count;
+	list<long> delete_this;
 
 	GetSelectedFilenameCount(count);
 
@@ -758,14 +774,14 @@ void DupFinderDlg3::DeleteSelection() {
 }
 
 
-void DupFinderDlg3::DeleteFiles(const list<int> & delete_this)
+void DupFinderDlg3::DeleteFiles(const list<long> & delete_this)
 {
-	int count;
+	list<long>::size_type count;
 	wxString tmp;
 	wxString filename;
 	int result;
-	list<int>::const_iterator it;
-	list<int> success_delete;
+	list<long>::const_iterator it;
+	list<long> success_delete;
 
 	count = delete_this.size();
 
@@ -812,7 +828,7 @@ void DupFinderDlg3::DeleteFiles(const list<int> & delete_this)
 		}
 	}
 
-	list<int>::reverse_iterator rit;
+	list<long>::reverse_iterator rit;
 
 	// from the bottom to the top!
 	for(rit = success_delete.rbegin(); rit != success_delete.rend(); rit++) {
@@ -847,8 +863,8 @@ void DupFinderDlg3::OnListKeyDown(wxListEvent &event)
 
 void DupFinderDlg3::DeleteOrphanedHeaders()
 {
-	int i, count;
-	list<int> delete_this;
+	long i, count;
+	list<long> delete_this;
 
 	count = wResultList->GetItemCount();
 	
@@ -864,7 +880,7 @@ void DupFinderDlg3::DeleteOrphanedHeaders()
 		}
 	}
 
-	list<int>::reverse_iterator it;
+	list<long>::reverse_iterator it;
 
 	// delete from the end to the top, 
 	// so that the item indexes remain valid!!!!
@@ -918,8 +934,8 @@ void DupFinderDlg3::OnShowAll(wxCommandEvent &WXUNUSED(event))
 }
 
 void DupFinderDlg3::ClearList() {
-	int count = wResultList->GetItemCount();
-	int i;
+	long count = wResultList->GetItemCount();
+	long i;
 
 	for(i = 0; i < count; i++) {
 		delete (ItemData *)wResultList->GetItemData(i);
@@ -1017,8 +1033,8 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	}
 
 	bool bStickyError, bError, bFatalError = false;
-	int i;
-	list<int> remove_me;
+	long i;
+	list<long> remove_me;
 
 	i = GetHeader(rightClickedItem)+1;
 
@@ -1078,7 +1094,7 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 	}
 
 	// from the bottom to the top! 
-	for(list<int>::reverse_iterator rit = remove_me.rbegin(); 
+	for(list<long>::reverse_iterator rit = remove_me.rbegin(); 
 		rit != remove_me.rend(); 
 		rit++) {
 		wResultList->DeleteItem(*rit);
@@ -1113,9 +1129,9 @@ void DupFinderDlg3::OnDirChange(wxCommandEvent &WXUNUSED(event))
 void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 {
 	ItemData *target_data = (ItemData *)wResultList->GetItemData(rightClickedItem);
-	int i, header;
-	int count;
-	list<int> delete_this;
+	long i, header;
+	long count;
+	list<long> delete_this;
 
 	if(!IsValidItem(rightClickedItem)) {
 		return;
@@ -1142,9 +1158,9 @@ void DupFinderDlg3::OnDeleteButThis(wxCommandEvent &WXUNUSED(event))
 	DeleteFiles(delete_this);
 }
 
-int DupFinderDlg3::GetHeader(int item) 
+long DupFinderDlg3::GetHeader(long item) 
 {
-	int i;
+	long i;
 
 	assert(item >= 0);
 
@@ -1155,7 +1171,7 @@ int DupFinderDlg3::GetHeader(int item)
 	return i;
 }
 
-bool DupFinderDlg3::IsValidItem(int item)
+bool DupFinderDlg3::IsValidItem(long item)
 {
 	return (item >= 0 && item < wResultList->GetItemCount());
 }
