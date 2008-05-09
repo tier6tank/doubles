@@ -8,7 +8,7 @@ TODO/IDEAS:
 + unicode support for windows... done!
 + (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
 + adding option -max (max size of files to compare with each other) done.
-- maxbytes (compare max. n bytes of a file) 
+? maxbytes (compare max. n bytes of a file) 
 + adding IsSameFileFunction (done -> wxWidgets)
 + adding error messages (when finding files, comparing files...) (done via wxWidgets)
 + supporting files over 4 GB always?! yes, i do hope so. 
@@ -23,21 +23,21 @@ TODO/IDEAS:
   them?? but they are to nice to delete them, so something other, but what!?!?, has to be done...) done! with v-printf-routines. 
   Nevertheless a call to sscaf_s (if occuring) with an "%s" format argument would very propably leed into trouble, so i must not
   use this!
-- playing a bit with some compiling options (especcially optimization for gcc!)
++ playing a bit with some compiling options (especcially optimization for gcc!) no need to
 + replacing the f<*> c functions with the PSDK-functions for true unicode support (difficult, because of stdout?...) done
 + need a faster container than list for testing for double scanning of directories. done (using set). 
 + linux makefile mkdir if at last done.
 + removing the current logging construct (removing wxUSE_STD_IOSTREAM, because it needs a recompile of wxWidgets), 
   perhaps using wxLogNull and my own error reporting routines? (done via wxLogStream)
 + suppress logging completely (done via wxLogStream)
-- delete unneccessary (unix) includes
+! delete unneccessary (esp. unix) includes
 + perhaps setting error flag if any error on that file is encountered 
 + add progress display for sorting files by size (not necessary any more)
 + display speed in kbytes/second done (mb/sec)
 + somehow reduce memory consumption done via filedata
 + display option: -o ordered by directory implmented in gui version
 - need a close look to signed/unsigned int32/int64 types
-- time display under linux does not work properly
+( time display under linux does not work properly)
 + add option -h for hidden files? done. 
 + instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
 + status info at the end of the output, not at the beginning, where it cannot be read easily most often at last - done via struct DuplicateFilesStats
@@ -245,3 +245,4 @@ TODO/IDEAS:
 - extend all actions on one file on more than one file if ever possible
   (e.g. DeleteButThis, if only one file is marked each group)
 + PreviousState! OK
+- option for unix makefiles whether to use pch's or not
