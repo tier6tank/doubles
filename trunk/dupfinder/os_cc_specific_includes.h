@@ -23,8 +23,8 @@
 
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
-#include <shlwapi.h>
 
+// Cygwin does not support Unicode yet
 #ifndef __CYGWIN__
 #include <tchar.h>
 #endif
@@ -33,15 +33,10 @@
 
 #endif /* _Win32 */
 
-
-
 /* perhaps better if !defined(_WIN32) && defined(__GNUC__) ???? */
 #ifdef __UNIX__
 
-#include <stdarg.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+// Unix includes here
 
 #endif /* !defined(_WIN32) */
 
