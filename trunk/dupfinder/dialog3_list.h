@@ -60,11 +60,11 @@ public:
 
 	void OnListKeyDown(wxListEvent &);
 
-	void DeleteFiles(const list<int> &);
+	void DeleteFiles(const list<long> &);
 
-	void GetSelectedFilenameCount(int &count);
-	int GetFirstSelectedFilename();
-	int GetNextSelectedFilename(int i);
+	void GetSelectedFilenameCount(long &count);
+	long GetFirstSelectedFilename();
+	long GetNextSelectedFilename(long i);
 
 	void DeleteOrphanedHeaders();
 
@@ -97,9 +97,9 @@ public:
 
 	void DeleteSelection();
 
-	int GetHeader(int);
+	long GetHeader(long);
 
-	bool IsValidItem(int);
+	bool IsValidItem(long);
 
 	void RefreshStats();
 
@@ -125,7 +125,7 @@ private:
 	bool bRestrictToDir;
 	bool bRestrictToMask;
 
-	int rightClickedItem;
+	long rightClickedItem;
 
 	bool bFirstIdle;
 	

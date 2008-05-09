@@ -438,7 +438,8 @@ void DupFinderDlg3::DisplayResults() {
 	list<DuplicatesGroup>::iterator it;
 	list<File>::iterator it3;
 	ItemData *itemdata;
-	int i, size, percentage = -1;
+	list<DuplicatesGroup>::size_type i, size;
+	int percentage = -1;
 
 	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
@@ -700,9 +701,9 @@ void DupFinderDlg3::OnOpenDir(wxCommandEvent &WXUNUSED(event))
 	OpenDir(rightClickedItem);
 }
 
-unsigned int DupFinderDlg3::GetSelectedFilenameCount(const wxArrayTreeItemIds &selected)
+size_t DupFinderDlg3::GetSelectedFilenameCount(const wxArrayTreeItemIds &selected)
 {
-	unsigned int i, count;
+	size_t i, count;
 
 	count = 0;
 	for(i = 0; i < selected.GetCount(); i++) {
@@ -714,31 +715,31 @@ unsigned int DupFinderDlg3::GetSelectedFilenameCount(const wxArrayTreeItemIds &s
 	return count;
 }
 
-unsigned int DupFinderDlg3::GetFirstSelectedFilename(const wxArrayTreeItemIds &selected)
+size_t DupFinderDlg3::GetFirstSelectedFilename(const wxArrayTreeItemIds &selected)
 {
-	unsigned int i;
+	size_t i;
 	for(i = 0; i < selected.GetCount(); i++) {
 		if(((ItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
 			break;
 		}
 	}
-	return i == selected.GetCount() ? (unsigned int)-1 : i;
+	return i == selected.GetCount() ? (size_t)-1 : i;
 }
 
-unsigned int DupFinderDlg3::GetNextSelectedFilename(const wxArrayTreeItemIds &selected, unsigned int i)
+size_t DupFinderDlg3::GetNextSelectedFilename(const wxArrayTreeItemIds &selected, size_t i)
 {
 	for(i++; i < selected.GetCount(); i++) {
 		if(((ItemData *)wResultList->GetItemData(selected[i]))->GetType() == TYPE_ITEM) {
 			break;
 		}
 	}
-	return i != selected.GetCount() ? i : (unsigned int)-1;
+	return i != selected.GetCount() ? i : (size_t)-1;
 }
 
 void DupFinderDlg3::OnCopyFileName(wxCommandEvent &WXUNUSED(event))
 {
 	wxString filename, tmp;
-	int i, j, count;
+	size_t i, j, count;
 	wxArrayTreeItemIds selected;
 
 	wResultList->GetSelections(selected);
@@ -783,7 +784,7 @@ void DupFinderDlg3::OnDelete(wxCommandEvent &WXUNUSED(event))
 
 void DupFinderDlg3::DeleteFiles(const wxArrayTreeItemIds &selected)
 {
-	int i, count;
+	size_t i, count;
 	wxString tmp;
 	wxString filename;
 	int result;
