@@ -439,7 +439,7 @@ void DupFinderDlg3::DisplayResults() {
 	list<File>::iterator it3;
 	ItemData *itemdata;
 	list<DuplicatesGroup>::size_type i, size;
-	int percentage = -1;
+	unsigned int percentage = 0;
 
 	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
@@ -529,7 +529,7 @@ void DupFinderDlg3::DisplayResults() {
 			percentage = (i*MAX_PROGRESS)/size;
 			wProgress->SetValue(percentage);
 			wxTheApp->Yield();
-		}			
+		}
 	}
 
 	// no items in list?

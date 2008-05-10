@@ -42,10 +42,10 @@ public:
 
 	// Read - replaces buffer with static buffer if needed
 	// else writes into given buffer
-	bool Read(char **, unsigned int &);
+	bool Read(char **, size_t &);
 	bool Restart();
 
-	static int GetBufSize() { return File::BUFSIZE; }
+	static size_t GetBufSize() { return File::BUFSIZE; }
 
 	// need to know the size of the file (cached)
 	bool Open(const wxULongLong &);
@@ -60,8 +60,8 @@ private:
 		// extended data, only needed when file is actually used
 		struct extfiledata {
 			char *cache;
-			unsigned int maxcachesize;
-			unsigned int cachesize;
+			size_t maxcachesize;
+			size_t cachesize;
 			wxFile file;
 			wxFileOffset pos;
 			wxULongLong size;
@@ -75,12 +75,12 @@ private:
 	void ReleaseData();
 	void ReleaseExtData();
 
-	unsigned int RoundUpToBufSize(unsigned int);
+	size_t RoundUpToBufSize(size_t);
 
 	void init();
 
-	static const unsigned int MAXCACHESIZE;
-	static const unsigned int BUFSIZE;
+	static const size_t MAXCACHESIZE;
+	static const size_t BUFSIZE;
 
 	filedata *data;
 
