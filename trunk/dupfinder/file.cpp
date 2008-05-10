@@ -22,8 +22,8 @@
 #include "file.h"
 #include "dbl.h"
 
-const unsigned int File::MAXCACHESIZE = BASEBUFSIZE << 8;
-const unsigned int File::BUFSIZE = BASEBUFSIZE << 7;
+const size_t File::MAXCACHESIZE = BASEBUFSIZE << 8;
+const size_t File::BUFSIZE = BASEBUFSIZE << 7;
 
 File::File(){
 	init();
@@ -75,7 +75,7 @@ void File::ReleaseData() {
 }
 
 // get the amount of "Sectors" (of length BUFSIZE) a file of length value needs
-unsigned int File::RoundUpToBufSize(unsigned int value) {
+size_t File::RoundUpToBufSize(size_t value) {
 	return value % BUFSIZE == 0 ? value : (value / BUFSIZE + 1) *BUFSIZE;
 }
 
@@ -85,7 +85,7 @@ bool File::Open(const wxULongLong &size) {
 	if(!data->extdata) {
 		data->extdata = new filedata::extfiledata;
 
-		unsigned int maxcachesize = RoundUpToBufSize(min(size.GetValue(), File::MAXCACHESIZE));
+		size_t maxcachesize = RoundUpToBufSize(min(size, wxULongLong(File::MAXCACHESIZE)).ToULong());
 		data->extdata->cache= new char [maxcachesize];
 		data->extdata->maxcachesize = maxcachesize;
 		data->extdata->cachesize = 0;
@@ -102,7 +102,7 @@ bool File::Open(const wxULongLong &size) {
 }
 
 
-bool File::Read(char **buffer, unsigned int &ncount) {
+bool File::Read(char **buffer, size_t &ncount) {
 	assert(data->extdata);
 
 	assert(ncount == File::BUFSIZE);
@@ -111,13 +111,13 @@ bool File::Read(char **buffer, unsigned int &ncount) {
 		return false;
 	}
 
-	if(data->extdata->pos < data->extdata->cachesize) {
+	if(wxULongLong(data->extdata->pos) < data->extdata->cachesize) {
 		ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
 		*buffer = data->extdata->cache+data->extdata->pos;
 	}
 	else { /* data->extdata->pos >= data->extdata->cachesize */
 		
-		bool bWriteToCache = data->extdata->pos < data->extdata->maxcachesize;
+		bool bWriteToCache = wxULongLong(data->extdata->pos) < data->extdata->maxcachesize;
 		if(bWriteToCache) {
 			*buffer = data->extdata->cache + data->extdata->pos;
 			assert(data->extdata->maxcachesize - data->extdata->pos >= ncount);
@@ -132,7 +132,7 @@ bool File::Read(char **buffer, unsigned int &ncount) {
 		}
 		ncount = data->extdata->file.Read(*buffer, ncount);
 
-		if((int)ncount == wxInvalidOffset) {
+		if(ncount == (size_t)wxInvalidOffset) {
 			return false;
 		}
 

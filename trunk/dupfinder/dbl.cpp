@@ -730,7 +730,7 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 				gui->wSpeed->SetLabel(tmp);
 
 				// gui->wProgressGauge->SetValue((nBytesDone*1000/nSumBytes).GetValue());
-				gui->wProgressGauge->SetValue((nFilesRead*1000/nSumFiles).GetValue());
+				gui->wProgressGauge->SetValue((nFilesRead*1000/nSumFiles).ToULong());
 				break;
 			default:
 				break;

@@ -36,9 +36,9 @@ public:
 	void SetName(const wxString & _name) { data->name = _name; }
 	wxString GetName() const { return data->name; }
 
-	bool Read(char *, int &);
+	bool Read(char *, size_t &);
 
-	static int GetBufSize() { return FileTest::BUFSIZE; }
+	static size_t GetBufSize() { return FileTest::BUFSIZE; }
 
 	bool Open();
 	void Close();
@@ -66,7 +66,7 @@ private:
 
 	void init();
 
-	static const int BUFSIZE;
+	static const size_t BUFSIZE;
 
 	FileTestdata *data;
 

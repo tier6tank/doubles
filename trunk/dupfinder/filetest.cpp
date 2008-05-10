@@ -22,7 +22,7 @@
 #include "filetest.h"
 #include "dbl.h"
 
-const int FileTest::BUFSIZE = BASEBUFSIZE << 7;
+const size_t FileTest::BUFSIZE = BASEBUFSIZE << 7;
 
 FileTest::FileTest(){
 	init();
@@ -87,7 +87,7 @@ bool FileTest::Open() {
 }
 
 
-bool FileTest::Read(char *buffer, int &ncount) {
+bool FileTest::Read(char *buffer, size_t &ncount) {
 	assert(data->extdata);
 
 	assert(ncount == FileTest::BUFSIZE);
@@ -121,8 +121,8 @@ bool	comparefiles0(File &_f1, File &_f2) {
 	static char *b1, *b2;
 	if(b1 == NULL) { b1 = new char[FileTest::GetBufSize()]; }
 	if(b2 == NULL) { b2 = new char[FileTest::GetBufSize()]; }
-	int BUFSIZE = FileTest::GetBufSize();
-	int n1, n2;
+	size_t BUFSIZE = FileTest::GetBufSize();
+	size_t n1, n2;
 	FileTest f1, f2;
 	f1 = _f1; f2 = _f2;
 
