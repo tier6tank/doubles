@@ -1,4 +1,8 @@
-Date : 2008/5/9 20:11
+Date : 2008/5/11 17:00
+Determined least wxWidgets version needed, 
+and some compatibility towards older versions added
+
+Date : 2008/5/10 20:11
 Changed the last integer types to their right types
 and related warning fixes
 

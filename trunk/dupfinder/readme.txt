@@ -59,6 +59,15 @@ COMPILING:
   - "wxdir" should point to the path in which wxWidgets is installed
     (Windows only). Defaults to "C:\wx". 
 
+  - You need at least wxWidgets version 2.7.1 for Unix, and 
+    2.8.3 for Windows (it would compile with version 2.7.1 on 
+    Windows, but because of a nasty error (->GetSize() on files)
+    which was corrected first in version 2.8.3, and because this 
+    function is crucial for the program, you have to use 2.8.3 
+    at least).
+    Recommended is for sure that you use the most recent version
+    of wxWidgets!
+
 
 1) Windows
 
