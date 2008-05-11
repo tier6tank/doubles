@@ -459,18 +459,25 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 	
 
-
+#if wxCHECK_VERSION(2,7,2)
+	// supported first with 2.7.2
 	bResult = wMinSize->GetValue().ToULongLong(&minsize);
-	/* does mingw also support 64-bit parsing ?
-	 * if not, i have to change the upper to ....ToULong(..)
-	 */
+#else
+	bResult = false;
+#endif
+
 	if(!bResult) {
 		// this is ONLY the case, if the number is a) too big
 		// or b) we are using mingw
 		minsize = StrToULongLong(wMinSize->GetValue());
 	}
 
+#if wxCHECK_VERSION(2,7,2)
 	bResult = wMaxSize->GetValue().ToULongLong(&maxsize);
+#else
+	bResult = false;
+#endif
+
 	if(!bResult) {
 		maxsize = StrToULongLong(wMaxSize->GetValue());
 	}

@@ -496,8 +496,8 @@ void DupFinderDlg3::DisplayResults() {
 			itemdata = new ItemData(TYPE_HEADER);
 			itemdata->SetGroup(&*it);
 
-#if wxABI_VERSION >= 20804
-			// that line breaks compatibility with 2.6.0
+#if wxCHECK_VERSION(2,8,4)
+			// that line breaks compatibility versions < 2.8.4
 			wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
 #else
 			wResultList->SetItemData(item, (long)itemdata);
@@ -513,7 +513,7 @@ void DupFinderDlg3::DisplayResults() {
 				if(matching.find(it3) != matching.end()) {
 					wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
 				}
-#if wxABI_VERSION >= 20804
+#if wxCHECK_VERSION(2,8,4)
 				// see above
 				wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
 #else
@@ -534,7 +534,7 @@ void DupFinderDlg3::DisplayResults() {
 	if(wResultList->GetItemCount() == 0) {
 		itemdata = new ItemData(TYPE_NONE);
 		item = wResultList->InsertItem(0, _T("No items in this view. "));
-#if wxABI_VERSION >= 20804
+#if wxCHECK_VERSION(2,8,4)
 		// compatibility see above
 		wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
 #else

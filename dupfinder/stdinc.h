@@ -40,6 +40,7 @@
 #include <set>
 #include "minmax.h"
 #include "os_cc_specific_includes.h"
+#include "wxverchk.h"
 
 using namespace std;
 
