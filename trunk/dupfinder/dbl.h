@@ -143,6 +143,7 @@ private: // private variables
 		DUPF_STATE_ERROR = -1, 
 		DUPF_STATE_NOT_STARTED_YET = 0, 
 		DUPF_STATE_FIND_FILES, 
+		// DUPF_STATE_REMOVE_DOUBLE_FILES, 
 		DUPF_STATE_COMPARE_FILES, 
 		DUPF_STATE_FINISHED
 	};
@@ -192,6 +193,9 @@ private:
 	bool 	CompareFiles(File &, File &, const wxULongLong &);
 
 	bool 	Traverse(const SearchPathInfo *);
+
+	// void RemoveDoubleFiles();
+	void RemoveUnimportantSizes();
 
 	// status output
 	void UpdateStatusDisplay();

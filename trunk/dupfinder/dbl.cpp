@@ -146,6 +146,13 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 		return;
 	}
 
+	// Would be nice, but MUCH too slow!
+	// state = DUPF_STATE_REMOVE_DOUBLE_FILES
+	// 
+	// RemoveDoubleFiles();
+
+	RemoveUnimportantSizes();
+
 	state = DUPF_STATE_COMPARE_FILES;
 
 	GetEqualFiles();
@@ -396,32 +403,6 @@ void	DuplicateFilesFinder::FindFiles()
 #endif
 	}
 
-	multiset_fileinfosize::iterator it2tmp;
-	
-	/* sort all sizes out where only one file has that particular size */
-
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
-		if(it2->files.size() > 1) {
-			bDeleted = false;
-		}
-		else { 
-			nSumBytes -= it2->size;
-
-			it2tmp = it2;
-			it2++;
-
-			sortedbysize.erase(it2tmp);
-			bDeleted = true;
-
-			nSumFiles--;
-		}
-	}
-
-	if(!bQuiet) {
-		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
-		nSumFiles.GetValue());
-	}
-
 	UpdateStatusDisplay();
 }
 
@@ -519,6 +500,8 @@ void	DuplicateFilesFinder::GetEqualFiles()
 						nBytesDone += it2->size;
 						nFilesRead++;
 					}
+
+					UpdateStatusDisplay();
 
 					// nComparedBytes.QuadPart += (*it).size.QuadPart;
 				}
@@ -825,3 +808,58 @@ bool DuplicateFilesFinder::YieldAndTestAbort()
 	return false;
 }
 
+#if 0
+void DuplicateFilesFinder::RemoveDoubleFiles() {
+	multiset_fileinfosize::iterator it;
+	list<File>::iterator it2;
+	list<File>::iterator it3;
+	bool bDeleted;
+
+	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
+		for(it2 = it->files.begin(); it2 != it->files.end(); it2++) {
+			it3 = it2;
+			for(it3++; it3 != it->files.end(); bDeleted ? it3 : it3++) {
+				bDeleted = false;
+				if(it2->GetNormName() == it3->GetNormName()) {
+					list<File>::iterator it3tmp;
+					it3tmp = it3;
+					it3++;
+					it->files.erase(it3tmp);
+					bDeleted = true;
+				}
+			}
+		}
+	}
+}
+#endif
+
+void DuplicateFilesFinder::RemoveUnimportantSizes() {
+
+	multiset_fileinfosize::iterator it2;
+	bool bDeleted;
+	multiset_fileinfosize::iterator it2tmp;
+	
+	/* sort all sizes out where only one file has that particular size */
+
+	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
+		if(it2->files.size() > 1) {
+			bDeleted = false;
+		}
+		else { 
+			nSumBytes -= it2->size;
+
+			it2tmp = it2;
+			it2++;
+
+			sortedbysize.erase(it2tmp);
+			bDeleted = true;
+
+			nSumFiles--;
+		}
+	}
+
+	if(!bQuiet) {
+		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
+		nSumFiles.GetValue());
+	}
+}
