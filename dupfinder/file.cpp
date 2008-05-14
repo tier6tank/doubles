@@ -31,7 +31,17 @@ File::File(){
 
 File::File(const wxString &_name) {
 	init();
+	SetName(_name);
+}
+
+void File::SetName(const wxString & _name) { 
+	assert(data);
 	data->name = _name;
+
+	// wxFileName normfn(_name);
+	// normfn.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_LONG); // NORM_LONG is slow
+	// normfn.Normalize(wxPATH_NORM_CASE);
+	// data->normname = normfn.GetFullPath();
 }
 
 void File::init() {

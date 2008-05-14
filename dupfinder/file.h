@@ -36,9 +36,11 @@ public:
 	File(const File &);
 	File & operator = (const File &);
 
-	void SetName(const wxString & _name) { data->name = _name; }
+	void SetName(const wxString &);
 	wxString GetName() const { return data->name; }
 
+	// wxString GetNormName() const { return data->normname; }
+	// wxString DelNormName() { data->normname = wxEmptyString; }
 
 	// Read - replaces buffer with static buffer if needed
 	// else writes into given buffer
@@ -69,6 +71,7 @@ private:
 		} *extdata;
 		// filename
 		wxString name;
+		// wxString normname;
 	};
 
 

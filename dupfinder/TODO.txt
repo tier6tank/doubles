@@ -36,14 +36,14 @@ TODO/IDEAS:
 + display speed in kbytes/second done (mb/sec)
 + somehow reduce memory consumption done via filedata
 + display option: -o ordered by directory implmented in gui version
-- need a close look to signed/unsigned int32/int64 types
-( time display under linux does not work properly)
++ need a close look to signed/unsigned int32/int64 types done!!
+? time display under linux does not work properly
 + add option -h for hidden files? done. 
 + instead of recognizing double dirs recognizing double files? (but performance would worsen)??? it is better the way it is 
 + status info at the end of the output, not at the beginning, where it cannot be read easily most often at last - done via struct DuplicateFilesStats
 + do a lot of cleanup (e.g. those old BENCHMARK and TEST things) done!
 + warning message only if there are really unicode characters which cannot be displayed (not only non-ASCII characters) done.
-- reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c
++ reacting on signals (do not break program completely, but print the results nevertheless) there is strange behaviour on Strg+c not needed
 + increase speed of comparefiles1 (speed suffers of the steadily seeking of the harddisk) outdated
 + does time(NULL) reduce speed? no.
 + size n/n display at once and at first done.
@@ -51,9 +51,8 @@ TODO/IDEAS:
 + accelerating search algorithm (partially done by removing double-dir-algorithms). Restored old native algorithms
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
-- make install for unix
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
-- it should be easy to implement a "do not add double files" algorithm (list->set!)
+? it should be easy to implement a "do not add double files" algorithm (list->set!) much too slow!
 + fix div by zero errors (not fixed, but disappeared)
 - create manifest file
 - create configure/automake/autoconf system for unix
@@ -129,8 +128,10 @@ TODO/IDEAS:
 + +/- button on headers in result dialog (and dblclick)!! done via wxTreeCtrl
 ! supporting watcom compiler (not possible yet because of lack of STL library)
 + replacing list.size() == 0 by list.empty()! done.
-- removing some separators of popup menu ??
++ removing some separators of popup menu ?? not important
 --- automake
+- make install for unix (perhaps from makefile?)
+
 - rewriting wxWidgets recognition macro
 
 - correct wxWidgets version number in configure.in

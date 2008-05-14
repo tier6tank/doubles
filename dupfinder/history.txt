@@ -1,3 +1,7 @@
+Date : 2008/5/14 17:34
+Tried to implement an algorithm for deleting double files, 
+but it is much too slow
+
 Date : 2008/5/11 17:00
 Determined least wxWidgets version needed, 
 and some compatibility towards older versions added
