@@ -32,6 +32,7 @@
 #include <wx/gauge.h>
 #include <wx/treectrl.h>
 #include <wx/tokenzr.h>
+#include <wx/dynlib.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>
