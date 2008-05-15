@@ -158,6 +158,8 @@ void Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, *
 
 wxChar GetPathSepChar();
 
+// would be nice if i had this...
+// bool MoveToTrash(const wxString &);
 
 
 #endif

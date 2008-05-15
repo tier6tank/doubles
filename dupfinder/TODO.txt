@@ -1,5 +1,11 @@
 TODO/IDEAS:
 -----------
+Description of signs:
+- Todo
++ Done
+! Todo which can't be done
+? Todo which is questionable
+
 + Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
 + putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build (done)
@@ -52,7 +58,8 @@ TODO/IDEAS:
 + displaying error BEFORE start of program if dir does not exist (done)
 + detecting links in unix important! done.
 + for every dir its own settings (mask, size, recurse into subdirs, search hidden files...)! done!
-? it should be easy to implement a "do not add double files" algorithm (list->set!) much too slow!
+? reimplement a double listed files remove algorithm!
+  it should be easy to implement a "do not add double files" algorithm (list->set!) much too slow!
 + fix div by zero errors (not fixed, but disappeared)
 - create manifest file
 - create configure/automake/autoconf system for unix
@@ -69,11 +76,11 @@ TODO/IDEAS:
 + context menu (delete, create hard-/symlink, open folder) done
 + context menu Ctrl+C (copy) done
 + About box in first dialog? done
-- show in progress display which files are compared
++ show in progress display which files are compared no!
 + add remove all button to updateview done. 
 + gui/console version in one package! ok, since now
 - storing current user preferences (checkboxes, size, ...)?
-- instead of completely removing only move to trash
+- instead of completely removing only move to trash (if there were some simple functions...)
 - synchronization "show messages" checkbox <-> message window
 + open containing folder is not working in linux (perhaps with backslash at the end?) works with leading file:///
 + change modal dialog boxes to not modal dialogboxes done.
@@ -87,11 +94,10 @@ TODO/IDEAS:
 + revising all that cleaning up/memory problems associated with fileinfo (class File)
 + reimplement the search for duplicate files algorithm, so that i have no problems with deleting
   a fileinfo object twice! done (File class).
-- add a note please no short filesnames?!?
-- reimplement a double listed files remove algorithm!
+- add a note please no short filesnames in restriction controls?!?
 + instead of CleanUp full return to dialog1 function done.
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
-- hiding some functions (private to file scope) 
++ hiding some functions (private to file scope) avoided by class DuplicateFilesFinder
 + creating delete findfileinfo function in dbl.cpp? out of date
 + including the right header (or remove it completely) done.
 + shortening long filename in restriction info? Not important any more, because removed
@@ -104,7 +110,7 @@ TODO/IDEAS:
   why it is there - but: it is propably too much memory consumption...)
 + writing .bat file with cd $INSTDIR instruction when installing on 95/98/me. done. 
 
-- installer nice AI
++ installer nice AI done.
 + wrapping / shortening text which appears when restricting view. Out of date. 
 + hardlinks / softlinks where supported softlinks yes. hardlinks with warning! 
 + display files only in dir ---> and its subdirs???? (even possible?) yes, done.

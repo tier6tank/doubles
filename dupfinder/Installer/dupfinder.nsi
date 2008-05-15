@@ -19,6 +19,7 @@
 
 !include GetWindowsVersion.nsh
 !include LogicLib.nsh
+!include MUI2.nsh
 
 Name "Duplicate Files Finder"
 
@@ -30,17 +31,25 @@ InstallDirRegKey HKLM "Software\Duplicate Files Finder" "Install_Dir"
 
 ; Pages:
 
-PageEx license
-	LicenseData ..\license.txt
-PageExEnd
-Page components
-Page directory
-Page instfiles
+!define MUI_ABORTWARNING
 
-UninstPage uninstConfirm
-UninstPage instfiles
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE ..\license.txt
+!insertmacro MUI_PAGE_COMPONENTS
+!insertmacro MUI_PAGE_DIRECTORY
+Var StartMenuFolder
+!insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
 
-Section "Main"
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+!insertmacro MUI_LANGUAGE "English"
+
+Section "Main" MainSection
 
 	SectionIn RO
 
@@ -77,9 +86,7 @@ Section "Main"
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Duplicate Files Finder" "NoRepair" "1"
 	WriteUninstaller "uninstall.exe"
 
-SectionEnd
-
-Section "Start Menu shortcuts"
+!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 
 	CreateDirectory "$SMPROGRAMS\Duplicate Files Finder"
 	CreateShortCut "$SMPROGRAMS\Duplicate Files Finder\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
@@ -98,8 +105,13 @@ Section "Start Menu shortcuts"
 			"$SYSDIR\cmd.exe" '/K "cd $INSTDIR"'  "cmd.exe" 0 
 	${Endif}
 
+!insertmacro MUI_STARTMENU_WRITE_END
 
 SectionEnd
+
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+	!insertmacro MUI_DESCRIPTION_TEXT ${MainSection} "All"
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Section "Uninstall"
 
@@ -129,3 +141,7 @@ Section "Uninstall"
 	RMDir "$INSTDIR"
 
 SectionEnd
+
+
+
+

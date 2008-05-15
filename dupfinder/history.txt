@@ -1,3 +1,6 @@
+Date : 2008/5/15 17:38
+Installer has now nice Windows AI
+
 Date : 2008/5/15 16:07
 Rewrite of hardlink warning
 
