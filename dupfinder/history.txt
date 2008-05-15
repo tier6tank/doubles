@@ -1,3 +1,6 @@
+Date : 2008/5/12 15:58
+Found wxDynamicLibrary, and using it for CreateHardLink!
+
 Date : 2008/5/14 17:34
 Tried to implement an algorithm for deleting double files, 
 but it is much too slow

@@ -249,3 +249,4 @@ TODO/IDEAS:
 - option for unix makefiles whether to use pch's or not
 - delete items from list common function
 - option whether to use 2.6 incompatible functions?? (or at least warn?)
+- message hardlinks...
