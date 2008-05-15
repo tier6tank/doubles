@@ -1003,17 +1003,18 @@ void DupFinderDlg3::OnHardLink(wxCommandEvent & WXUNUSED(event)) {
 	int result;
 
 	if(bHardLinkWarning) {
-		result = wxMessageBox(_T("Hardlinks should be used with caution. Also be aware that ")
-			_T("hardlinked files will reappear in the next search as duplicates, as the ")
-			_T("detection of hardlinked files currently is not supported. \n")
-			_T("Do you want to see this warning again or cancel? "), 
-			_T("Warning"), wxYES_NO | wxCANCEL | wxICON_WARNING, this);
+		result = wxMessageBox(_T("Hardlinks should be used with caution, because they ")
+			_T("indectectably connect files, and if you edit one, all others will ")
+			_T("be changed as well. As hardlinks can not easily be detected, the ")
+			_T("hardlinked files will reappear when you repeat the search. \n")
+			_T("Do you want to continue anyway? "), 
+			_T("Warning"), wxYES_NO | wxICON_WARNING, this);
 
-		if(result == wxCANCEL) {
+		if(result == wxNO) {
 			return;
 		}
 
-		if(result == wxNO) {
+		if(result == wxYES) {
 			bHardLinkWarning = false;
 		}
 	}
