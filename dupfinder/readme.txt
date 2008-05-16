@@ -57,7 +57,8 @@ COMPILING:
     version). 
 
   - "wxdir" should point to the path in which wxWidgets is installed
-    (Windows only). Defaults to "C:\wx". 
+    (Windows only). Defaults to "C:\wx". Spaces in this path are 
+    not supported at the moment. 
 
   - You need at least wxWidgets version 2.7.1 for Unix, and 
     2.8.3 for Windows (it would compile with version 2.7.1 on 
