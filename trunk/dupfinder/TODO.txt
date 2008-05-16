@@ -5,6 +5,7 @@ Description of signs:
 + Done
 ! Todo which can't be done
 ? Todo which is questionable
+. lower priority todo
 
 + Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
@@ -61,7 +62,7 @@ Description of signs:
 ? reimplement a double listed files remove algorithm!
   it should be easy to implement a "do not add double files" algorithm (list->set!) much too slow!
 + fix div by zero errors (not fixed, but disappeared)
-- create manifest file (+themed borders)
+. create manifest file (+themed borders)
 - create configure/automake/autoconf system for unix
 + installer for windows done.
 + removing this *** wxUSE_STD_IOSTREAM again (not complete yet)
@@ -79,9 +80,9 @@ Description of signs:
 + show in progress display which files are compared no!
 + add remove all button to updateview done. 
 + gui/console version in one package! ok, since now
-- storing current user preferences (checkboxes, size, ...)?
+? storing current user preferences (checkboxes, size, ...)?
 - instead of completely removing only move to trash (if there were some simple functions...)
-- synchronization "show messages" checkbox <-> message window
+. synchronization "show messages" checkbox <-> message window
 + open containing folder is not working in linux (perhaps with backslash at the end?) works with leading file:///
 + change modal dialog boxes to not modal dialogboxes done.
 + delete marked instead of the item over which it was and filenames done.
@@ -94,7 +95,7 @@ Description of signs:
 + revising all that cleaning up/memory problems associated with fileinfo (class File)
 + reimplement the search for duplicate files algorithm, so that i have no problems with deleting
   a fileinfo object twice! done (File class).
-- add a note please no short filesnames in restriction controls?!?
+. add a note please no short filesnames in restriction controls?!?
 + instead of CleanUp full return to dialog1 function done.
 + checkbox: store currently displayed / all results! no checkbox, but store always displayed list
 + hiding some functions (private to file scope) avoided by class DuplicateFilesFinder
@@ -103,7 +104,7 @@ Description of signs:
 + shortening long filename in restriction info? Not important any more, because removed
 - what about a program icon?
 + pause as in 7-zip has it now. 
-- again: reducing memory consumption (circa 200 MB with circa 803,000 files)
++ again: reducing memory consumption (circa 200 MB with circa 803,000 files) how?
 + batch file for windows me dupf console mode done.
 + rename program (dupfinder -> Duplicate Files Finder) done.
 - fixing this bug where whole os (windows) crashes (will be very difficult, because i have no idea
@@ -257,5 +258,7 @@ Description of signs:
 - option whether to use 2.6 incompatible functions?? (or at least warn?)
 + message hardlinks... much better now
 ? cmake/bakefile?
-- or makefiles update
+- or makefiles update (esp. makefile.gcc) (try to remove duplicates!)
 - test command line version
+- allow wxdir with spaces?
+- icon with borland and gcc as well

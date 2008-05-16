@@ -87,7 +87,7 @@ opt = $(opt) $(dbg) $(uniopt) $(sharedopt)
 
 libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 		os_cc_specific_gui.h
 
@@ -97,13 +97,13 @@ $(outdir):
 	-@if not exist $(outdir) mkdir $(outdir)
 
 $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj $(outdir)\os_cc_specific.obj \
-	$(outdir)\file.obj
-	cl $(opt) -Fe"$(outdir)\$(name).exe" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
+	$(outdir)\file.obj $(outdir)\rsrc.res
+	cl $(opt) -Fe"$@.exe" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj \
-	$(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj 
-	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
+	$(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj $(outdir)\rsrc.res
+	cl $(opt) -Fe"$@.exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
 	cl $(opt) -c dbl.cpp
@@ -137,6 +137,9 @@ $(outdir)\dialog3.obj: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgu
 
 $(outdir)\treectrl.obj: treectrl.cpp $(headersgui)
 	cl $(opt) -c treectrl.cpp
+
+$(outdir)\rsrc.res: rsrc.rc resource.h
+	rc -i"$(wxdir)\include" -fo "$@" rsrc.rc 
 
 run:
 	-$(outdir)\$(name).exe

@@ -97,23 +97,24 @@ libs = wxbase28$(version).lib PSDK\shlwapi.lib wxzlib$(dbgversion).lib PSDK\user
 libsgui = wxbase28$(version).lib wxmsw28$(version)_adv.lib wxmsw28$(version)_core.lib wxzlib$(dbgversion).lib \
 	PSDK\shlwapi.lib PSDK\user32.lib PSDK\gdi32.lib PSDK\comctl32.lib PSDK\comdlg32.lib \
 	PSDK\oleaut32.lib PSDK\rpcrt4.lib
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 	os_cc_specific_gui.h
 
-all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
+all: $(outdir) $(outdir)\rsrc.res $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
 $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj $(outdir)\os_cc_specific.obj \
-	$(outdir)\file.obj
-	bcc32 $(opt) -e"$(outdir)\$(name).exe"  $** $(libs)
+	$(outdir)\file.obj #$(outdir)\rsrc.res
+	bcc32 $(opt) -e"$@"  $** $(libs)
+	brc32 $(outdir)\rsrc.res $@
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\os_cc_specific.obj $(outdir)\dupfgui.obj \
 		$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\dbl.obj \
-		$(outdir)\file.obj $(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj
-	bcc32 $(optgui) -e"$(outdir)\$(namegui).exe" $** $(libsgui)
+		$(outdir)\file.obj $(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj #$(outdir)\rsrc.res
+	bcc32 $(optgui) -e"$@" $** $(libsgui)
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
 	bcc32 $(opt) -c -o"$@" dbl.cpp
@@ -147,6 +148,9 @@ $(outdir)\treectrl.obj: treectrl.cpp  $(headersgui)
 
 $(outdir)\os_cc_specific_gui.obj: os_cc_specific_gui.cpp  $(headersgui)
 	bcc32 $(opt) -c -o"$@" os_cc_specific_gui.cpp
+
+$(outdir)\rsrc.res: rsrc.rc resource.h
+	brcc32 -i"$(wxdir)\include" -fo"$@" rsrc.rc
 
 run:
 	-$(outdir)\$(name).exe

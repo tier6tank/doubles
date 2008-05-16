@@ -1,3 +1,6 @@
+Date : 2008/5/16 17:40
+Added icon + resource file
+
 Date : 2008/5/16 16:14
 Moved some #if's to os_cc_specific(_gui).*
 Added os_cc_specific_gui.*
