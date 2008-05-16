@@ -348,7 +348,6 @@ void	DuplicateFilesFinder::FindFiles()
 	fileinfosize fis;
 	list<File>::iterator it;
 	multiset_fileinfosize::iterator it2;
-	bool bDeleted;
 	list<SearchPathInfo>::iterator it3;
 
 #ifdef PROFILE

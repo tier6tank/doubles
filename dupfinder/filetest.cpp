@@ -140,13 +140,6 @@ bool	comparefiles0(File &_f1, File &_f2) {
 		br1 = f1.Read(b1, n1);
 		br2 = f2.Read(b2, n2);
 
-#ifdef BENCHMARK
-		__nBytesRead += n1;
-		__nBytesRead += n2;
-		__nSectorsRead += n1/BASEBUFSIZE + (n1%BASEBUFSIZE != 0 ? 1 : 0);
-		__nSectorsRead += n2/BASEBUFSIZE + (n2%BASEBUFSIZE != 0 ? 1 : 0);
-#endif
-
 		if(n1 != n2 || !br1 || !br2) {
 			bResult = false;
 			goto End;

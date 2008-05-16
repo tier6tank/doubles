@@ -88,7 +88,8 @@ opt = $(opt) $(dbg) $(uniopt) $(sharedopt)
 libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h
-headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
+headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
+		os_cc_specific_gui.h
 
 all: $(outdir) $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
@@ -101,7 +102,7 @@ $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj \
-	$(outdir)\treectrl.obj
+	$(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj 
 	cl $(opt) -Fe"$(outdir)\$(namegui).exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
@@ -112,6 +113,9 @@ $(outdir)\dupf.obj: dupf.cpp $(headers)
 
 $(outdir)\os_cc_specific.obj: os_cc_specific.cpp $(headers)
 	cl $(opt) -c os_cc_specific.cpp
+
+$(outdir)\os_cc_specific_gui.obj: os_cc_specific_gui.cpp $(headers)
+	cl $(opt) -c os_cc_specific_gui.cpp
 
 $(outdir)\file.obj: file.cpp $(headers)
 	cl $(opt) -c file.cpp

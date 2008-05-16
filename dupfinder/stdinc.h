@@ -22,6 +22,10 @@
 #define __STDINC_H_010987
 
 #include <wx/wx.h>
+
+// check wxWidgets version
+#include "wxverchk.h"
+
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/file.h>
@@ -41,7 +45,6 @@
 #include <set>
 #include "minmax.h"
 #include "os_cc_specific_includes.h"
-#include "wxverchk.h"
 
 using namespace std;
 

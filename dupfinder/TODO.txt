@@ -61,7 +61,7 @@ Description of signs:
 ? reimplement a double listed files remove algorithm!
   it should be easy to implement a "do not add double files" algorithm (list->set!) much too slow!
 + fix div by zero errors (not fixed, but disappeared)
-- create manifest file
+- create manifest file (+themed borders)
 - create configure/automake/autoconf system for unix
 + installer for windows done.
 + removing this *** wxUSE_STD_IOSTREAM again (not complete yet)
@@ -256,3 +256,6 @@ Description of signs:
 - delete items from list common function
 - option whether to use 2.6 incompatible functions?? (or at least warn?)
 + message hardlinks... much better now
+? cmake/bakefile?
+- or makefiles update
+- test command line version
