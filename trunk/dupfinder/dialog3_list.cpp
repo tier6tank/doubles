@@ -22,6 +22,7 @@
 
 #include "dialog3.h"
 #include "os_cc_specific.h"
+#include "os_cc_specific_gui.h"
 
 DupFinderDlg3::DupFinderDlg3(DupFinderDlg *_parent, 
 		DuplicateFilesFinder &_dupf) 
@@ -496,12 +497,7 @@ void DupFinderDlg3::DisplayResults() {
 			itemdata = new ItemData(TYPE_HEADER);
 			itemdata->SetGroup(&*it);
 
-#if wxCHECK_VERSION(2,8,4)
-			// that line breaks compatibility versions < 2.8.4
-			wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
-#else
-			wResultList->SetItemData(item, (long)itemdata);
-#endif
+			SetListItemData(wResultList, item, itemdata);
 
 			for(it3 = it->files.begin(); it3 != it->files.end(); it3++) {
 				item = wResultList->InsertItem(wResultList->GetItemCount()+1, it3->GetName());
@@ -513,12 +509,8 @@ void DupFinderDlg3::DisplayResults() {
 				if(matching.find(it3) != matching.end()) {
 					wResultList->SetItemBackgroundColour(item, wxColor(250, 120, 120));
 				}
-#if wxCHECK_VERSION(2,8,4)
-				// see above
-				wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
-#else
-				wResultList->SetItemData(item, (long)itemdata);
-#endif
+
+				SetListItemData(wResultList, item, itemdata);
 			}
 		}
 
@@ -534,12 +526,7 @@ void DupFinderDlg3::DisplayResults() {
 	if(wResultList->GetItemCount() == 0) {
 		itemdata = new ItemData(TYPE_NONE);
 		item = wResultList->InsertItem(0, _T("No items in this view. "));
-#if wxCHECK_VERSION(2,8,4)
-		// compatibility see above
-		wResultList->SetItemPtrData(item, (wxUIntPtr)itemdata);
-#else
-		wResultList->SetItemData(item, (long)itemdata);
-#endif
+		SetListItemData(wResultList, item, itemdata);
 	}
 
 	DeleteOrphanedHeaders();

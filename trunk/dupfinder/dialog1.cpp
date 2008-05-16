@@ -23,6 +23,7 @@
 #include "dialog1.h"
 #include "dialog2.h"
 #include "os_cc_specific.h"
+#include "os_cc_specific_gui.h"
 
 
 enum {
@@ -418,35 +419,10 @@ void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 
 }
 
-static wxULongLong_t StrToULongLong(const wxString & str) {
-	
-	// no test whether it's a valid string
-	// not necessary because of Validator
-	wxULongLong_t value, lastvalue;
-	int size = str.Length();
-	int i;
-	
-	value = lastvalue = 0;
-	for(i = 0; i < size; i++) {
-		value *= 10;
-		if(str[i] < '0' || str[i] > '9') {
-			break;
-		}
-		value += str[i]-'0';
-		// test for overflow
-		if(lastvalue > value) {
-			return 0;
-		}
-		lastvalue = value;
-	}
-
-	return value;
-}
-
 void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	SearchPathInfo pi;
-	wxULongLong_t minsize;
-	wxULongLong_t maxsize;
+	wxULongLong minsize;
+	wxULongLong maxsize;
 	bool bResult;
 	
 	pi.path = wDirName->GetValue();
@@ -457,29 +433,24 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 		return;
 	}
 
-	
-
-#if wxCHECK_VERSION(2,7,2)
-	// supported first with 2.7.2
-	bResult = wMinSize->GetValue().ToULongLong(&minsize);
-#else
-	bResult = false;
-#endif
+	bResult = StringToULongLong(wMinSize->GetValue(), minsize);
 
 	if(!bResult) {
-		// this is ONLY the case, if the number is a) too big
-		// or b) we are using mingw
-		minsize = StrToULongLong(wMinSize->GetValue());
+		wxMessageBox(_T("Invalid minimal size! "), 
+			_T("Error"), 
+			wxOK | wxICON_ERROR, 
+			this);
+		return;
 	}
 
-#if wxCHECK_VERSION(2,7,2)
-	bResult = wMaxSize->GetValue().ToULongLong(&maxsize);
-#else
-	bResult = false;
-#endif
+	bResult = StringToULongLong(wMaxSize->GetValue(), maxsize);
 
 	if(!bResult) {
-		maxsize = StrToULongLong(wMaxSize->GetValue());
+		wxMessageBox(_T("Invalid maximal size! "), 
+			_T("Error"), 
+			wxOK | wxICON_ERROR, 
+			this);
+		return;
 	}
 
 	if(minsize > maxsize && maxsize != 0) {
@@ -617,21 +588,15 @@ void DupFinderDlg::OnInitDialog(wxInitDialogEvent &event) {
 void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 	wxAboutDialogInfo info;
 
-	info.AddDeveloper(_T("Matthias Boehm"));
-	info.SetCopyright(_T("(c) Matthias Boehm 2008"));
-	info.SetDescription(_T("Find and delete duplicate files"));
-	info.SetName(_T("Duplicate Files Finder"));
-	info.SetVersion(_T("gui 0.46"));
-	
-#ifdef __MINGW32__
-	wxMessageBox(_T("Duplicate Files Finder version 0.46\n")
-		_T("Find and delete duplicate files\n\nCopyright Matthias Boehm 2008"));
-#else
-	// mingw has problems with this
-	wxAboutBox(info);
-#endif
+	// change the version with every release!
 
-
+	AboutBox(
+		_T("Matthias Boehm"), 
+		_T("(c) Matthias Boehm 2008"), 
+		_T("Find and delete duplicate files"), 
+		_T("Duplicate Files Finder"), 
+		_T("0.46")
+		);
 }
 
 void DupFinderDlg::ReturnToMe()

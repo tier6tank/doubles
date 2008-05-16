@@ -354,5 +354,69 @@ wxChar GetPathSepChar() {
 	}
 }
 
+static wxULongLong_t StrToULongLong(const wxString & str, bool &bResult) {
+	
+	// no test whether it's a valid string
+	// not necessary because of Validator
+	wxULongLong_t value, lastvalue;
+	int size = str.Length();
+	int i;
+	
+	value = lastvalue = 0;
+	for(i = 0; i < size; i++) {
+		value *= 10;
+		// test for overflow
+		if(lastvalue > value) {
+			bResult = false;
+			return 0;
+		}
+		
+		if(str[i] < '0' || str[i] > '9') {
+			break;
+		}
+		value += str[i]-'0';
+		// test for overflow
+		if(lastvalue > value) {
+			bResult = false;
+			return 0;
+		}
+		lastvalue = value;
+	}
+
+	bResult = true;
+
+	return value;
+}
+
+bool StringToULongLong(const wxString &str, wxULongLong &_result) 
+{
+	wxULongLong_t result;
+	wxLongLong_t test;
+	bool bResult, bResultTest;
+
+#if wxCHECK_VERSION(2,7,2)
+	bResultTest = str.ToLongLong(&test);
+	if(test < 0 && bResultTest) {
+		return false;
+	}
+	// supported first with 2.7.2
+	bResult = str.ToULongLong(&result);
+#else
+	bResult = false;
+#endif
+
+	if(!bResult) {
+		// this is ONLY the case, if the number is a) too big
+		// or b) we are using mingw
+		result = StrToULongLong(str, bResult);
+	}
+
+	if(bResult) {
+		_result = result;
+	}
+
+	return bResult;
+}
+
 
 
