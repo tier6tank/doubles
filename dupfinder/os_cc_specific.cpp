@@ -207,6 +207,7 @@ HRESULT CreateLink(LPCTSTR lpszPathObj, LPCTSTR lpszPathLink, LPCTSTR lpszDesc)
 			size_t length = wxConvFile.ToWChar(NULL, 0, lpszPathLink);
 			wchar_t * UnicodePath = new wchar_t [length];
 			size_t res = wxConvFile.ToWChar(UnicodePath, length, lpszPathLink);
+			(void)res; // warning fix when unicode=0 debug=0
 			assert(res != wxCONV_FAILED);
 #else
 			const wchar_t *UnicodePath = lpszPathLink;

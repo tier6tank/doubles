@@ -90,7 +90,7 @@ opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
 libs = -L$(wxdir)\lib\$(libpath) -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h resource.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 	os_cc_specific_gui.h
 
@@ -99,8 +99,10 @@ all: $(outdir) $(outdir)\stdinc.h.gch $(outdir)\$(name).exe $(outdir)\$(namegui)
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
-$(outdir)\$(name).exe: $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o
-	g++ $(opt) -o "$(outdir)\$(name).exe" $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o $(libs)
+$(outdir)\$(name).exe: $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o \
+	$(outdir)\rsrc.o
+	g++ $(opt) -o "$(outdir)\$(name).exe" $(outdir)\dbl.o $(outdir)\dupf.o \
+              $(outdir)\os_cc_specific.o $(outdir)\file.o $(outdir)\rsrc.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(name).exe
 endif
@@ -119,10 +121,11 @@ $(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o
+		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o $(outdir)\rsrc.o
 	g++ $(opt) -mwindows -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
 		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o $(libsgui)
+		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o $(outdir)\rsrc.o \
+		$(libsgui)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(namegui).exe
 endif
@@ -148,6 +151,8 @@ $(outdir)\treectrl.o: treectrl.cpp $(headersgui)
 $(outdir)\os_cc_specific_gui.o: os_cc_specific_gui.cpp $(headersgui)
 	g++ $(opt) -c -o $@ os_cc_specific_gui.cpp
 
+$(outdir)\rsrc.o: rsrc.rc resource.h
+	windres rsrc.rc $@
 
 run:
 	-$(outdir)\$(name).exe
