@@ -102,7 +102,7 @@ Description of signs:
 + creating delete findfileinfo function in dbl.cpp? out of date
 + including the right header (or remove it completely) done.
 + shortening long filename in restriction info? Not important any more, because removed
-- what about a program icon?
++ what about a program icon? done, except for borland included!
 + pause as in 7-zip has it now. 
 + again: reducing memory consumption (circa 200 MB with circa 803,000 files) how?
 + batch file for windows me dupf console mode done.

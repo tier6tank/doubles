@@ -22,4 +22,51 @@
 
 #include "stdinc.h"
 
+#ifdef __BORLANDC__
+
+// for borland, because brc32 doesn't work
+// and i don't wont to use ilink32
+#ifdef _DEBUG
+
+#ifdef _UNICODE
+
+#ifdef WXUSINGDLL
+#pragma resource "bccud_shared\\rsrc.res"
+#else
+#pragma resource "bccud\\rsrc.res"
+#endif
+
+#else /* !UNICODE */
+
+#ifdef WXUSINGDLL
+#pragma resource "bccd_shared\\rsrc.res"
+#else
+#pragma resource "bccd\\rsrc.res"
+#endif
+
+#endif /* UNICODE */
+
+#else /* !_DEBUG */
+
+#ifdef _UNICODE
+
+#ifdef WXUSINGDLL
+#pragma resource "bccu_shared\\rsrc.res"
+#else
+#pragma resource "bccu\\rsrc.res"
+#endif
+
+#else /* !UNICODE */
+
+#ifdef WXUSINGDLL
+#pragma resource "bcc_shared\\rsrc.res"
+#else
+#pragma resource "bcc\\rsrc.res"
+#endif
+
+#endif /* UNICODE */
+
+#endif /* DEBUG */
+
+#endif /* BORLANDC */
 
