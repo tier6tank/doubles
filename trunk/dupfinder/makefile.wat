@@ -26,7 +26,7 @@ unicode =1
 
 outdir = wat
 name = dupf
-namegui = dupfgui
+namegui = $(name)gui
 wxdir = C:\wx
 version = 
 

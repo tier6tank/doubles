@@ -24,6 +24,7 @@ using namespace std;
 #include "os_cc_specific.h"
 #include "dbl.h"
 #include "file.h"
+#include "dllexport.h"
 
 /********* options ************/
 

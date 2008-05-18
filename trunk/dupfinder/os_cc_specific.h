@@ -22,6 +22,8 @@
 #ifndef __OS_CC_SPECIFIC_H_123
 #define __OS_CC_SPECIFIC_H_123
 
+#include "dllexport.h"
+
 /*****************************************************************************/
 
 // secure function unknown to !Microsoft Visual C++
@@ -110,29 +112,6 @@
 
 /*****************************************************************************/
 
-
-struct FileData
-{
-	wxString name;
-	wxULongLong size;
-	// more is not needed
-};
-
-class wxExtDirTraverser : public wxDirTraverser
-{
-public:
-	virtual wxDirTraverseResult OnExtFile(const FileData &) {
-		return wxDIR_CONTINUE;
-	}
-	
-};
-
-template <class T> T & unconst(const T & x) {
-	return const_cast<T &>(x);
-}
-
-/*****************************************************************************/
-
 #ifdef _WIN32
 	#define DUPF_INITIALIZE_COM ::CoInitialize(NULL);
 	#define DUPF_UNINITIALIZE_COM ::CoUninitialize();
@@ -141,27 +120,55 @@ template <class T> T & unconst(const T & x) {
 	#define DUPF_UNINITIALIZE_COM
 #endif
 
+
 /*****************************************************************************/
+
+// structures
+
+struct DLLEXPORT FileData
+{
+	wxString name;
+	wxULongLong size;
+	// more is not needed
+};
+
+class DLLEXPORT wxExtDirTraverser : public wxDirTraverser
+{
+public:
+	virtual wxDirTraverseResult OnExtFile(const FileData &) {
+		return wxDIR_CONTINUE;
+	}
+	
+};
+
+/*****************************************************************************/
+
+template <class T> T & unconst(const T & x) {
+	return const_cast<T &>(x);
+}
+
+/*****************************************************************************/
+
 
 // prototypes
 
-bool IsSymLink(const wxString &);
-bool IsSymLinkSupported();
-bool CreateSymLink(const wxString &, const wxString &);
+bool DLLEXPORT IsSymLink(const wxString &);
+bool DLLEXPORT IsSymLinkSupported();
+bool DLLEXPORT CreateSymLink(const wxString &, const wxString &);
 
-// bool IsHardLink(const wxString &);  // currently not needed/ (supported (?))
-bool IsHardLinkSupported();
-bool CreateHardLink(const wxString &, const wxString &);
+// bool DLLEXPORT IsHardLink(const wxString &);  // currently not needed/ (supported (?))
+bool DLLEXPORT IsHardLinkSupported();
+bool DLLEXPORT CreateHardLink(const wxString &, const wxString &);
 
-void Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
+void DLLEXPORT Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
 	int, wxExtDirTraverser &);
 
-wxChar GetPathSepChar();
+wxChar DLLEXPORT GetPathSepChar();
 
-bool StringToULongLong(const wxString&, wxULongLong &);
+bool DLLEXPORT StringToULongLong(const wxString&, wxULongLong &);
 
 // would be nice if i had this...
-// bool MoveToTrash(const wxString &);
+// bool DLLEXPORT MoveToTrash(const wxString &);
 
 #endif /* defined(OS_CC_SPECIFIC_H) */
 

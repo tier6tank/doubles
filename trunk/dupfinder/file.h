@@ -23,10 +23,12 @@
 
 #define BASEBUFSIZE 512
 
+#include "os_cc_specific.h"
+#include "dllexport.h"
 
 // File class
 // important: this class is always assuming *sequential* read!!!
-class File
+class DLLEXPORT File
 {
 public:
 	File();

@@ -33,7 +33,7 @@ wxdir = C:\wx
 
 outdir = bcc
 name = dupf
-namegui = dupfgui
+namegui = $(name)gui
 
 version = 
 dbgversion =
