@@ -77,7 +77,7 @@ struct DuplicateFilesStats
 
 // this is the class which does all the work
 
-class DuplicateFilesFinder : public wxExtDirTraverser
+class DLLEXPORT DuplicateFilesFinder : public wxExtDirTraverser
 {
 public:
 	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet);

@@ -119,7 +119,7 @@ Description of signs:
 + adding MAXimal size of files option? but what for... done.
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
 + Treating 0-bytes sized files as double files (option?) set up
-- make dll (with dup.cpp code)?
+- make dll (with dbl.cpp code)?
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
 - exchange if !__WIN32 by if __UNIX__
@@ -263,3 +263,5 @@ Description of signs:
 - allow wxdir with spaces?
 - icon with borland and gcc as well
 - rename members (m_ prefix)
+- show warning when nested folders are specified
+- error platforminfo

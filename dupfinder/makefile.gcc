@@ -33,7 +33,7 @@ endif
 
 outdir := gcc
 name = dupf
-namegui = dupfgui
+namegui = $(name)gui
 
 version := 
 dbgv := 
