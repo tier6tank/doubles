@@ -98,12 +98,12 @@ $(outdir):
 
 $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupf.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\file.obj $(outdir)\rsrc.res
-	cl $(opt) -Fe"$@.exe" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
+	cl $(opt) -Fe"$@" $** $(libs) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\$(namegui).exe: $(outdir)\stdinc.obj $(outdir)\dbl.obj $(outdir)\dupfgui.obj $(outdir)\os_cc_specific.obj \
 	$(outdir)\dialog1.obj $(outdir)\dialog2.obj $(outdir)\dialog3.obj $(outdir)\file.obj \
 	$(outdir)\treectrl.obj $(outdir)\os_cc_specific_gui.obj $(outdir)\rsrc.res
-	cl $(opt) -Fe"$@.exe" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
+	cl $(opt) -Fe"$@" $** $(libsgui) /link /LIBPATH:"$(wxdir)\lib\$(libpath)"
 
 $(outdir)\dbl.obj: dbl.cpp $(headers)
 	cl $(opt) -c dbl.cpp

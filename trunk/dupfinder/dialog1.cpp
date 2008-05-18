@@ -40,7 +40,8 @@ enum {
 	ID_MINSIZE, 
 	ID_RMALL, 
 	ID_MAXSIZE, 
-	ID_DEFAULTS
+	ID_DEFAULTS, 
+	ID_EMPTYFILES
 };
 
 BEGIN_EVENT_TABLE(DupFinderDlg, wxDialog)
@@ -121,6 +122,10 @@ void DupFinderDlg::CreateControls()
 	const int wxTOPLEFTRIGHT = wxLEFT | wxTOP | wxRIGHT;
 	// const int wxTOPRIGHT = wxRIGHT | wxTOP;
 
+	// &_ used
+	// tdenixshyfarogcb
+	// abcdefghinorstxy
+
 	/***************************** Dialog creation **********************************/
 
 	topsizer->Add(
@@ -187,7 +192,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow2->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Include: ") ), 
+		new wxStaticText(this, wxID_STATIC, _T("I&nclude: ") ), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -199,7 +204,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow2->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Exclude: ") ), 
+		new wxStaticText(this, wxID_STATIC, _T("&Exclude: ") ), 
 		0, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -211,13 +216,25 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow4->Add(
-		wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("Include &subdir's")), 
+		new wxStaticText(this, wxID_STATIC, _T("Include ...") ), 
+		0, 
+		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow4->Add(
+		wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("&subdir's")), 
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow4->Add( 
-		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("Include &hidden files") ), 
+		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("&hidden files") ), 
+		0, 
+		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	dirrow4->Add(
+		wEmptyFiles = new wxCheckBox(this, ID_EMPTYFILES, _T("&empty files") ),
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -337,6 +354,7 @@ void DupFinderDlg::InitControls() {
 	wDirList->InsertColumn(5, _T("Exclude"), wxLIST_FORMAT_LEFT, 60);
 	wDirList->InsertColumn(6, _T("Min size"), wxLIST_FORMAT_LEFT, 30);
 	wDirList->InsertColumn(7, _T("Max size"), wxLIST_FORMAT_LEFT, 30);
+	wDirList->InsertColumn(8, _T("Empty files"), wxLIST_FORMAT_LEFT, 30);
 
 	
 	// set focus
@@ -467,6 +485,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	pi.bSearchHidden = wHidden->GetValue();
 	pi.Include = !wInclude->GetValue().IsEmpty() ? wInclude->GetValue() : wxString(_T("*"));
 	pi.Exclude = wExclude->GetValue();
+	pi.bIncludeEmptyFiles = wEmptyFiles->GetValue();
 
 	AddDir(pi);
 
@@ -476,7 +495,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 
 void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 {
-	wxListItem c1, c2, c3, c4, c5, c6, c7;
+	wxListItem c1, c2, c3, c4, c5, c6, c7, c8;
 	wxString tmp1, tmp2;
 
 	// c1.SetColumn(0); // don't set column, else you will get strange assert messages
@@ -486,6 +505,7 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	c5.SetColumn(4);
 	c6.SetColumn(5);
 	c7.SetColumn(6);
+	c8.SetColumn(7);
 	c1.SetMask(wxLIST_MASK_TEXT | wxLIST_MASK_DATA);
 	c2.SetMask(wxLIST_MASK_TEXT);
 	c3.SetMask(wxLIST_MASK_TEXT);
@@ -493,6 +513,7 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	c5.SetMask(wxLIST_MASK_TEXT);
 	c6.SetMask(wxLIST_MASK_TEXT);
 	c7.SetMask(wxLIST_MASK_TEXT);
+	c8.SetMask(wxLIST_MASK_TEXT);
 	
 	paths.push_back(pi);
 
@@ -509,6 +530,7 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	tmp1 = wxEmptyString;
 	tmp2 = pi.nMaxSize.ToString();
 	c7.SetText(wMaxSize->GetValue().IsEmpty() ? tmp1 : tmp2);
+	c8.SetText(pi.bIncludeEmptyFiles ? _T("x") : _T(""));
 
 
 	// wDirList->InsertItem(0, _T("tmp"));	
@@ -520,6 +542,7 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	wDirList->SetItem(c5);
 	wDirList->SetItem(c6);
 	wDirList->SetItem(c7);
+	wDirList->SetItem(c8);
 
 }
 
@@ -629,9 +652,7 @@ void DupFinderDlg::SetDefaults()
 	wHidden->SetValue(false);
 	wMinSize->SetValue(_T(""));
 	wMaxSize->SetValue(_T(""));
-	
-
-
+	wEmptyFiles->SetValue(true);
 }
 
 void DupFinderDlg::OnDefaults(wxCommandEvent & WXUNUSED(evt)) {

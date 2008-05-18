@@ -83,8 +83,8 @@ LARGE_INTEGER fileread;
 /******************************************************************************************/
 
 
-DuplicateFilesFinder::DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet) 
-	: bQuiet(_bQuiet), gui(_gui)
+DuplicateFilesFinder::DuplicateFilesFinder(GuiInfo * gui, bool bQuiet) 
+	: m_quiet(bQuiet), m_gui(gui)
 { 
 	Reset(); 
 }
@@ -95,50 +95,50 @@ DuplicateFilesFinder::~DuplicateFilesFinder()
 
 void DuplicateFilesFinder::AddPath(const SearchPathInfo &path)
 {
-	paths.push_back(path);
+	m_paths.push_back(path);
 }
 
 void DuplicateFilesFinder::Reset()
 {
-	paths.clear();
-	duplicates.clear();
-	sortedbysize.clear();
+	m_paths.clear();
+	m_duplicates.clear();
+	m_sortedbysize.clear();
 
-	bFirst = true;
+	m_bFirst = true;
 
-	state = prevState 
+	m_state = m_prevState 
 		= DUPF_STATE_NOT_STARTED_YET;
 	
-	nBytesRead = nPrevBytesRead
-		= nFilesRead 
-		= nPrevFilesRead
-		= nSizesDone 
-		= nPrevSizesDone 
-		= nBytesDone
-		= nPrevBytesDone
+	m_nBytesRead = m_nPrevBytesRead
+		= m_nFilesRead 
+		= m_nPrevFilesRead
+		= m_nSizesDone 
+		= m_nPrevSizesDone 
+		= m_nBytesDone
+		= m_nPrevBytesDone
 		= 0;
 
-	nSumFiles = nSumSizes
-		= nSumBytes
+	m_nSumFiles = m_nSumSizes
+		= m_nSumBytes
 		= 0;
 
-	curdir = wxEmptyString;
-	output = wxEmptyString;
+	m_curdir = wxEmptyString;
+	m_output = wxEmptyString;
 
-	current_spi = NULL;
+	m_current_spi = NULL;
 }
 
 list<DuplicatesGroup> &DuplicateFilesFinder::GetDuplicates()
 {
 	// only return duplicates if the process of finding
 	// them really has been successful and is finished
-	assert(state == DUPF_STATE_FINISHED); 
-	return duplicates;
+	assert(m_state == DUPF_STATE_FINISHED); 
+	return m_duplicates;
 }
 
 void DuplicateFilesFinder::FindDuplicateFiles() {
 
-	state = DUPF_STATE_FIND_FILES;
+	m_state = DUPF_STATE_FIND_FILES;
 
 	FindFiles();
 
@@ -147,13 +147,13 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 	}
 
 	// Would be nice, but MUCH too slow!
-	// state = DUPF_STATE_REMOVE_DOUBLE_FILES
+	// m_state = DUPF_STATE_REMOVE_DOUBLE_FILES
 	// 
 	// RemoveDoubleFiles();
 
 	RemoveUnimportantSizes();
 
-	state = DUPF_STATE_COMPARE_FILES;
+	m_state = DUPF_STATE_COMPARE_FILES;
 
 	GetEqualFiles();
 
@@ -164,7 +164,7 @@ void DuplicateFilesFinder::FindDuplicateFiles() {
 	ConstructResultList();
 
 	// Really finished!
-	state = DUPF_STATE_FINISHED;
+	m_state = DUPF_STATE_FINISHED;
 }
 
 void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
@@ -175,8 +175,8 @@ void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
 	stats.nWastedSpace = 0;
 	stats.nFilesWithDuplicates = 0;
 
-	for(it = duplicates.begin(); 
-		it != duplicates.end(); 
+	for(it = m_duplicates.begin(); 
+		it != m_duplicates.end(); 
 		it++) {
 
 		if(it->files.size() > 1) {
@@ -195,15 +195,15 @@ void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
 
 wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const wxULongLong *pSize)
 {
-	assert(current_spi);
-	const SearchPathInfo *spi = current_spi;
+	assert(m_current_spi);
+	const SearchPathInfo *spi = m_current_spi;
 
 	if(IsSymLink(filename)) {
 		return UpdateInfo(NULL);
 	}
 
 	bool bMatches = false;
-	for(list<wxString>::iterator it = ExcludeMasks.begin(); it != ExcludeMasks.end(); it ++) {
+	for(list<wxString>::iterator it = m_ExcludeMasks.begin(); it != m_ExcludeMasks.end(); it ++) {
 		if(filename.Matches(*it) ) {
 			bMatches = true;
 			break;
@@ -227,7 +227,6 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 		size = *pSize;
 	}
 	STOPTIME(__findsize);
-	const bool bIncludeZeroFiles = true; // later make an option out of this?
 		
 	bool bFitsMinSize = size >= spi->nMinSize;
 	bool bFitsMaxSize = size <= spi->nMaxSize || spi->nMaxSize == 0;
@@ -235,7 +234,7 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 	assert(spi->nMaxSize >= spi->nMinSize || spi->nMaxSize == 0);
 		
 	if(size != wxInvalidSize && 
-		(size != 0 || bIncludeZeroFiles) &&
+		(size != 0 || spi->bIncludeEmptyFiles) &&
 		bFitsMinSize &&
 		bFitsMaxSize) {
 		// init structure
@@ -243,24 +242,24 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 		f.SetName(filename);
 
 		fis.size = size;
-		it2 = sortedbysize.find(fis);
+		it2 = m_sortedbysize.find(fis);
 
 			
-		if(it2 != sortedbysize.end()) {
+		if(it2 != m_sortedbysize.end()) {
 			unconst(*it2).files.push_back(f);
 		}
 		else {
 			fis.size = size;
 			fis.files.push_back(f);
-			sortedbysize.insert(fis);
-			nSumSizes++;
+			m_sortedbysize.insert(fis);
+			m_nSumSizes++;
 		}
 		STOPTIME(__insert);
 	}
 	STOPTIME(__OnFile);
 
-	nSumFiles++;
-	nSumBytes += size;
+	m_nSumFiles++;
+	m_nSumBytes += size;
 
 	return UpdateInfo(NULL);
 }
@@ -282,7 +281,7 @@ wxDirTraverseResult DuplicateFilesFinder::UpdateInfo(const wxString *dirname)
 	}
 
 	if(dirname) {
-		curdir = *dirname;
+		m_curdir = *dirname;
 	}
 
 	UpdateStatusDisplay();
@@ -305,13 +304,13 @@ bool DuplicateFilesFinder::Traverse(const SearchPathInfo *spi)
 
 	wxStringTokenizer tok_excl(spi->Exclude, GetPathSepChar());
 
-	ExcludeMasks.clear();
+	m_ExcludeMasks.clear();
 
 	while (tok_excl.HasMoreTokens()) {
-		ExcludeMasks.push_back(tok_excl.GetNextToken());
+		m_ExcludeMasks.push_back(tok_excl.GetNextToken());
 	}
 
-	current_spi = spi;
+	m_current_spi = spi;
 
 #if defined( FINDFILES_USE_WXWIDGETS )
 	bool bSuccess = true;
@@ -355,12 +354,12 @@ void	DuplicateFilesFinder::FindFiles()
 #endif
 
 
-	if(!bQuiet) {
+	if(!m_quiet) {
 		wxLogMessage(_T("Step 1: Searching files... "));
 	}
 
-	for (it3 = paths.begin(); it3 != paths.end(); it3++) {
-		if(!bQuiet) {
+	for (it3 = m_paths.begin(); it3 != m_paths.end(); it3++) {
+		if(!m_quiet) {
 			wxLogMessage(_T("        ... in \"%s\" ... "), it3->path.c_str());
 		}
 		
@@ -426,13 +425,13 @@ void	DuplicateFilesFinder::GetEqualFiles()
 			int j, k;
 			list<File>::iterator st1, st2;
 			int a, b;
-			a = rand() % sortedbysize.size();
-			for(it2 = sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
+			a = rand() % m_sortedbysize.size();
+			for(it2 = m_sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
 			b = rand() % it2->files.size();
 			for(k = 0, it = it2->files.begin(); k < b; k++, it++) { }
 			st1 = it;
-			a = rand() % sortedbysize.size();
-			for(it2 = sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
+			a = rand() % m_sortedbysize.size();
+			for(it2 = m_sortedbysize.begin(), j = 0; j < a; it2++, j++) {}
 			b = rand() % it2->files.size();
 			for(k = 0, it = it2->files.begin(); k < b; k++, it++) {}
 			st2 = it;
@@ -445,17 +444,17 @@ void	DuplicateFilesFinder::GetEqualFiles()
 #endif /* RANDOM_NOISE */
 	
 
-	if(!bQuiet) {
+	if(!m_quiet) {
 		wxLogMessage(_T("Step 2: Comparing files with same size for equality... "));
 	}
 
-	// nSizesDone = 0; // Reset() resets this automatically
+	// m_nSizesDone = 0; // Reset() resets this automatically
 
 	STARTTIME(comparetime);
 
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); it2++) {
+	for(it2 = m_sortedbysize.begin(); it2 != m_sortedbysize.end(); it2++) {
 		// printf("size %" I64 ": %i file(s) \n", it2->size.QuadPart, it2->files.size());
-		nSizesDone++;
+		m_nSizesDone++;
 		UpdateStatusDisplay();
 		assert(it2->files.size() > 1);
 		if(it2->files.size() > 1) { /* in fact, this isn't neccesarry any more */
@@ -496,8 +495,8 @@ void	DuplicateFilesFinder::GetEqualFiles()
 						ittmp->Close();
 						unconst(*it2).files.erase(ittmp);
 
-						nBytesDone += it2->size;
-						nFilesRead++;
+						m_nBytesDone += it2->size;
+						m_nFilesRead++;
 					}
 
 					UpdateStatusDisplay();
@@ -524,8 +523,8 @@ void	DuplicateFilesFinder::GetEqualFiles()
 				unconst(*it2).files.pop_front();
 				it = unconst(*it2).files.begin();
 
-				nBytesDone += it2->size;
-				nFilesRead++;
+				m_nBytesDone += it2->size;
+				m_nFilesRead++;
 			} /* for it */
 		} /* if size > 1 */
 		/* Close files */
@@ -537,13 +536,13 @@ void	DuplicateFilesFinder::GetEqualFiles()
 
 	STOPTIME(comparetime);
 
-	if(!bQuiet) {
+	if(!m_quiet) {
 		ResetLine();
 		wxLogMessage(_T("        done. \n"));
 	}
 
 #ifdef TEST
-	for(__it2 = sortedbysize.begin(); __it2 != sortedbysize.end(); __it2++) {
+	for(__it2 = m_sortedbysize.begin(); __it2 != m_sortedbysize.end(); __it2++) {
 		for(__it4 = __it2->equalfiles.begin(); __it4 != __it2->equalfiles.end(); __it4++) {
 			for(__it = __it4->files.begin(); __it != __it4->files.end(); __it++) {
 				__it5 = __it;
@@ -604,7 +603,7 @@ bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &s
 		br1 = f1.Read(&pb1, n1);
 		br2 = f2.Read(&pb2, n2);
 
-		nBytesRead += n1 + n2;
+		m_nBytesRead += n1 + n2;
 		
 
 		if(n1 != n2 || !br1 || !br2) {
@@ -635,122 +634,122 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 
 	tcurrent = time(NULL);
 
-	if(tcurrent - tlast >= REFRESH_INTERVAL || bFirst) {
-		if(gui) {
-			if(prevState != state) {
-				switch(state) {
+	if(tcurrent - m_tlast >= REFRESH_INTERVAL || m_bFirst) {
+		if(m_gui) {
+			if(m_prevState != m_state) {
+				switch(m_state) {
 				case DUPF_STATE_FIND_FILES:
-					gui->wStep1->SetFont(gui->boldfont);
+					m_gui->wStep1->SetFont(m_gui->boldfont);
 					break;
 				case DUPF_STATE_COMPARE_FILES:
-					gui->wStep1->SetFont(gui->normalfont);
+					m_gui->wStep1->SetFont(m_gui->normalfont);
 
-					gui->out->Disable();
-					gui->out->SetValue(_T(""));
+					m_gui->out->Disable();
+					m_gui->out->SetValue(_T(""));
 
-					gui->wStep2->SetFont(gui->boldfont);
+					m_gui->wStep2->SetFont(m_gui->boldfont);
 
 					break;
 				default:
 					break;
 				}
-			} /* if (prevState != state) */
+			} /* if (m_prevState != m_state) */
 
-			if((prevState == DUPF_STATE_FIND_FILES &&
-				state > DUPF_STATE_FIND_FILES) || 
-				state == DUPF_STATE_FIND_FILES) {
+			if((m_prevState == DUPF_STATE_FIND_FILES &&
+				m_state > DUPF_STATE_FIND_FILES) || 
+				m_state == DUPF_STATE_FIND_FILES) {
 				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %")
 					wxLongLongFmtSpec _T("u size(s)"), 
-					nSumFiles.GetValue(), 
-					nSumSizes.GetValue());
+					m_nSumFiles.GetValue(), 
+					m_nSumSizes.GetValue());
 
-				gui->nfiles->SetLabel(tmp);
+				m_gui->nfiles->SetLabel(tmp);
 			}
 				
-			switch(state) {
+			switch(m_state) {
 			case DUPF_STATE_FIND_FILES:
-				gui->out->SetValue(curdir);
+				m_gui->out->SetValue(m_curdir);
 
 				break;
 			case DUPF_STATE_COMPARE_FILES:
 				tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %")
 					wxLongLongFmtSpec _T("u size(s)"), 
-					nSumFiles.GetValue(), 
-					nSumSizes.GetValue());
-				gui->nfiles->SetLabel(tmp);
+					m_nSumFiles.GetValue(), 
+					m_nSumSizes.GetValue());
+				m_gui->nfiles->SetLabel(tmp);
 
 				// tmp.Printf(_T("%") wxLongLongFmtSpec _T("u file(s), %u sizes"), 
-				// 	nFiles2.GetValue(), sortedbysize.size());
-				// gui->cfiles->SetLabel(tmp);
+				// 	nFiles2.GetValue(), m_sortedbysize.size());
+				// m_gui->cfiles->SetLabel(tmp);
 
 				tmp.Printf(_T("size %") wxLongLongFmtSpec _T("u/%")
 					wxLongLongFmtSpec _T("u (%.2f %%)(%") wxLongLongFmtSpec _T("u bytes, %u files)"), 
-					nSizesDone.GetValue(), nSumSizes.GetValue(), 
-					nSizesDone.ToDouble()/nSumSizes.ToDouble()*100, 
+					m_nSizesDone.GetValue(), m_nSumSizes.GetValue(), 
+					m_nSizesDone.ToDouble()/m_nSumSizes.ToDouble()*100, 
 					/*it2->size.GetValue(), it2->files.size()*/
 					wxULongLong(0).GetValue(), 0);
 
 				tmp2.Printf(_T(" %.2f / %.2f (%.2f %%) "),
-					nBytesDone.ToDouble()/1024/1024, 
-					nSumBytes.ToDouble()/1024/1024, 
-					nBytesDone.ToDouble()/nSumBytes.ToDouble()*100);
+					m_nBytesDone.ToDouble()/1024/1024, 
+					m_nSumBytes.ToDouble()/1024/1024, 
+					m_nBytesDone.ToDouble()/m_nSumBytes.ToDouble()*100);
 				tmp += tmp2;
 
 				tmp2.Printf(_T(" %") wxLongLongFmtSpec _T("u / ")
 					_T("%") wxLongLongFmtSpec _T("u (%.2f %%)"), 
-					nFilesRead.GetValue(), 
-					nSumFiles.GetValue(), 
-					nFilesRead.ToDouble()/nSumFiles.ToDouble()*100.0);
+					m_nFilesRead.GetValue(), 
+					m_nSumFiles.GetValue(), 
+					m_nFilesRead.ToDouble()/m_nSumFiles.ToDouble()*100.0);
 				tmp += tmp2;
 				
 				
-				gui->wProgress->SetLabel(tmp);
+				m_gui->wProgress->SetLabel(tmp);
 
 				tmp.Printf(_T("%.2f mb/sec"), 
-					(nBytesRead-nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024/1024
+					(m_nBytesRead-m_nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024/1024
 					);
-				gui->wSpeed->SetLabel(tmp);
+				m_gui->wSpeed->SetLabel(tmp);
 
-				// gui->wProgressGauge->SetValue((nBytesDone*1000/nSumBytes).GetValue());
-				gui->wProgressGauge->SetValue((nFilesRead*1000/nSumFiles).ToULong());
+				// m_gui->wProgressGauge->SetValue((m_nBytesDone*1000/m_nSumBytes).GetValue());
+				m_gui->wProgressGauge->SetValue((m_nFilesRead*1000/m_nSumFiles).ToULong());
 				break;
 			default:
 				break;
 			}
 		}
-		else if(!bQuiet && state == DUPF_STATE_COMPARE_FILES) {
+		else if(!m_quiet && m_state == DUPF_STATE_COMPARE_FILES) {
 			ResetLine();
-			output.Printf(_T(" %.2f mb/sec"), (nBytesRead-nPrevBytesRead).ToDouble()
+			m_output.Printf(_T(" %.2f mb/sec"), (m_nBytesRead-m_nPrevBytesRead).ToDouble()
 				/REFRESH_INTERVAL/1024.0/1024.0);
 
 			tmp.Printf(_T("size %")
 				wxLongLongFmtSpec _T("u/%")
 				wxLongLongFmtSpec _T("u (%i files of size %") wxLongLongFmtSpec _T("u)")
 				/*" %i kb/s" */, 
-				nSizesDone.GetValue(), nSumSizes.GetValue(), 
+				m_nSizesDone.GetValue(), m_nSumSizes.GetValue(), 
 				0, wxULongLong(0).GetValue()/*it2->files.size(), it2->size.GetValue() */);
 
-			output += tmp;
+			m_output += tmp;
 
-			_ftprintf(stderr, _T("%s"), output.c_str());
+			_ftprintf(stderr, _T("%s"), m_output.c_str());
 
 		}
 
-		nPrevBytesRead = nBytesRead;
-		nPrevSizesDone = nSizesDone;
-		nPrevFilesRead = nFilesRead;
-		nPrevBytesDone = nBytesDone;
-		prevState = state;
-		tlast = tcurrent;
-		bFirst = false;
+		m_nPrevBytesRead = m_nBytesRead;
+		m_nPrevSizesDone = m_nSizesDone;
+		m_nPrevFilesRead = m_nFilesRead;
+		m_nPrevBytesDone = m_nBytesDone;
+		m_prevState = m_state;
+		m_tlast = tcurrent;
+		m_bFirst = false;
 	}
 	// Sleep(1);
 }
 
 void DuplicateFilesFinder::ResetLine() 
 {
-	if(!bQuiet) {
-		int n = output.Length();
+	if(!m_quiet) {
+		int n = m_output.Length();
 		int t;
 		for(t = 0; t < n; t++) {
 			_ftprintf(stderr, _T("\b"));
@@ -770,9 +769,9 @@ void DuplicateFilesFinder::ConstructResultList()
 	list<fileinfoequal>::iterator it2;
 	DuplicatesGroup dupl;
 
-	for(it1 = sortedbysize.begin(); 
-		!sortedbysize.empty(); 
-		it1 = sortedbysize.begin()) {
+	for(it1 = m_sortedbysize.begin(); 
+		!m_sortedbysize.empty(); 
+		it1 = m_sortedbysize.begin()) {
 		dupl.size = it1->size;
 		for(it2 = unconst(*it1).equalfiles.begin(); 
 			!it1->equalfiles.empty(); 
@@ -781,26 +780,26 @@ void DuplicateFilesFinder::ConstructResultList()
 			dupl.files = it2->files;
 			// immediately delete memory not needed, to be keeping memory 
 			// usage low
-			duplicates.push_back(dupl);
+			m_duplicates.push_back(dupl);
 			unconst(*it1).equalfiles.erase(it2);
 		}
-		sortedbysize.erase(it1);
+		m_sortedbysize.erase(it1);
 	}
 
-	assert(sortedbysize.empty());
+	assert(m_sortedbysize.empty());
 }
 
 bool DuplicateFilesFinder::YieldAndTestAbort()
 {
-	if(gui) {
-		gui->theApp->Yield();
-		while(gui->bPause && gui->bContinue) {
+	if(m_gui) {
+		m_gui->theApp->Yield();
+		while(m_gui->bPause && m_gui->bContinue) {
 			wxMilliSleep(10);
-			gui->theApp->Yield();
+			m_gui->theApp->Yield();
 		}
 
-		if(!gui->bContinue) {
-			state = DUPF_STATE_ERROR;
+		if(!m_gui->bContinue) {
+			m_state = DUPF_STATE_ERROR;
 			return true;
 		}
 	}
@@ -814,7 +813,7 @@ void DuplicateFilesFinder::RemoveDoubleFiles() {
 	list<File>::iterator it3;
 	bool bDeleted;
 
-	for(it = sortedbysize.begin(); it != sortedbysize.end(); it++) {
+	for(it = m_sortedbysize.begin(); it != m_sortedbysize.end(); it++) {
 		for(it2 = it->files.begin(); it2 != it->files.end(); it2++) {
 			it3 = it2;
 			for(it3++; it3 != it->files.end(); bDeleted ? it3 : it3++) {
@@ -840,25 +839,25 @@ void DuplicateFilesFinder::RemoveUnimportantSizes() {
 	
 	/* sort all sizes out where only one file has that particular size */
 
-	for(it2 = sortedbysize.begin(); it2 != sortedbysize.end(); bDeleted ? it2 : it2++) {
+	for(it2 = m_sortedbysize.begin(); it2 != m_sortedbysize.end(); bDeleted ? it2 : it2++) {
 		if(it2->files.size() > 1) {
 			bDeleted = false;
 		}
 		else { 
-			nSumBytes -= it2->size;
+			m_nSumBytes -= it2->size;
 
 			it2tmp = it2;
 			it2++;
 
-			sortedbysize.erase(it2tmp);
+			m_sortedbysize.erase(it2tmp);
 			bDeleted = true;
 
-			nSumFiles--;
+			m_nSumFiles--;
 		}
 	}
 
-	if(!bQuiet) {
+	if(!m_quiet) {
 		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
-		nSumFiles.GetValue());
+		m_nSumFiles.GetValue());
 	}
 }

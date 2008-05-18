@@ -1,3 +1,9 @@
+Date : 2008/5/17 19:54
+Added option for including/excluding zero sized files
+changed name of all members of DuplicateFilesFinder class
+fixed makefile.vc bug
+Changed &_ in dialog1
+
 Date : 2008/5/17 17:41
 Resources are now also included with Borland and mingw
 Small warning fix

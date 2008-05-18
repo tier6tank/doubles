@@ -40,6 +40,7 @@ struct SearchPathInfo
 	bool bSearchHidden;
 	wxString Include;
 	wxString Exclude;
+	bool bIncludeEmptyFiles;
 };
 
 struct GuiInfo {
@@ -90,7 +91,7 @@ public:
 
 	list<DuplicatesGroup> &GetDuplicates();
 
-	void SetGui(GuiInfo *_gui) { gui = _gui; }
+	void SetGui(GuiInfo *gui) { m_gui = gui; }
 
 	void CalculateStats(DuplicateFilesStats &) const;
 
@@ -122,22 +123,22 @@ private:
 private: // private variables
 
 	// paths to search in
-	list<SearchPathInfo> paths;
+	list<SearchPathInfo> m_paths;
 
 	// display options
 	// console output?
-	bool bQuiet;
+	bool m_quiet;
 	// for status display
-	GuiInfo * gui;
+	GuiInfo * m_gui;
 
 	// the final results
-	list<DuplicatesGroup> duplicates;
+	list<DuplicatesGroup> m_duplicates;
 
 	// internal data for computation
 	// of duplicate files
-	multiset_fileinfosize sortedbysize;
-	list<wxString> ExcludeMasks;
-	const SearchPathInfo *current_spi;
+	multiset_fileinfosize m_sortedbysize;
+	list<wxString> m_ExcludeMasks;
+	const SearchPathInfo *m_current_spi;
 
 	enum DupFinderState { 
 		DUPF_STATE_ERROR = -1, 
@@ -147,39 +148,39 @@ private: // private variables
 		DUPF_STATE_COMPARE_FILES, 
 		DUPF_STATE_FINISHED
 	};
-	DupFinderState state, prevState;
+	DupFinderState m_state, m_prevState;
 
 	// variables, which determine
 	// whether status display 
 	// should be updated
-	time_t tlast;
-	bool bFirst;
+	time_t m_tlast;
+	bool m_bFirst;
 	
 	// in console version last 
 	// string written on console
 	// (needed for deleteline)
-	wxString output;
+	wxString m_output;
 
 	// statistics (speed)
-	wxULongLong nBytesRead;
-	wxULongLong nPrevBytesRead;
-	wxULongLong nFilesRead;
-	wxULongLong nPrevFilesRead;
-	wxULongLong nSizesDone;
-	wxULongLong nPrevSizesDone;
+	wxULongLong m_nBytesRead;
+	wxULongLong m_nPrevBytesRead;
+	wxULongLong m_nFilesRead;
+	wxULongLong m_nPrevFilesRead;
+	wxULongLong m_nSizesDone;
+	wxULongLong m_nPrevSizesDone;
 
 	// All bytes (not these only read)
 	// Range from 0 to nSumBytes!
-	wxULongLong nBytesDone; 
-	wxULongLong nPrevBytesDone; 
+	wxULongLong m_nBytesDone; 
+	wxULongLong m_nPrevBytesDone; 
 
 	// total amount of files/bytes to read/sizes to process
-	wxULongLong nSumFiles;
-	wxULongLong nSumSizes;
-	wxULongLong nSumBytes;
+	wxULongLong m_nSumFiles;
+	wxULongLong m_nSumSizes;
+	wxULongLong m_nSumBytes;
 
 	// current directory searched in for status display
-	wxString curdir;
+	wxString m_curdir;
 
 private:
 	// private procedures
