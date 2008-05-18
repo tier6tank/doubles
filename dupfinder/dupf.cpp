@@ -122,6 +122,7 @@ DECLARE_MAIN
 		pi.bSearchHidden = false;
 		pi.Include = wxEmptyString;
 		pi.Exclude = wxEmptyString;
+		pi.bIncludeEmptyFiles = false;
 
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
 			if(argv[i] == _T("--min")) {
@@ -182,7 +183,10 @@ DECLARE_MAIN
 				pi.Exclude = argv[i+1];
 				i++;
 			}
-			else {
+			else if(argv[i] == _T("-z") || 
+				argv[i] == _T("--zero")) {
+				pi.bIncludeEmptyFiles = true;
+			} else {
 				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i].c_str());
 				return 1;
 			}
@@ -432,4 +436,5 @@ void DisplayHelp()
 	_ftprintf(stderr, _T("-h   | --hidden   : include hidden files in search (default: off)\n"));
 	_ftprintf(stderr, _T("-i   | --include x: search files which match the file mask\n"));
 	_ftprintf(stderr, _T("-e   | --exclude x: exclude files which match mask\n"));
+	_ftprintf(stderr, _T("-z   | --zero     : include files with length 0 (empty files)\n"));
 }

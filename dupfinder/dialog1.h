@@ -79,6 +79,7 @@ private:
 	wxTextCtrl *wInclude;
 	wxTextCtrl *wExclude;
 	wxTextCtrl *wMaxSize;
+	wxCheckBox *wEmptyFiles;
 
 	DuplicateFilesFinder dupfinder;
 
