@@ -34,6 +34,7 @@ endif
 outdir := gcc
 name = dupf
 namegui = $(name)gui
+namedll = $(name)dll
 
 version := 
 dbgv := 
@@ -88,44 +89,46 @@ nopchopt := $(nopchopt) $(dbg) $(uniopt) $(sharedopt)
 
 opt := $(nopchopt) -include ./$(outdir)/stdinc.h
 
-libs = -L$(wxdir)\lib\$(libpath) -lwxbase28$(version) -lshlwapi  -luuid -lole32
+dllopt := $(opt) -DDUPF_BUILDING_DLL
+
+libs = -L$(wxdir)\lib\$(libpath) -L$(outdir) -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h resource.h
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h resource.h \
+	dllexport.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 	os_cc_specific_gui.h
 
-all: $(outdir) $(outdir)\stdinc.h.gch $(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
+all: $(outdir) $(outdir)\stdinc.h.gch $(outdir)\$(namedll).dll \
+	$(outdir)\$(name).exe $(outdir)\$(namegui).exe copy_dll
 
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
-$(outdir)\$(name).exe: $(outdir)\dbl.o $(outdir)\dupf.o $(outdir)\os_cc_specific.o $(outdir)\file.o \
-	$(outdir)\rsrc.o
-	g++ $(opt) -o "$(outdir)\$(name).exe" $(outdir)\dbl.o $(outdir)\dupf.o \
-              $(outdir)\os_cc_specific.o $(outdir)\file.o $(outdir)\rsrc.o $(libs)
+$(outdir)\$(name).exe: $(outdir)\dupf.o $(outdir)\rsrc.o
+	g++ $(opt) -o "$@" $+ $(libs) -l$(namedll)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(name).exe
 endif
 
+$(outdir)\$(namedll).dll: $(outdir)\dbl.o $(outdir)\file.o $(outdir)\os_cc_specific.o
+	g++ $(opt) -shared -o "$@" $+ $(libs) -Wl,--out-implib,$(outdir)\$(namedll).a
+
 $(outdir)\dbl.o: dbl.cpp $(headers)
-	g++ $(opt) -c -o $@ dbl.cpp
+	g++ $(dllopt) -c -o $@ dbl.cpp
 
 $(outdir)\dupf.o: dupf.cpp $(headers)
 	g++ $(opt) -c -o $@ dupf.cpp
 
 $(outdir)\os_cc_specific.o: os_cc_specific.cpp $(headers)
-	g++ $(opt) -c -o $@ os_cc_specific.cpp
+	g++ $(dllopt) -c -o $@ os_cc_specific.cpp
 
 $(outdir)\stdinc.h.gch: stdinc.h os_cc_specific_includes.h
 	g++ $(nopchopt) -c -x c++ -o $(outdir)\stdinc.h.gch stdinc.h
 
-$(outdir)\$(namegui).exe: $(outdir)\stdinc.h.gch $(outdir)\dupfgui.o $(outdir)\dialog1.o \
-		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o $(outdir)\rsrc.o
-	g++ $(opt) -mwindows -o "$(outdir)\$(namegui).exe" $(outdir)\dupfgui.o $(outdir)\dialog1.o \
-		$(outdir)\dialog2.o $(outdir)\dialog3.o $(outdir)\dbl.o $(outdir)\os_cc_specific.o \
-		$(outdir)\file.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o $(outdir)\rsrc.o \
-		$(libsgui)
+$(outdir)\$(namegui).exe: $(outdir)\dupfgui.o $(outdir)\dialog1.o $(outdir)\dialog2.o \
+		$(outdir)\dialog3.o $(outdir)\treectrl.o $(outdir)\os_cc_specific_gui.o \
+		$(outdir)\rsrc.o
+	g++ $(opt) -mwindows -o "$@" $+ $(libsgui) -l$(namedll)
 ifneq ($(debug),1)
 	strip -s $(outdir)\$(namegui).exe
 endif
@@ -143,7 +146,7 @@ $(outdir)\dialog3.o: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
 	g++ $(opt) -c -o $@ dialog3.cpp
 
 $(outdir)\file.o: file.cpp $(headers)
-	g++ $(opt) -c -o $@ file.cpp
+	g++ $(dllopt) -c -o $@ file.cpp
 
 $(outdir)\treectrl.o: treectrl.cpp $(headersgui)
 	g++ $(opt) -c -o $@ treectrl.cpp
