@@ -27,6 +27,12 @@ unicode =1
 shared = 0
 !endif
 
+# undocumented option to switch
+# on analysing (vc new enough only)
+!ifndef analyse
+analyse = 0
+!endif
+
 !ifndef wxdir
 wxdir = C:\wx
 !endif
@@ -58,7 +64,11 @@ outdir = $(outdir)$(version)$(stversion)
 
 opt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
 	-I"$(wxdir)\include" -I"$(wxdir)\include\msvc" /D__WXMSW__ /DWIN32 -Yu"stdinc.h" \
-	-nologo -analyze
+	-nologo
+
+!if $(analyse)==1
+opt = $(opt) -analyze
+!endif
 
 # Use treectrl
 !if 1 
@@ -92,7 +102,8 @@ dllopt = $(opt) -DDUPF_BUILDING_DLL
 libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib 
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
 libdll = $(outdir)\$(namedll).lib
-headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h
+headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h \
+	dllexport.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 		os_cc_specific_gui.h
 

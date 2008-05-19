@@ -119,7 +119,7 @@ Description of signs:
 + adding MAXimal size of files option? but what for... done.
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
 + Treating 0-bytes sized files as double files (option?) set up
-- make dll (with dbl.cpp code)?
+- make dll (with dbl.cpp code)? done!!! (TODO: Installer!)
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
 - exchange if !__WIN32 by if __UNIX__
@@ -244,7 +244,7 @@ Description of signs:
 + test exclude code done.
 - removed unnecessary if's (os_cc_specific)
 + add to desc of dialog 3 ".. you can also mark more than one file"
-- makefile.unix "and"
++ makefile.unix "and"  doesn't exist
 + percentage in progress view yes.
 + instead of size/size display the bytes read/sum bytes to read  (files read)
 + move status display code to extra functions done.
@@ -264,4 +264,4 @@ Description of signs:
 - icon with borland and gcc as well
 - rename members (m_ prefix)
 - show warning when nested folders are specified
-- error platforminfo
+- error platforminfo on program start.
