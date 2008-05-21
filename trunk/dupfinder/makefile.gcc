@@ -110,8 +110,12 @@ ifneq ($(debug),1)
 	strip -s $(outdir)\$(name).exe
 endif
 
-$(outdir)\$(namedll).dll: $(outdir)\dbl.o $(outdir)\file.o $(outdir)\os_cc_specific.o
+$(outdir)\$(namedll).dll: $(outdir)\dbl.o $(outdir)\file.o $(outdir)\os_cc_specific.o \
+	$(outdir)\dllmain.o
 	g++ $(opt) -shared -o "$@" $+ $(libs) -Wl,--out-implib,$(outdir)\$(namedll).a
+ifneq ($(debug),1)
+	strip -s $(outdir)\$(namedll).dll
+endif
 
 $(outdir)\dbl.o: dbl.cpp $(headers)
 	g++ $(dllopt) -c -o $@ dbl.cpp
@@ -156,6 +160,9 @@ $(outdir)\os_cc_specific_gui.o: os_cc_specific_gui.cpp $(headersgui)
 
 $(outdir)\rsrc.o: rsrc.rc resource.h
 	windres rsrc.rc $@
+
+$(outdir)\dllmain.o: dllmain.cpp
+	g++ $(dllopt) -c -o $@ dllmain.cpp
 
 run:
 	-$(outdir)\$(name).exe

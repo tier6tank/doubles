@@ -120,6 +120,7 @@ Description of signs:
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
 + Treating 0-bytes sized files as double files (option?) set up
 - make dll (with dbl.cpp code)? done!!! (TODO: Installer!)
+- unix shared library...
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text
 - exchange if !__WIN32 by if __UNIX__
@@ -255,13 +256,15 @@ Description of signs:
 + PreviousState! OK
 - option for unix makefiles whether to use pch's or not
 - delete items from list common function
-- option whether to use 2.6 incompatible functions?? (or at least warn?)
++ option whether to use 2.6 incompatible functions?? (or at least warn?) ??
 + message hardlinks... much better now
 ? cmake/bakefile?
-- or makefiles update (esp. makefile.gcc) (try to remove duplicates!)
+  or makefiles update (esp. makefile.gcc) 
++ ... (try to remove duplicates!) duplicates removed
 - test command line version
 - allow wxdir with spaces?
-- icon with borland and gcc as well
++ icon with borland and gcc as well yes.
 - rename members (m_ prefix)
 - show warning when nested folders are specified
-- error platforminfo on program start.
++ error platforminfo on program start. solved.
++ strip dll done.

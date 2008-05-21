@@ -118,7 +118,8 @@ $(outdir)\$(name).exe: $(outdir)\stdinc.obj $(outdir)\dupf.obj
 # this doesn't work who knows why...
 #	brc32 $(outdir)\rsrc.res $@
 
-$(outdir)\$(namedll).dll: $(outdir)\dbl.obj $(outdir)\file.obj $(outdir)\os_cc_specific.obj
+$(outdir)\$(namedll).dll: $(outdir)\dbl.obj $(outdir)\file.obj $(outdir)\os_cc_specific.obj \
+	$(outdir)\dllmain.obj
 	bcc32 $(optdll) -e"$@" $** $(libs)
 	implib $(libdll) $@
 
@@ -164,6 +165,9 @@ $(outdir)\os_cc_specific_gui.obj: os_cc_specific_gui.cpp  $(headersgui)
 
 $(outdir)\rsrc.res: rsrc.rc resource.h
 	brcc32 -i"$(wxdir)\include" -fo"$@" rsrc.rc
+
+$(outdir)\dllmain.obj: dllmain.cpp
+	bcc32 $(dllopt) -c -o"$@" dllmain.cpp
 
 run:
 	-$(outdir)\$(name).exe

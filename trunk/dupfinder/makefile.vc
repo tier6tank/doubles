@@ -117,7 +117,8 @@ all: $(outdir) $(outdir)\stdinc.obj \
 $(outdir): 
 	-@if not exist $(outdir) mkdir $(outdir)
 
-$(outdir)\$(namedll).dll: $(outdir)\dbl.obj $(outdir)\os_cc_specific.obj $(outdir)\file.obj 
+$(outdir)\$(namedll).dll: $(outdir)\dbl.obj $(outdir)\os_cc_specific.obj $(outdir)\file.obj \
+	$(outdir)\dllmain.obj
 	cl $(opt) -LD$(dbgversion) -Fe"$@" $** $(libs) $(libpath_option)
 
 $(outdir)\$(name).exe: $(outdir)\dupf.obj $(outdir)\rsrc.res $(libdll)
@@ -163,6 +164,9 @@ $(outdir)\treectrl.obj: treectrl.cpp $(headersgui)
 
 $(outdir)\rsrc.res: rsrc.rc resource.h
 	rc -i"$(wxdir)\include" -fo "$@" rsrc.rc 
+
+$(outdir)\dllmain.obj: dllmain.cpp
+	cl $(dllopt) -c dllmain.cpp
 
 run:
 	-$(outdir)\$(name).exe
