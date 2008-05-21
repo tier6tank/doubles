@@ -49,11 +49,11 @@ BEGIN_EVENT_TABLE(DupFinderDlg2, wxDialog)
 	EVT_BUTTON(ID_PAUSE, 		DupFinderDlg2::OnPause)
 END_EVENT_TABLE()
 
-DupFinderDlg2::DupFinderDlg2(DuplicateFilesFinder &_dupf, DupFinderDlg *_parent) : 
+DupFinderDlg2::DupFinderDlg2(DuplicateFilesFinder &dupf, DupFinderDlg *parent) : 
 	wxDialog(NULL, -1, _T("Duplicate Files Finder - Searching"), wxDefaultPosition, wxDefaultSize,  
 	/* no parent because of icon !!! */
 	(wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMINIMIZE_BOX | wxMAXIMIZE_BOX) & ~wxCLOSE_BOX ), 
-	dupfinder(_dupf), bStarted(false), parent(_parent)
+	m_dupfinder(dupf), m_started(false), m_parent(parent)
 {
 	
 }
@@ -90,13 +90,13 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progresssizer->Add(
-		wStep1 = new wxStaticText(this, ID_STEP1, _T("1) Searching files: In directory ")), 
+		m_wStep1 = new wxStaticText(this, ID_STEP1, _T("1) Searching files: In directory ")), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
 
 	progresssizer->Add(
-		wDirName = new wxTextCtrl(this, ID_SEARCHDIRNAME, _T("----"), 
+		m_wDirName = new wxTextCtrl(this, ID_SEARCHDIRNAME, _T("----"), 
 			wxDefaultPosition, wxSize(300, wxDefaultSize.GetHeight()), wxTE_READONLY), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
@@ -109,7 +109,7 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	nfilessizer->Add(
-		wnFiles = new wxStaticText(this, ID_NFILES, _T("")), 
+		m_wnFiles = new wxStaticText(this, ID_NFILES, _T("")), 
 		1, 
 		wxTOPLEFT, 
 		10);
@@ -121,7 +121,7 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	cfilessizer->Add(
-		wcFiles = new wxStaticText(this, ID_CFILES, _T("")), 
+		m_wcFiles = new wxStaticText(this, ID_CFILES, _T("")), 
 		1, 
 		wxTOPLEFT, 
 		10);
@@ -134,7 +134,7 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progress2sizer->Add(
-		wProgress = new wxStaticText(this, ID_PROGRESS, _T("")), 
+		m_wProgress = new wxStaticText(this, ID_PROGRESS, _T("")), 
 		1, 
 		wxTOPLEFT, 
 		10);	
@@ -146,7 +146,7 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progress2sizer_2->Add(
-		wSpeed = new wxStaticText(this, ID_SPEED, _T("")), 
+		m_wSpeed = new wxStaticText(this, ID_SPEED, _T("")), 
 		1,
 		wxTOPLEFTRIGHT, 
 		10);
@@ -166,7 +166,7 @@ void DupFinderDlg2::CreateControls()
 		10); */
 
 	progresssizer->Add(
-		wStep2 = new wxStaticText(this, ID_STEP2, _T("2) Comparing files: ")), 
+		m_wStep2 = new wxStaticText(this, ID_STEP2, _T("2) Comparing files: ")), 
 		0, 
 		wxTOPLEFTRIGHT | wxEXPAND, 
 		10);
@@ -184,13 +184,13 @@ void DupFinderDlg2::CreateControls()
 		10);
 
 	progresssizer->Add(
-		wProgressGauge = new wxGauge(this, ID_PROGRESS_GAUGE, 1000), 
+		m_wProgressGauge = new wxGauge(this, ID_PROGRESS_GAUGE, 1000), 
 		0, 
 		wxEXPAND | wxTOPLEFTRIGHT | wxBOTTOM, 
 		10);
 
 	// show it when the progress display works fine
-	// progresssizer->Hide(wProgressGauge);
+	// progresssizer->Hide(m_wProgressGauge);
 
 	topsizer->Add(
 		progresssizer, 
@@ -205,7 +205,7 @@ void DupFinderDlg2::CreateControls()
 		10); 
 
 	controls->Add(
-		wPause = new wxButton(this, ID_PAUSE, _T("&Pause")), 
+		m_wPause = new wxButton(this, ID_PAUSE, _T("&Pause")), 
 		0, 
 		wxTOPLEFT | wxALIGN_RIGHT, 
 		10);
@@ -262,9 +262,9 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 	// if there are any, 
 	// and then the dialog box is closed again
 
-	if(!bStarted) {
+	if(!m_started) {
 		// do not change this and LEAVE THIS AT THE BEGINNING
-		bStarted = true;
+		m_started = true;
 
 		// do not pass messages to old (gui) log target!
 		wxLogWindow *logw = new wxLogWindow(this, _T("Messages"), true, false);
@@ -272,30 +272,30 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		// log window shall not obscure the main window
 		this->Raise();
 
-		guii.out = wDirName;
-		guii.nfiles = wnFiles;
-		guii.bContinue = true;
-		guii.bPause = false;
-		guii.theApp = wxTheApp;
-		// guii.cfiles = wcFiles;
-		guii.wStep1 = wStep1;
+		m_guii.out = m_wDirName;
+		m_guii.nfiles = m_wnFiles;
+		m_guii.bContinue = true;
+		m_guii.bPause = false;
+		m_guii.theApp = wxTheApp;
+		// m_guii.cfiles = m_wcFiles;
+		m_guii.wStep1 = m_wStep1;
 
-		guii.wSpeed = wSpeed;
-		guii.wProgress = wProgress;
-		guii.wStep2 = wStep2;
-		guii.wProgressGauge = wProgressGauge;
+		m_guii.wSpeed = m_wSpeed;
+		m_guii.wProgress = m_wProgress;
+		m_guii.wStep2 = m_wStep2;
+		m_guii.wProgressGauge = m_wProgressGauge;
 
-		guii.normalfont = wStep1->GetFont();
+		m_guii.normalfont = m_wStep1->GetFont();
 		
-		guii.boldfont = guii.normalfont;
-		guii.boldfont.SetWeight(wxFONTWEIGHT_BOLD); 
+		m_guii.boldfont = m_guii.normalfont;
+		m_guii.boldfont.SetWeight(wxFONTWEIGHT_BOLD); 
 		
 
-		dupfinder.SetGui(&guii);
+		m_dupfinder.SetGui(&m_guii);
 
-		dupfinder.FindDuplicateFiles();
+		m_dupfinder.FindDuplicateFiles();
 
-		if(!guii.bContinue) {
+		if(!m_guii.bContinue) {
 			ReturnToStart();
 			return;
 		}
@@ -306,7 +306,7 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		Hide();
 		RestoreLogTarget();
 
-		resultdlg = new DupFinderDlg3(parent, dupfinder);
+		resultdlg = new DupFinderDlg3(m_parent, m_dupfinder);
 
 		resultdlg->Show();
 
@@ -319,7 +319,7 @@ void DupFinderDlg2::OnCancel(wxCommandEvent &WXUNUSED(event)) {
 		_T("Confirmation"), wxYES_NO | wxICON_QUESTION, this);
 
 	if(result == wxYES) {
-		guii.bContinue = false;
+		m_guii.bContinue = false;
 	}
 	// no EndModal / Destroy here!
 }
@@ -337,7 +337,7 @@ void DupFinderDlg2::ReturnToStart() {
 
 	Hide();
 	RestoreLogTarget();
-	parent->ReturnToMe();
+	m_parent->ReturnToMe();
 	Destroy();
 }
 
@@ -350,18 +350,18 @@ void DupFinderDlg2::RestoreLogTarget() {
 
 void DupFinderDlg2::OnPause(wxCommandEvent &WXUNUSED(event)) {
 	
-	if(guii.bPause) {
+	if(m_guii.bPause) {
 		// continue with process
-		wPause->SetLabel(_T("&Pause"));
+		m_wPause->SetLabel(_T("&Pause"));
 		
 	} else {
 
-		wPause->SetLabel(_T("C&ontinue"));
+		m_wPause->SetLabel(_T("C&ontinue"));
 
 	}
 
 
-	guii.bPause = !guii.bPause;
+	m_guii.bPause = !m_guii.bPause;
 
 }
 

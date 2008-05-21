@@ -119,7 +119,7 @@ Description of signs:
 + adding MAXimal size of files option? but what for... done.
 + Add button always enabled (UpdateView changes??) done (also in dialog 3)
 + Treating 0-bytes sized files as double files (option?) set up
-- make dll (with dbl.cpp code)? done!!! (TODO: Installer!)
++ make dll (with dbl.cpp code)? done!!! (TODO: Installer!) done.
 - unix shared library...
 - on clicking a list item display the information in the controls below?
 + Wrap function!!! does only work with spaced text

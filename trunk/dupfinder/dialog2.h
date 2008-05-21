@@ -50,26 +50,26 @@ public:
 	
 private:
 
-	DuplicateFilesFinder &dupfinder;
+	DuplicateFilesFinder &m_dupfinder;
 
-	bool bStarted;
+	bool m_started;
 
-	wxButton *wPause;
+	wxButton *m_wPause;
 
-	wxTextCtrl * wDirName;
-	wxStaticText *wnFiles;
-	wxStaticText *wcFiles;
+	wxTextCtrl * m_wDirName;
+	wxStaticText *m_wnFiles;
+	// wxStaticText *m_wcFiles;
 
-	wxStaticText *wProgress;
-	wxStaticText *wSpeed;
+	wxStaticText *m_wProgress;
+	wxStaticText *m_wSpeed;
 
-	wxGauge *wProgressGauge;
+	wxGauge *m_wProgressGauge;
 
-	GuiInfo guii;
+	GuiInfo m_guii;
 
-	wxStaticText *wStep1, *wStep2;
+	wxStaticText *m_wStep1, *m_wStep2;
 
-	DupFinderDlg *parent;
+	DupFinderDlg *m_parent;
 
 	DECLARE_EVENT_TABLE()
 
