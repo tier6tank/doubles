@@ -71,19 +71,19 @@ public:
 private:
 	void CleanUp();
 
-	wxListView *wDirList;
-	wxTextCtrl *wDirName;
-	wxCheckBox *wRecursive;
-	wxCheckBox *wHidden;
-	wxTextCtrl *wMinSize;
-	wxTextCtrl *wInclude;
-	wxTextCtrl *wExclude;
-	wxTextCtrl *wMaxSize;
-	wxCheckBox *wEmptyFiles;
+	wxListView *m_wDirList;
+	wxTextCtrl *m_wDirName;
+	wxCheckBox *m_wRecursive;
+	wxCheckBox *m_wHidden;
+	wxTextCtrl *m_wMinSize;
+	wxTextCtrl *m_wInclude;
+	wxTextCtrl *m_wExclude;
+	wxTextCtrl *m_wMaxSize;
+	wxCheckBox *m_wEmptyFiles;
 
-	DuplicateFilesFinder dupfinder;
+	DuplicateFilesFinder m_dupfinder;
 
-	list<SearchPathInfo> paths;
+	list<SearchPathInfo> m_paths;
 
 	DECLARE_EVENT_TABLE()
 };

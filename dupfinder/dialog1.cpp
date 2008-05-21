@@ -71,7 +71,7 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 	: wxDialog(parent, -1, _T("Duplicate Files Finder - Start"), 
 		wxDefaultPosition, wxDefaultSize, 
 		wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxMINIMIZE_BOX), 
-	  dupfinder(NULL, false) {
+	  m_dupfinder(NULL, false) {
 
 	CreateControls();
 
@@ -84,13 +84,13 @@ DupFinderDlg::DupFinderDlg(wxWindow * parent)
 
 DupFinderDlg::~DupFinderDlg() {
 	int i;
-	int count = wDirList->GetItemCount();
+	int count = m_wDirList->GetItemCount();
 
 	// delete item related memory
 	for(i = 0; i < count; i++) {
 		// delete item <item>
 		list<SearchPathInfo>::iterator *pit = 
-			(list<SearchPathInfo>::iterator *)wDirList->GetItemData(i);
+			(list<SearchPathInfo>::iterator *)m_wDirList->GetItemData(i);
 		
 		delete pit;
 	}
@@ -139,7 +139,7 @@ void DupFinderDlg::CreateControls()
 			10 );
 
 	dirsizer->Add(
-		wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
+		m_wDirList = new wxListView(this, ID_DIRLIST, wxDefaultPosition, 
 			wxSize(wxDefaultSize.GetWidth(), 100),
 			wxBORDER_SUNKEN | wxLC_REPORT), 
 		1, 
@@ -153,7 +153,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow1->Add(
-		wDirName = new wxTextCtrl(this, ID_DIRNAME, _T(""), wxDefaultPosition, 
+		m_wDirName = new wxTextCtrl(this, ID_DIRNAME, _T(""), wxDefaultPosition, 
 			wxDefaultSize, wxTE_PROCESS_ENTER), 
 		1, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
@@ -172,7 +172,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow3->Add(
-		wMinSize = new wxTextCtrl(this, ID_MINSIZE, _T(""), wxDefaultPosition, 
+		m_wMinSize = new wxTextCtrl(this, ID_MINSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
@@ -185,7 +185,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow3->Add(
-		wMaxSize = new wxTextCtrl(this, ID_MAXSIZE, _T(""), wxDefaultPosition, 
+		m_wMaxSize = new wxTextCtrl(this, ID_MAXSIZE, _T(""), wxDefaultPosition, 
 			wxDefaultSize, 0, wxTextValidator(wxFILTER_NUMERIC) ), 
 		1, 
 		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
@@ -198,7 +198,7 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow2->Add(
-		wInclude = new wxTextCtrl(this, ID_INCLUDE, _T("*")), 
+		m_wInclude = new wxTextCtrl(this, ID_INCLUDE, _T("*")), 
 		1, 
 		wxTOPLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -210,7 +210,7 @@ void DupFinderDlg::CreateControls()
 		10);
 	
 	dirrow2->Add(
-		wExclude = new wxTextCtrl(this, ID_EXCLUDE, _T("")), 
+		m_wExclude = new wxTextCtrl(this, ID_EXCLUDE, _T("")), 
 		1, 
 		wxTOPLEFTRIGHT | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -222,19 +222,19 @@ void DupFinderDlg::CreateControls()
 		10);
 
 	dirrow4->Add(
-		wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("&subdir's")), 
+		m_wRecursive = new wxCheckBox(this, ID_RECURSIVE, _T("&subdir's")), 
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow4->Add( 
-		wHidden = new wxCheckBox(this, ID_HIDDEN, _T("&hidden files") ), 
+		m_wHidden = new wxCheckBox(this, ID_HIDDEN, _T("&hidden files") ), 
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	dirrow4->Add(
-		wEmptyFiles = new wxCheckBox(this, ID_EMPTYFILES, _T("&empty files") ),
+		m_wEmptyFiles = new wxCheckBox(this, ID_EMPTYFILES, _T("&empty files") ),
 		0, 
 		wxTOPLEFT | wxBOTTOM | wxALIGN_CENTER_VERTICAL, 
 		10);
@@ -347,18 +347,18 @@ void DupFinderDlg::InitControls() {
 
 	// add coloumns to dir list control
 	// which order?...
-	wDirList->InsertColumn(1, _T("Subdirs"), wxLIST_FORMAT_LEFT, 30);
-	wDirList->InsertColumn(2, _T("Hidden"), wxLIST_FORMAT_LEFT, 30);
-	wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 200);
-	wDirList->InsertColumn(4, _T("Include"), wxLIST_FORMAT_LEFT, 60);
-	wDirList->InsertColumn(5, _T("Exclude"), wxLIST_FORMAT_LEFT, 60);
-	wDirList->InsertColumn(6, _T("Min size"), wxLIST_FORMAT_LEFT, 30);
-	wDirList->InsertColumn(7, _T("Max size"), wxLIST_FORMAT_LEFT, 30);
-	wDirList->InsertColumn(8, _T("Empty files"), wxLIST_FORMAT_LEFT, 30);
+	m_wDirList->InsertColumn(1, _T("Subdirs"), wxLIST_FORMAT_LEFT, 30);
+	m_wDirList->InsertColumn(2, _T("Hidden"), wxLIST_FORMAT_LEFT, 30);
+	m_wDirList->InsertColumn(3, _T("Path"), wxLIST_FORMAT_LEFT, 200);
+	m_wDirList->InsertColumn(4, _T("Include"), wxLIST_FORMAT_LEFT, 60);
+	m_wDirList->InsertColumn(5, _T("Exclude"), wxLIST_FORMAT_LEFT, 60);
+	m_wDirList->InsertColumn(6, _T("Min size"), wxLIST_FORMAT_LEFT, 30);
+	m_wDirList->InsertColumn(7, _T("Max size"), wxLIST_FORMAT_LEFT, 30);
+	m_wDirList->InsertColumn(8, _T("Empty files"), wxLIST_FORMAT_LEFT, 30);
 
 	
 	// set focus
-	wDirName->SetFocus();
+	m_wDirName->SetFocus();
 }
 
 void DupFinderDlg::UpdateView() {
@@ -370,7 +370,7 @@ void DupFinderDlg::UpdateView() {
 	// in minsize field
 	// this functionality is disabled (it's not that nice)
 
-	/* wxString dir = wDirName->GetValue();
+	/* wxString dir = m_wDirName->GetValue();
 
 	FindWindow(ID_ADDDIR)->Enable(
 		wxFileName::DirExists(dir)  && wMinSize->GetValue().IsNumber()
@@ -380,26 +380,26 @@ void DupFinderDlg::UpdateView() {
 	// add button disabled when dir field empty
 
 	FindWindow(ID_ADDDIR)->Enable(
-		wDirName->GetValue().Length() != 0
+		m_wDirName->GetValue().Length() != 0
 	);
 
 	// remove button only if there is a selection 
 	// in the dir list
 
 	FindWindow(ID_RMDIR)->Enable(
-		wDirList->GetFirstSelected() != -1
+		m_wDirList->GetFirstSelected() != -1
 	);
 
 	// Go button only activated if there is at least
 	// one path in the list
 
 	FindWindow(wxID_OK)->Enable(
-		!paths.empty()
+		!m_paths.empty()
 	);
 
 	// RemoveAll enabled if there's something in the list
 	FindWindow(ID_RMALL)->Enable(
-		!paths.empty()
+		!m_paths.empty()
 	);
 
 }
@@ -423,14 +423,14 @@ void DupFinderDlg::OnSize(wxSizeEvent &WXUNUSED(event)) {
 void DupFinderDlg::OnOk(wxCommandEvent &WXUNUSED(event)) {
 	list<SearchPathInfo>::iterator it;
 
-	for(it = paths.begin(); it != paths.end(); it++) {
+	for(it = m_paths.begin(); it != m_paths.end(); it++) {
 		// wxMessageBox(it->path);
-		dupfinder.AddPath(*it);
+		m_dupfinder.AddPath(*it);
 	}
 
 	this->Hide();
 
-	DupFinderDlg2 *progress = new DupFinderDlg2(dupfinder, this);	
+	DupFinderDlg2 *progress = new DupFinderDlg2(m_dupfinder, this);	
 
 	progress->Show();
 	wxTheApp->SetTopWindow(progress);
@@ -443,7 +443,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	wxULongLong maxsize;
 	bool bResult;
 	
-	pi.path = wDirName->GetValue();
+	pi.path = m_wDirName->GetValue();
 
 	if(!wxFileName::DirExists(pi.path)) {
 		wxMessageBox(_T("Please enter a valid path! "), _T("Error"), 
@@ -451,7 +451,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 		return;
 	}
 
-	bResult = StringToULongLong(wMinSize->GetValue(), minsize);
+	bResult = StringToULongLong(m_wMinSize->GetValue(), minsize);
 
 	if(!bResult) {
 		wxMessageBox(_T("Invalid minimal size! "), 
@@ -461,7 +461,7 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 		return;
 	}
 
-	bResult = StringToULongLong(wMaxSize->GetValue(), maxsize);
+	bResult = StringToULongLong(m_wMaxSize->GetValue(), maxsize);
 
 	if(!bResult) {
 		wxMessageBox(_T("Invalid maximal size! "), 
@@ -481,11 +481,11 @@ void DupFinderDlg::OnDirAdd(wxCommandEvent &WXUNUSED(event)) {
 	pi.nMinSize = minsize;
 	pi.nMaxSize = maxsize; 
 
-	pi.bGoIntoSubDirs = wRecursive->GetValue();
-	pi.bSearchHidden = wHidden->GetValue();
-	pi.Include = !wInclude->GetValue().IsEmpty() ? wInclude->GetValue() : wxString(_T("*"));
-	pi.Exclude = wExclude->GetValue();
-	pi.bIncludeEmptyFiles = wEmptyFiles->GetValue();
+	pi.bGoIntoSubDirs = m_wRecursive->GetValue();
+	pi.bSearchHidden = m_wHidden->GetValue();
+	pi.Include = !m_wInclude->GetValue().IsEmpty() ? m_wInclude->GetValue() : wxString(_T("*"));
+	pi.Exclude = m_wExclude->GetValue();
+	pi.bIncludeEmptyFiles = m_wEmptyFiles->GetValue();
 
 	AddDir(pi);
 
@@ -515,9 +515,9 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	c7.SetMask(wxLIST_MASK_TEXT);
 	c8.SetMask(wxLIST_MASK_TEXT);
 	
-	paths.push_back(pi);
+	m_paths.push_back(pi);
 
-	c1.SetData(new list<SearchPathInfo>::iterator( --paths.end()) );
+	c1.SetData(new list<SearchPathInfo>::iterator( --m_paths.end()) );
 
 	c1.SetText(pi.bGoIntoSubDirs ? _T("x") : _T(""));
 	c2.SetText(pi.bSearchHidden ? _T("x") : _T(""));
@@ -526,23 +526,23 @@ void DupFinderDlg::AddDir(const SearchPathInfo &pi)
 	c5.SetText(pi.Exclude);
 	tmp1 = wxEmptyString; // borland ...
 	tmp2 = pi.nMinSize.ToString();
-	c6.SetText(wMinSize->GetValue().IsEmpty() ? tmp1 : tmp2);
+	c6.SetText(m_wMinSize->GetValue().IsEmpty() ? tmp1 : tmp2);
 	tmp1 = wxEmptyString;
 	tmp2 = pi.nMaxSize.ToString();
-	c7.SetText(wMaxSize->GetValue().IsEmpty() ? tmp1 : tmp2);
+	c7.SetText(m_wMaxSize->GetValue().IsEmpty() ? tmp1 : tmp2);
 	c8.SetText(pi.bIncludeEmptyFiles ? _T("x") : _T(""));
 
 
-	// wDirList->InsertItem(0, _T("tmp"));	
+	// m_wDirList->InsertItem(0, _T("tmp"));	
 
-	wDirList->InsertItem(c1);
-	wDirList->SetItem(c2);
-	wDirList->SetItem(c3);
-	wDirList->SetItem(c4);
-	wDirList->SetItem(c5);
-	wDirList->SetItem(c6);
-	wDirList->SetItem(c7);
-	wDirList->SetItem(c8);
+	m_wDirList->InsertItem(c1);
+	m_wDirList->SetItem(c2);
+	m_wDirList->SetItem(c3);
+	m_wDirList->SetItem(c4);
+	m_wDirList->SetItem(c5);
+	m_wDirList->SetItem(c6);
+	m_wDirList->SetItem(c7);
+	m_wDirList->SetItem(c8);
 
 }
 
@@ -550,7 +550,7 @@ void DupFinderDlg::OnDirRemove(wxCommandEvent &WXUNUSED(event)) {
 	long item;
 
 	while(true) {
-		item = wDirList->GetFirstSelected();
+		item = m_wDirList->GetFirstSelected();
 
 		if(item == -1) {
 			break;
@@ -558,15 +558,15 @@ void DupFinderDlg::OnDirRemove(wxCommandEvent &WXUNUSED(event)) {
 
 		// delete item <item>
 		list<SearchPathInfo>::iterator *pit = 
-			(list<SearchPathInfo>::iterator *)wDirList->GetItemData(item);
+			(list<SearchPathInfo>::iterator *)m_wDirList->GetItemData(item);
 		
-		paths.erase(*pit);
+		m_paths.erase(*pit);
 		delete pit;
 
 		// ? delete all items ? 
-		wDirList->DeleteItem(item);
+		m_wDirList->DeleteItem(item);
 
-		// item = wDirList->GetNextSelected();
+		// item = m_wDirList->GetNextSelected();
 	}
 
 	UpdateView();
@@ -577,26 +577,26 @@ void DupFinderDlg::OnGetDir(wxCommandEvent &WXUNUSED(event)) {
 
 	dirch.SetWindowStyle(wxDD_DIR_MUST_EXIST);
 
-	dirch.SetPath(wDirName->GetValue());
+	dirch.SetPath(m_wDirName->GetValue());
 	// dirch.SetMessage(
 	int ret = dirch.ShowModal();
 
 	if(ret == wxID_OK) {
-		wDirName->SetValue(dirch.GetPath());
+		m_wDirName->SetValue(dirch.GetPath());
 	}
 }
 
 void DupFinderDlg::OnRemoveAll(wxCommandEvent &WXUNUSED(event)) {
 	int i;
-	int count = wDirList->GetItemCount();
+	int count = m_wDirList->GetItemCount();
 
 	for(i = 0; i < count; i++) {
-		delete (list<SearchPathInfo>::iterator *)wDirList->GetItemData(i);
+		delete (list<SearchPathInfo>::iterator *)m_wDirList->GetItemData(i);
 	}
 
-	paths.clear();
+	m_paths.clear();
 
-	wDirList->DeleteAllItems();
+	m_wDirList->DeleteAllItems();
 
 	UpdateView();
 
@@ -631,28 +631,28 @@ void DupFinderDlg::ReturnToMe()
 
 void DupFinderDlg::CleanUp()
 {
-	dupfinder.Reset();
+	m_dupfinder.Reset();
 }
 
 void DupFinderDlg::SetDefaults()
 {
 	wxPlatformInfo pi;
 
-	wInclude->SetValue(_T("*"));
+	m_wInclude->SetValue(_T("*"));
 	
 	if(pi.GetOperatingSystemId() & wxOS_WINDOWS) {
 		// ignore links on Windows
-		wExclude->SetValue(_T("*.lnk"));
+		m_wExclude->SetValue(_T("*.lnk"));
 	}
 	else {
-		wExclude->SetValue(_T(""));
+		m_wExclude->SetValue(_T(""));
 	}
-	// wDirName->SetValue(_T("");
-	wRecursive->SetValue(true);
-	wHidden->SetValue(false);
-	wMinSize->SetValue(_T(""));
-	wMaxSize->SetValue(_T(""));
-	wEmptyFiles->SetValue(true);
+	// m_wDirName->SetValue(_T("");
+	m_wRecursive->SetValue(true);
+	m_wHidden->SetValue(false);
+	m_wMinSize->SetValue(_T(""));
+	m_wMaxSize->SetValue(_T(""));
+	m_wEmptyFiles->SetValue(true);
 }
 
 void DupFinderDlg::OnDefaults(wxCommandEvent & WXUNUSED(evt)) {
