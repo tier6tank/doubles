@@ -66,6 +66,7 @@ Section "Main" MainSection
 	${OrIf} $R0 == "ME" 
 		File "/oname=dupf.exe" ..\gcc\dupf.exe
 		File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
+		File "/oname=dupfdll.dll" ..\gcc\dupfdll.dll
 
 		FileOpen $1 $INSTDIR\dupfcon.bat w
 		FileWrite $1 `cd "$INSTDIR"`
@@ -73,6 +74,7 @@ Section "Main" MainSection
 	${Else}
 		File "/oname=dupf.exe" ..\gccu\dupf.exe
 		File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
+		File "/oname=dupfdll.dll" ..\gccu\dupfdll.dll
 	${EndIf}
 	File "/oname=mingwm10.dll" C:\mingw\bin\mingwm10.dll
 
