@@ -118,11 +118,11 @@ DECLARE_MAIN
 		pi.path = argv[i];
 		pi.nMinSize = 0;
 		pi.nMaxSize = 0;
-		pi.bGoIntoSubDirs = true;
-		pi.bSearchHidden = false;
+		pi.bRecursive = true;
+		pi.bHidden = false;
 		pi.Include = wxEmptyString;
 		pi.Exclude = wxEmptyString;
-		pi.bIncludeEmptyFiles = false;
+		pi.bEmptyFiles = false;
 
 		for(i++; i < argc && argv[i][0] == '-'; i++) {
 			if(argv[i] == _T("--min")) {
@@ -159,11 +159,11 @@ DECLARE_MAIN
 			}
 			else if(argv[i] == _T("-n") || 
 				argv[i] == _T("--norecurse")) {
-				pi.bGoIntoSubDirs = false;
+				pi.bRecursive = false;
 			}
 			else if(argv[i] == _T("-h") ||
 				argv[i] == _T("--hidden")) {
-				pi.bSearchHidden = true;
+				pi.bHidden = true;
 			}
 			else if(argv[i] == _T("-i") ||
 				argv[i] == _T("--include")) {
@@ -185,7 +185,7 @@ DECLARE_MAIN
 			}
 			else if(argv[i] == _T("-z") || 
 				argv[i] == _T("--zero")) {
-				pi.bIncludeEmptyFiles = true;
+				pi.bEmptyFiles = true;
 			} else {
 				_ftprintf(stderr, _T("Error: unrecognized option %s. \n"), argv[i].c_str());
 				return 1;

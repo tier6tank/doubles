@@ -39,8 +39,8 @@ public:
 	void OnEscape(wxCommandEvent &);
 	void OnOk(wxCommandEvent &);
 
-	void OnDlgChange(wxCommandEvent &WXUNUSED(event)) { UpdateView(); }
-	void OnListSelChange(wxListEvent &WXUNUSED(event)) { UpdateView(); }
+	void OnDlgChange(wxCommandEvent &WXUNUSED(event));
+	void OnListSelChange(wxListEvent &WXUNUSED(event));
 	
 	void InitControls();
 	void UpdateView();
@@ -51,6 +51,9 @@ public:
 	void OnDirAdd(wxCommandEvent &);
 	void OnDirRemove(wxCommandEvent &);
 	void OnRemoveAll(wxCommandEvent &);
+	void OnChangeDir(wxCommandEvent &);
+
+	bool GetInformation(SearchPathInfo &);
 
 	void AddDir(const SearchPathInfo  &);
 
@@ -68,6 +71,18 @@ public:
 
 	void OnDefaults(wxCommandEvent &);
 
+	void UpdateControls();
+
+	void PrepareListItem(const SearchPathInfo &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &, 
+		wxListItem &);
+
 private:
 	void CleanUp();
 
@@ -82,8 +97,6 @@ private:
 	wxCheckBox *m_wEmptyFiles;
 
 	DuplicateFilesFinder m_dupfinder;
-
-	list<SearchPathInfo> m_paths;
 
 	DECLARE_EVENT_TABLE()
 };

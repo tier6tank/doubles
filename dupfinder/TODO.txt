@@ -134,7 +134,7 @@ Description of signs:
 + do some actions (hard-/softlink) on more than one file? not possible
 + add to result dialog "display files which match mask ..." template added.
 + +/- button on headers in result dialog (and dblclick)!! done via wxTreeCtrl
-! supporting watcom compiler (not possible yet because of lack of STL library)
+- supporting watcom compiler (not possible yet because of lack of STL library)
 + replacing list.size() == 0 by list.empty()! done.
 + removing some separators of popup menu ?? not important
 --- automake
@@ -144,7 +144,7 @@ Description of signs:
 
 - correct wxWidgets version number in configure.in
 - add precompiled headers to automake
-! Autotools
+- Autotools
 - debug/non-debug version for automake
 - move all output files to extra dir 
 --- end automake
@@ -195,7 +195,7 @@ Description of signs:
 - Bug report concerning tree control ("No items" case)
 - read from stdin (s. unix) when no paths given on commandline ?
 + gui version implemention of DuplicateFilesFinder and removal of old code afterwards done.
-! restoring func. of TEST 
+- restoring func. of TEST 
 - ansynchronous i/o?
 - internationalization
 - create cache class (move code to cache class)
@@ -228,7 +228,7 @@ Description of signs:
 - increase speed by reading only 1 sector of every file first!
 + enable optimize wxWidgets?? no need to do this, is enabled by default
 + retest on unix done.
-! cygwin unicode build
+. cygwin unicode build not possible until cygwin supports unicode....
   getting the wxWidgets build on cygwin (unicode not supported)
 + shared instead of static (makefile option) done.
 - reorder tree (->src, ->include)
@@ -265,6 +265,10 @@ Description of signs:
 - allow wxdir with spaces?
 + icon with borland and gcc as well yes.
 - rename members (m_ prefix)
-- show warning when nested folders are specified
+- show warning when nested folders are specified before adding/changing dir in gui and console version
 + error platforminfo on program start. solved.
 + strip dll done.
+! double code in dialog 1 - 3
++ single selection in dialog1 done.
+! test for memory leaks
+- instead of c1, c2... in dialog1 array c[8]

@@ -36,11 +36,11 @@ struct SearchPathInfo
 	wxString path;
 	wxULongLong nMinSize;
 	wxULongLong nMaxSize; // if 0, no max size
-	bool bGoIntoSubDirs;
-	bool bSearchHidden;
+	bool bRecursive;
+	bool bHidden;
 	wxString Include;
 	wxString Exclude;
-	bool bIncludeEmptyFiles;
+	bool bEmptyFiles;
 };
 
 struct GuiInfo {
