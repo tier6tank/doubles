@@ -235,7 +235,7 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 	assert(spi->nMaxSize >= spi->nMinSize || spi->nMaxSize == 0);
 		
 	if(size != wxInvalidSize && 
-		(size != 0 || spi->bIncludeEmptyFiles) &&
+		(size != 0 || spi->bEmptyFiles) &&
 		bFitsMinSize &&
 		bFitsMaxSize) {
 		// init structure
@@ -300,8 +300,8 @@ wxDirTraverseResult DuplicateFilesFinder::UpdateInfo(const wxString *dirname)
 bool DuplicateFilesFinder::Traverse(const SearchPathInfo *spi) 
 {
 	int flags = wxDIR_FILES | 
-		(spi->bGoIntoSubDirs ? wxDIR_DIRS : 0 ) | 
-		(spi->bSearchHidden ? wxDIR_HIDDEN : 0);
+		(spi->bRecursive ? wxDIR_DIRS : 0 ) | 
+		(spi->bHidden ? wxDIR_HIDDEN : 0);
 
 	wxStringTokenizer tok_excl(spi->Exclude, GetPathSepChar());
 
