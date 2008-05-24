@@ -623,8 +623,7 @@ bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &s
 
 	bResult = true;
 
-End:	ResetLine();
-	return bResult;
+End:	return bResult;
 }
 
 void DuplicateFilesFinder::UpdateStatusDisplay()
@@ -684,25 +683,22 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 				// m_gui->cfiles->SetLabel(tmp);
 
 				tmp.Printf(_T("size %") wxLongLongFmtSpec _T("u/%")
-					wxLongLongFmtSpec _T("u (%.2f %%)(%") wxLongLongFmtSpec _T("u bytes, %u files)"), 
+					wxLongLongFmtSpec _T("u (%.2f %%)\n"), 
 					m_nSizesDone.GetValue(), m_nSumSizes.GetValue(), 
-					m_nSizesDone.ToDouble()/m_nSumSizes.ToDouble()*100, 
-					/*it2->size.GetValue(), it2->files.size()*/
-					wxULongLong(0).GetValue(), 0);
+					m_nSizesDone.ToDouble()/m_nSumSizes.ToDouble()*100);
 
-				tmp2.Printf(_T(" %.2f / %.2f (%.2f %%) "),
-					m_nBytesDone.ToDouble()/1024/1024, 
-					m_nSumBytes.ToDouble()/1024/1024, 
-					m_nBytesDone.ToDouble()/m_nSumBytes.ToDouble()*100);
-				tmp += tmp2;
-
-				tmp2.Printf(_T(" %") wxLongLongFmtSpec _T("u / ")
-					_T("%") wxLongLongFmtSpec _T("u (%.2f %%)"), 
+				tmp2.Printf(_T("%") wxLongLongFmtSpec _T("u files / ")
+					_T("%") wxLongLongFmtSpec _T("u files (%.2f %%)\n"), 
 					m_nFilesRead.GetValue(), 
 					m_nSumFiles.GetValue(), 
 					m_nFilesRead.ToDouble()/m_nSumFiles.ToDouble()*100.0);
 				tmp += tmp2;
 				
+				tmp2.Printf(_T("%.2f mb / %.2f mb (%.2f %%)"),
+					m_nBytesDone.ToDouble()/1024/1024, 
+					m_nSumBytes.ToDouble()/1024/1024, 
+					m_nBytesDone.ToDouble()/m_nSumBytes.ToDouble()*100);
+				tmp += tmp2;
 				
 				m_gui->wProgress->SetLabel(tmp);
 
@@ -713,6 +709,9 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 
 				// m_gui->wProgressGauge->SetValue((m_nBytesDone*1000/m_nSumBytes).GetValue());
 				m_gui->wProgressGauge->SetValue((m_nFilesRead*1000/m_nSumFiles).ToULong());
+
+				m_gui->dialog2->GetSizer()->Layout();
+				// m_gui->dialog2->GetSizer()->SetSizeHints(m_gui->dialog2);
 				break;
 			default:
 				break;
@@ -720,15 +719,18 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 		}
 		else if(!m_quiet && m_state == DUPF_STATE_COMPARE_FILES) {
 			ResetLine();
-			m_output.Printf(_T(" %.2f mb/sec"), (m_nBytesRead-m_nPrevBytesRead).ToDouble()
+			m_output.Printf(_T(" %.2f mb/sec, "), (m_nBytesRead-m_nPrevBytesRead).ToDouble()
 				/REFRESH_INTERVAL/1024.0/1024.0);
 
-			tmp.Printf(_T("size %")
+			tmp.Printf(/* _T("size %")
 				wxLongLongFmtSpec _T("u/%")
-				wxLongLongFmtSpec _T("u (%i files of size %") wxLongLongFmtSpec _T("u)")
-				/*" %i kb/s" */, 
-				m_nSizesDone.GetValue(), m_nSumSizes.GetValue(), 
-				0, wxULongLong(0).GetValue()/*it2->files.size(), it2->size.GetValue() */);
+				wxLongLongFmtSpec _T("u, ") */
+				_T("file %")
+				wxLongLongFmtSpec _T("u/%")
+				wxLongLongFmtSpec _T("u (%.2f %%)"),
+				// m_nSizesDone.GetValue(), m_nSumSizes.GetValue(), 
+				m_nFilesRead.GetValue(), m_nSumFiles.GetValue(), 
+				m_nFilesRead.ToDouble()/m_nSumFiles.ToDouble()*100.0);
 
 			m_output += tmp;
 
@@ -859,6 +861,6 @@ void DuplicateFilesFinder::RemoveUnimportantSizes() {
 
 	if(!m_quiet) {
 		wxLogMessage(_T("        %") wxLongLongFmtSpec _T("u files have to be compared. \n"), 
-		m_nSumFiles.GetValue());
+			m_nSumFiles.GetValue());
 	}
 }

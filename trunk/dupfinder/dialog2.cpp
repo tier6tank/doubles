@@ -133,11 +133,13 @@ void DupFinderDlg2::CreateControls()
 		wxTOPLEFT, 
 		10);
 
+	// control has content "\n\n" because status output contains 
+	// three lines as well (for sizer)
 	progress2sizer->Add(
-		m_wProgress = new wxStaticText(this, ID_PROGRESS, _T("")), 
+		m_wProgress = new wxStaticText(this, ID_PROGRESS, _T("\n\n")), 
 		1, 
 		wxTOPLEFT, 
-		10);	
+		10);
 
 	progress2sizer_2->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Speed: ")), 
@@ -271,6 +273,8 @@ void DupFinderDlg2::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 		wxLog::SetActiveTarget(logw);
 		// log window shall not obscure the main window
 		this->Raise();
+
+		m_guii.dialog2 = this;
 
 		m_guii.out = m_wDirName;
 		m_guii.nfiles = m_wnFiles;

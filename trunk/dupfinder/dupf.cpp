@@ -204,9 +204,11 @@ DECLARE_MAIN
 		dupf.AddPath(pi);
 	}
 
-	/*
+	const list<SearchPathInfo> &paths = dupf.GetPaths();
+	list<SearchPathInfo>::const_iterator it5;
+
 	list<wxString> dirs;
-	for(it5 = ffi.paths.begin(); it5 != ffi.paths.end(); it5++) {
+	for(it5 = paths.begin(); it5 != paths.end(); it5++) {
 		if(!wxFileName::DirExists(it5->path)) {
 			_ftprintf(stderr, _T("Error: \"%s\" does not exist! \n"), it5->path.c_str());
 			return 1;
@@ -215,6 +217,7 @@ DECLARE_MAIN
 
 		wxFileName dir = wxFileName::DirName(it5->path.c_str());
 		dir.Normalize(wxPATH_NORM_ALL | wxPATH_NORM_CASE); 
+		dir.Normalize(wxPATH_NORM_CASE);
 
 		dirs.push_back(dir.GetFullPath());
 	}
@@ -244,7 +247,6 @@ DECLARE_MAIN
 		_ftprintf(stderr, _T("Correct the command line for avoiding trivial duplicates. \n\n\n"));
 	}
 
-	*/	
 
 	dupf.FindDuplicateFiles();
 
