@@ -1,3 +1,7 @@
+Date : 2008/5/23 18:31
+borland compile fix; makefile correction
+small os_cc_specific changes
+
 Date : 2008/5/23 18:11
 changed c1, ..., c8 to c[8]
 updated UpdateView (Button "Change")

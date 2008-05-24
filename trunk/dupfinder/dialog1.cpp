@@ -646,7 +646,7 @@ void DupFinderDlg::OnDefaults(wxCommandEvent & WXUNUSED(evt)) {
 
 void DupFinderDlg::UpdateControls()
 {
-	wxString tmp;
+	wxString tmp1, tmp2;
 	// fill controls with list contents
 
 	long selectedItem = m_wDirList->GetFirstSelected();
@@ -667,12 +667,13 @@ void DupFinderDlg::UpdateControls()
 	m_wExclude->SetValue(pspi->Exclude);
 	m_wRecursive->SetValue(pspi->bRecursive);
 	m_wHidden->SetValue(pspi->bHidden);
-	m_wMinSize->SetValue(pspi->nMinSize == 0 ? 
-		_T("") : 
-		wxString::Format(_T("%") wxLongLongFmtSpec _T("u"), pspi->nMinSize) );
-	m_wMaxSize->SetValue(pspi->nMaxSize == 0 ?
-		 _T("") : 
-		wxString::Format(_T("%") wxLongLongFmtSpec _T("u"), pspi->nMaxSize) );
+	tmp1 = wxEmptyString;
+	tmp2 = wxString::Format(_T("%") wxLongLongFmtSpec _T("u"), pspi->nMinSize.GetValue());
+	m_wMinSize->SetValue(pspi->nMinSize == 0 ? tmp1 : tmp2);
+	tmp1 = wxEmptyString;
+	tmp2 = wxString::Format(_T("%") wxLongLongFmtSpec _T("u"), pspi->nMaxSize.GetValue());
+	m_wMaxSize->SetValue(pspi->nMaxSize == 0 ? tmp1 : tmp2);
+
 	m_wEmptyFiles->SetValue(pspi->bEmptyFiles); 
 
 }

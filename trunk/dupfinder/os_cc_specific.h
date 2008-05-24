@@ -37,7 +37,7 @@
 
 /*****************************************************************************/
 
-// cygwin/gcc (on unix!, not mingw) don't have a _t -> wide/single char mapping (tchar.h)
+// cygwin/gcc (on unix!), except mingw, don't have a _t -> wide/single char mapping (tchar.h)
 
 #if defined (__CYGWIN__) || (defined(__GNUC__) && !defined(__MINGW32__) )
 
@@ -69,7 +69,7 @@
 
 /*****************************************************************************/
 
-// MingW/unix/cygwin? (all gcc?)  don't support unicode wmain
+// MingW/unix gcc/cygwin (all gcc!)  don't support unicode wmain
 //
 // the following macro does that:
 //
@@ -79,11 +79,8 @@
 // of memory, and 2) there would be a delete [] argv necessarry
 // in front of every return instruction
 // perhaps if i have the time, i'll change it...
-//
-// perhaps even __GNUC__ is enough later 
 
-#if defined(__MINGW32__) || (defined(__GNUC__) && !defined(__MINGW32__) && !defined(__CYGWIN__) )
-// #if defined(__GNUC__) // or that?
+#if defined(__GNUC__) // or that?
 
 	#define DECLARE_MAIN int main(int argc, char *_argv[]) { \
 		/* xxx yyy;  uncomment this for testing */ \
@@ -111,6 +108,8 @@
 #endif /* defined(__MINGW32__) */
 
 /*****************************************************************************/
+
+// for initilizing COM system (needed for symbolic links)
 
 #ifdef _WIN32
 	#define DUPF_INITIALIZE_COM ::CoInitialize(NULL);
@@ -143,9 +142,19 @@ public:
 
 /*****************************************************************************/
 
-template <class T> T & unconst(const T & x) {
-	return const_cast<T &>(x);
-}
+// unconst: for mingw only!
+// mingw's STL library doesn't work like all other compilers' , 
+// sets don't support iterator (they return const_iterator in any case)
+
+#ifdef __MINGW32__
+	template <class T> T & unconst(const T & x) {
+		return const_cast<T &>(x);
+	}
+#else /*!def(__MINGW32__) */
+	// else return identity
+	#define unconst(a) (a)
+#endif
+
 
 /*****************************************************************************/
 

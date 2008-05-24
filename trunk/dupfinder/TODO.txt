@@ -121,9 +121,10 @@ Description of signs:
 + Treating 0-bytes sized files as double files (option?) set up
 + make dll (with dbl.cpp code)? done!!! (TODO: Installer!) done.
 - unix shared library...
-- on clicking a list item display the information in the controls below?
++ on clicking a list item display the information in the controls below? done!
 + Wrap function!!! does only work with spaced text
-- exchange if !__WIN32 by if __UNIX__
++ exchange if !_WIN32 by if __UNIX__
+! looking at #if's
 + adding unicode support for linux/unix not necessary, but would be nice done, see above
 -----------
 + IsSymLinkSupported should take volume argument or something like this not necessary
