@@ -43,10 +43,15 @@ struct SearchPathInfo
 	bool bEmptyFiles;
 };
 
+class DupFinderDlg2;
+
 struct GuiInfo {
 	// control
 	bool bContinue;
 	bool bPause;
+
+	// the dialog
+	wxWindow *dialog2;
 
 	// vars for step 1
 	wxStaticText *wStep1;
@@ -95,6 +100,8 @@ public:
 
 	void CalculateStats(DuplicateFilesStats &) const;
 
+	const list<SearchPathInfo> &GetPaths() { return m_paths; }
+
 private:
 	// private structures
 
@@ -118,7 +125,6 @@ private:
 	};
 
 	typedef multiset<fileinfosize, less_fileinfosize> multiset_fileinfosize;
-
 
 private: // private variables
 
