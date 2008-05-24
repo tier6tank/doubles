@@ -1,3 +1,7 @@
+Date : 2008/5/23 18:11
+changed c1, ..., c8 to c[8]
+updated UpdateView (Button "Change")
+
 Date : 2008/5/22 17:03
 dialog 1 behaviour changed
 changed name of SearchPathInfo members
