@@ -271,4 +271,4 @@ Description of signs:
 ! double code in dialog 1 - 3
 + single selection in dialog1 done.
 ! test for memory leaks
-- instead of c1, c2... in dialog1 array c[8]
++ instead of c1, c2... in dialog1 array c[8] done.

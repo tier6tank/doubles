@@ -27,6 +27,7 @@ using namespace std;
 
 #include "dbl.h"
 
+#define DUPF_NUMBER_OF_COLS 8
 
 class DupFinderDlg : public wxDialog {
 public:
@@ -73,15 +74,7 @@ public:
 
 	void UpdateControls();
 
-	void PrepareListItem(const SearchPathInfo &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &, 
-		wxListItem &);
+	void PrepareListItem(const SearchPathInfo &, wxListItem c[DUPF_NUMBER_OF_COLS]);
 
 private:
 	void CleanUp();
