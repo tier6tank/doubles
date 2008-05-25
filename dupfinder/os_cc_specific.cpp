@@ -43,7 +43,7 @@ void Traverse(const wxString &RootDir, const wxString *mask, int nMask,
 
 	// first search directories
 
-	if(flags & wxDIR_DIRS /*&& !bEnd*/) {
+	if(flags & wxDIR_DIRS && !bEnd) {
 
 		Search = Dir;
 		Search.Append(_T("*"));
@@ -150,6 +150,9 @@ void Traverse(const wxString &RootDir, const wxString *mask, int nMask,
 			FindClose(hFind);
 		}
 	}
+
+	// borland warning fix
+	(void)bEnd;
 }
 
 bool IsSymLink(const wxString &WXUNUSED(filename)) {
