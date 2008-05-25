@@ -276,3 +276,4 @@ Description of signs:
 ! test for memory leaks
 + instead of c1, c2... in dialog1 array c[8] done.
 ? trimming todo.txt (removing all REALLY done elements)
+- unconst which unix?

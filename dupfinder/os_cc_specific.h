@@ -142,11 +142,11 @@ public:
 
 /*****************************************************************************/
 
-// unconst: for mingw only!
+// unconst: for mingw/gcc unix/cygwin? only!
 // mingw's STL library doesn't work like all other compilers' , 
 // sets don't support iterator (they return const_iterator in any case)
 
-#ifdef __MINGW32__
+#if 1 //def __MINGW32__
 	template <class T> T & unconst(const T & x) {
 		return const_cast<T &>(x);
 	}

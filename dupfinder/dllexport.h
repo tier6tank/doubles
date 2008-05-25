@@ -29,6 +29,9 @@
 	#define DLLEXPORT __declspec(dllimport)
 #endif
 
+#else // other than Win32
+
+	#define DLLEXPORT
 #endif
 
 

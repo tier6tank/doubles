@@ -113,43 +113,46 @@ endif
 
 $(outdir)/$(namegui): $(outdir)/stdinc.h.gch $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
 	$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o \
-	$(outdir)/treectrl.o
+	$(outdir)/treectrl.o $(outdir)/os_cc_specific_gui.o 
 	g++ $(opt) -o "$(outdir)/$(namegui)" $(outdir)/dupfgui.o $(outdir)/os_cc_specific.o \
 		$(outdir)/dialog1.o $(outdir)/dialog2.o $(outdir)/dialog3.o $(outdir)/dbl.o $(outdir)/file.o \
-		$(outdir)/treectrl.o $(libs)
+		$(outdir)/treectrl.o $(outdir)/os_cc_specific_gui.o $(libs)
 ifneq ($(debug),1)
 	strip -s $(outdir)/$(namegui)
 endif
 
 $(outdir)/dbl.o: dbl.cpp $(headers)
-	g++ $(opt) -c -o $(outdir)/dbl.o dbl.cpp
+	g++ $(opt) -c -o $@ dbl.cpp
 
 $(outdir)/dupf.o: dupf.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/dupf.o dupf.cpp
+	g++ $(opt) -c -o $@ dupf.cpp
 
 $(outdir)/os_cc_specific.o: os_cc_specific.cpp $(headers)
-	g++ $(opt) -c -o $(outdir)/os_cc_specific.o os_cc_specific.cpp
+	g++ $(opt) -c -o $@ os_cc_specific.cpp
+
+$(outdir)/os_cc_specific_gui.o: os_cc_specific_gui.cpp $(headers)
+	g++ $(opt) -c -o $@ os_cc_specific_gui.cpp
 
 $(outdir)/file.o: file.cpp $(headers)
-	g++ $(opt) -c -o $(outdir)/file.o file.cpp
+	g++ $(opt) -c -o $@ file.cpp
 
 $(outdir)/stdinc.h.gch: stdinc.h os_cc_specific_includes.h
-	g++ $(nopchopt) -c -x c++ -o $(outdir)/stdinc.h.gch stdinc.h
+	g++ $(nopchopt) -c -x c++ -o $@ stdinc.h
 
 $(outdir)/dupfgui.o: dupfgui.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/dupfgui.o dupfgui.cpp
+	g++ $(opt) -c -o $@ dupfgui.cpp
 
 $(outdir)/dialog1.o: dialog1.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/dialog1.o dialog1.cpp
+	g++ $(opt) -c -o $@ dialog1.cpp
 
 $(outdir)/dialog2.o: dialog2.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/dialog2.o dialog2.cpp
+	g++ $(opt) -c -o $@ dialog2.cpp
 
 $(outdir)/dialog3.o: dialog3.cpp dialog3_list.cpp dialog3_tree.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/dialog3.o dialog3.cpp
+	g++ $(opt) -c -o $@ dialog3.cpp
 
 $(outdir)/treectrl.o: treectrl.cpp $(headersgui)
-	g++ $(opt) -c -o $(outdir)/treectrl.o treectrl.cpp
+	g++ $(opt) -c -o $@ treectrl.cpp
 
 run:
 	-$(outdir)/$(name)
