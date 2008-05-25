@@ -21,7 +21,9 @@
 #ifndef __DUPF_DLL_EXPORT
 #define __DUPF_DLL_EXPORT
 
-#ifdef _WIN32
+// cygwin does use unix makefile. 
+// which doesn't build dlls
+#if defined( _WIN32) && !defined(__CYGWIN__)
 
 #if defined(DUPF_BUILDING_DLL)
 	#define DLLEXPORT __declspec(dllexport)

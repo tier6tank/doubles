@@ -142,15 +142,17 @@ public:
 
 /*****************************************************************************/
 
-// unconst: for mingw/gcc unix/cygwin? only!
-// mingw's STL library doesn't work like all other compilers' , 
+// unconst: for mingw/gcc unix/cygwin only!
+// unix' STL library doesn't work like all other compilers' , 
 // sets don't support iterator (they return const_iterator in any case)
+// but i can safely change every other element that the size (because
+// the size is the element by which the set is sorted)
 
-#if 1 //def __MINGW32__
+#ifdef __GNUC__
 	template <class T> T & unconst(const T & x) {
 		return const_cast<T &>(x);
 	}
-#else /*!def(__MINGW32__) */
+#else /*!def(__GNUC__) */
 	// else return identity
 	#define unconst(a) (a)
 #endif
