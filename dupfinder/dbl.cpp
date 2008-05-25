@@ -702,9 +702,9 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 				
 				m_gui->wProgress->SetLabel(tmp);
 
-				tmp.Printf(_T("%.2f mb/sec"), 
-					(m_nBytesRead-m_nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024/1024
-					);
+				tmp.Printf(_T("%.2f mb/sec, %.2f files/sec"), 
+					(m_nBytesRead-m_nPrevBytesRead).ToDouble()/REFRESH_INTERVAL/1024/1024, 
+					(m_nFilesRead - m_nPrevFilesRead).ToDouble()/REFRESH_INTERVAL);
 				m_gui->wSpeed->SetLabel(tmp);
 
 				// m_gui->wProgressGauge->SetValue((m_nBytesDone*1000/m_nSumBytes).GetValue());
