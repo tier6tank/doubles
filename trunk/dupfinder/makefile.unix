@@ -89,8 +89,10 @@ opt := $(opt) $(dbg)
 nopchopt := $(nopchopt) $(dbg)
 
 libs := `wx-config $(wxconfigopt) --libs`
-headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h 
-headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h
+headers := dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h \
+	dllexport.h dupf.h minmax.h wxverchk.h
+headersgui := $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
+	os_cc_specific_gui.h
 
 ifeq ($(cygwin),1)
 ifeq ($(shared),1)

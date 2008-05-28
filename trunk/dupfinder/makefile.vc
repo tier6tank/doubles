@@ -103,7 +103,7 @@ libs =  shlwapi.lib ole32.lib uuid.lib user32.lib advapi32.lib shell32.lib
 libsgui = $(libs) gdi32.lib comctl32.lib comdlg32.lib oleaut32.lib rpcrt4.lib
 libdll = $(outdir)\$(namedll).lib
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h file.h resource.h \
-	dllexport.h
+	dllexport.h dupf.h minmax.h wxverchk.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 		os_cc_specific_gui.h
 
