@@ -45,6 +45,7 @@ struct SearchPathInfo
 
 class DupFinderDlg2;
 
+// no DLLEXPORT because of linking! 
 struct GuiInfo {
 	// control
 	bool bContinue;
@@ -82,7 +83,7 @@ struct DuplicateFilesStats
 
 // this is the class which does all the work
 
-class DLLEXPORT DuplicateFilesFinder : public wxExtDirTraverser
+class DUPF_DLLEXPORT DuplicateFilesFinder : public wxExtDirTraverser
 {
 public:
 	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet);
