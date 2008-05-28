@@ -124,14 +124,14 @@
 
 // structures
 
-struct DLLEXPORT FileData
+struct DUPF_DLLEXPORT FileData
 {
 	wxString name;
 	wxULongLong size;
 	// more is not needed
 };
 
-class DLLEXPORT wxExtDirTraverser : public wxDirTraverser
+class DUPF_DLLEXPORT wxExtDirTraverser : public wxDirTraverser
 {
 public:
 	virtual wxDirTraverseResult OnExtFile(const FileData &) {
@@ -163,23 +163,23 @@ public:
 
 // prototypes
 
-bool DLLEXPORT IsSymLink(const wxString &);
-bool DLLEXPORT IsSymLinkSupported();
-bool DLLEXPORT CreateSymLink(const wxString &, const wxString &);
+bool DUPF_DLLEXPORT IsSymLink(const wxString &);
+bool DUPF_DLLEXPORT IsSymLinkSupported();
+bool DUPF_DLLEXPORT CreateSymLink(const wxString &, const wxString &);
 
-// bool DLLEXPORT IsHardLink(const wxString &);  // currently not needed/ (supported (?))
-bool DLLEXPORT IsHardLinkSupported();
-bool DLLEXPORT CreateHardLink(const wxString &, const wxString &);
+// bool DUPF_DLLEXPORT IsHardLink(const wxString &);  // currently not needed/ (supported (?))
+bool DUPF_DLLEXPORT IsHardLinkSupported();
+bool DUPF_DLLEXPORT CreateHardLink(const wxString &, const wxString &);
 
-void DLLEXPORT Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
+void DUPF_DLLEXPORT Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
 	int, wxExtDirTraverser &);
 
-wxChar DLLEXPORT GetPathSepChar();
+wxChar DUPF_DLLEXPORT GetPathSepChar();
 
-bool DLLEXPORT StringToULongLong(const wxString&, wxULongLong &);
+bool DUPF_DLLEXPORT StringToULongLong(const wxString&, wxULongLong &);
 
 // would be nice if i had this...
-// bool DLLEXPORT MoveToTrash(const wxString &);
+// bool DUPF_DLLEXPORT MoveToTrash(const wxString &);
 
 #endif /* defined(OS_CC_SPECIFIC_H) */
 

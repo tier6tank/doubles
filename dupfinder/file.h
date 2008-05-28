@@ -28,7 +28,7 @@
 
 // File class
 // important: this class is always assuming *sequential* read!!!
-class DLLEXPORT File
+class DUPF_DLLEXPORT File
 {
 public:
 	File();
