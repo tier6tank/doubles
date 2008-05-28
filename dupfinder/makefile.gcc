@@ -94,7 +94,7 @@ dllopt := $(opt) -DDUPF_BUILDING_DLL
 libs = -L$(wxdir)\lib\$(libpath) -L$(outdir) -lwxbase28$(version) -lshlwapi  -luuid -lole32
 libsgui = -lwxmsw28$(version)_core $(libs)  -lgdi32 -lcomctl32 -lcomdlg32 -loleaut32 -lrpcrt4
 headers = dbl.h largeint.h ulargeint.h os_cc_specific.h os_cc_specific_includes.h stdinc.h  file.h resource.h \
-	dllexport.h
+	dllexport.h dupf.h minmax.h wxverchk.h
 headersgui = $(headers) dupfgui.h dialog1.h dialog2.h dialog3.h dialog3_list.h dialog3_tree.h treectrl.h \
 	os_cc_specific_gui.h
 
