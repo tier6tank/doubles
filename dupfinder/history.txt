@@ -1,3 +1,6 @@
+Date : 2008/5/28
+changed license headers
+
 Date : 2008/5/26 19:29
 dialog3 added show/hide options button
 

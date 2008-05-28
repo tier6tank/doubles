@@ -199,8 +199,8 @@ void DupFinderDlg3::CreateControls() {
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
 
 	// key shortcuts
-	// pscdimahoel
-	// acdehilmops
+	// 
+	// 
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Select ")
@@ -346,13 +346,13 @@ void DupFinderDlg3::CreateControls() {
 	expandsizer->AddStretchSpacer(1);
 
 	expandsizer->Add(
-		new wxButton(this, ID_EXPANDALL, _T("&Expand all")), 
+		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
 		0, 
 		wxALIGN_RIGHT | wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	expandsizer->Add(
-		new wxButton(this, ID_COLLAPSEALL, _T("Co&llapse all")), 
+		new wxButton(this, ID_COLLAPSEALL, _T("Collapse all")), 
 		0, 
 		wxLEFT | wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL,  
 		10);
