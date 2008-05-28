@@ -1,3 +1,6 @@
+Date : 2008/5/28 16:18
+Setup file supporting both msvc and gcc now
+
 Date : 2008/5/28 14:40
 New: Compiling.txt with old Readme.txt compiling section
 
