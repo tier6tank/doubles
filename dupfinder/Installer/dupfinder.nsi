@@ -23,11 +23,29 @@
 
 Name "Duplicate Files Finder"
 
-OutFile "DupFinderSetup.exe"
-
 InstallDir "$PROGRAMFILES\Duplicate Files Finder"
 
 InstallDirRegKey HKLM "Software\Duplicate Files Finder" "Install_Dir"
+
+# one of the following must be defined:
+# GCC MSVC
+# standard: MSVC
+# i don't like borland, so it isn't included
+!ifndef MSVC 
+!ifndef GCC
+
+# default, if nothing else valid is defined
+!define MSVC
+
+!endif
+!endif
+
+!ifdef MSVC
+	OutFile "DupFinderSetup-msvc.exe"
+!endif
+!ifdef GCC
+	OutFile "DupFinderSetup-gcc.exe"
+!endif
 
 ; Pages:
 
@@ -64,17 +82,37 @@ Section "Main" MainSection
 	${If} $R0 == "95" 
 	${OrIf} $R0 == "98" 
 	${OrIf} $R0 == "ME" 
-		File "/oname=dupf.exe" ..\gcc\dupf.exe
-		File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
-		File "/oname=dupfdll.dll" ..\gcc\dupfdll.dll
+		!ifdef GCC
+			File "/oname=dupf.exe" ..\gcc\dupf.exe
+			File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
+			File "/oname=dupfdll.dll" ..\gcc\dupfdll.dll
+		!endif
+		!ifdef MSVC
+			File "/oname=dupf.exe" ..\vc\dupf.exe
+			File "/oname=dupfgui.exe" ..\vc\dupfgui.exe
+			File "/oname=dupfdll.dll" ..\vc\dupfdll.dll
+			# win 95/98/ME don't need manifest files
+		!endif
 
 		FileOpen $1 $INSTDIR\dupfcon.bat w
 		FileWrite $1 `cd "$INSTDIR"`
 		FileClose $1
 	${Else}
-		File "/oname=dupf.exe" ..\gccu\dupf.exe
-		File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
-		File "/oname=dupfdll.dll" ..\gccu\dupfdll.dll
+		!ifdef GCC
+			File "/oname=dupf.exe" ..\gccu\dupf.exe
+			File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
+			File "/oname=dupfdll.dll" ..\gccu\dupfdll.dll
+		!endif
+		!ifdef MSVC
+			File "/oname=dupf.exe" ..\vcu\dupf.exe
+			File "/oname=dupfgui.exe" ..\vcu\dupfgui.exe
+			File "/oname=dupfdll.dll" ..\vcu\dupfdll.dll
+
+			# manifest files
+			File "/oname=dupf.exe.manifest" ..\vcu\dupf.exe.manifest
+			File "/oname=dupfgui.exe.manifest" ..\vcu\dupfgui.exe.manifest
+			File "/oname=dupfdll.dll.manifest" ..\vcu\dupfdll.dll.manifest
+		!endif
 	${EndIf}
 	File "/oname=mingwm10.dll" C:\mingw\bin\mingwm10.dll
 
@@ -125,6 +163,12 @@ Section "Uninstall"
 	Delete $INSTDIR\dupf.exe
 	Delete $INSTDIR\dupfgui.exe
 	Delete $INSTDIR\mingwm10.dll
+	Delete $INSTDIR\dupfdll.dll
+	!ifdef MSVC
+		Delete $INSTDIR\dupf.exe.manifest
+		Delete $INSTDIR\dupfgui.exe.manifest
+		Delete $INSTDIR\dupfdll.dll.manifest
+	!endif
 
 	Call un.GetWindowsVersion
 	Pop $R0

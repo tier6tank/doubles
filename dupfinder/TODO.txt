@@ -281,3 +281,4 @@ Description of signs:
 - executables build with shared don't work
 - Installer choose vc/gcc by var ( + manifests, if present)
 - readme.txt compiling -> compiling.txt
+- RUNTIME_LIBS = static? (or where to get msvc*80.dll's from?)
