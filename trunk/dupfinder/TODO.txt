@@ -10,7 +10,6 @@ Description of signs:
 + Create a nice (os- and make-utitlity-independent?! if possible) makefile (done, different makefiles)
 + See wxWidget's makefile-collection, this is very nice, for every compiler a special makefile! 
 + putting every compiler's files in a special directory, even different for debug/nodebug unicode/no-unicode build (done)
-+ Adding license text as header in source files. done
 + converting all integers to longlong (__i64) integers, where overflow could occur (e.g. the number of double files) done. 
 + unicode support for windows... done!
 + (delete OpenFile, ReadFile, CloseFile and replace them by fopen, fread, fclose) (old)
