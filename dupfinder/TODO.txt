@@ -276,5 +276,9 @@ Description of signs:
 ! test for memory leaks
 + instead of c1, c2... in dialog1 array c[8] done.
 ? trimming todo.txt (removing all REALLY done elements)
-- unconst which unix?
-- cygwin shared?
++ unconst which unix? all gcc!
+- cygwin supporting shared dll?
+? DLLEXPORT needed for structs without functions?
+- executables build with shared don't work
+- Installer choose vc/gcc by var ( + manifests, if present)
+- readme.txt compiling -> compiling.txt

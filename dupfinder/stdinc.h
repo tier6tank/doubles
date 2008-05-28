@@ -37,6 +37,7 @@
 #include <wx/treectrl.h>
 #include <wx/tokenzr.h>
 #include <wx/dynlib.h>
+#include <wx/tglbtn.h>
 #include <cstdio>
 #include <cassert>
 #include <ctime>

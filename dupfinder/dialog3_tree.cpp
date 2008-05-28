@@ -108,6 +108,7 @@ enum {
 	ID_EXPANDALL, 
 	ID_COLLAPSEALL, 
 	ID_PROGRESS, 
+	ID_DISPLAYOPTIONS,
 
 	// menu
 
@@ -142,6 +143,7 @@ BEGIN_EVENT_TABLE(DupFinderDlg3, wxDialog)
 	EVT_BUTTON(ID_EXPANDALL, 	DupFinderDlg3::OnExpandAll)
 	EVT_BUTTON(ID_COLLAPSEALL, 	DupFinderDlg3::OnCollapseAll)
 	EVT_IDLE(			DupFinderDlg3::OnIdle)
+	EVT_TOGGLEBUTTON(ID_DISPLAYOPTIONS, DupFinderDlg3::OnToggleDisplayOptions)
 
 	// Menu events
 	EVT_MENU(ID_MENU_OPENFILE, 	DupFinderDlg3::OnOpenFile)
@@ -160,6 +162,8 @@ void DupFinderDlg3::OnInitDialog(wxInitDialogEvent  &event)
 	wxDialog::OnInitDialog(event);
 
 	CreateControls();
+
+	UpdateView();
 
 	CenterOnScreen();
 }
@@ -189,9 +193,14 @@ void DupFinderDlg3::CreateControls() {
 	wxBoxSizer *expandsizer = new wxBoxSizer(wxHORIZONTAL);
 	wxStaticBoxSizer *resultssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("R&esults"));
 	wStats = resultssizer;
+	m_wOptions = restrictsizer;
 	
 	const int wxTOPLEFT = wxTOP | wxLEFT;
 	const int wxTOPLEFTRIGHT = wxTOP | wxLEFT | wxRIGHT;
+
+	// key shortcuts
+	// pscdimahoel
+	// acdehilmops
 
 	topsizer->Add(
 		new wxStaticText(this, wxID_STATIC, _T("Step 3: \nThe results. Select ")
@@ -211,15 +220,21 @@ void DupFinderDlg3::CreateControls() {
 		10);
 
 	savesizer->Add(
-		new wxStaticText(this, wxID_STATIC, _T("Store the upper\nlist to a file: ")), 
+		m_wShowOptions = new wxToggleButton(this, ID_DISPLAYOPTIONS, _T("Show o&ptions")), 
 		0, 
 		wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	savesizer->Add(
+		new wxStaticText(this, wxID_STATIC, _T("Store the upper\nlist to a file: ")), 
+		0, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
+		10);
+
+	savesizer->Add(
 		new wxButton(this, ID_STORE, _T("&Store")), 
 		0, 
-		wxLEFT, 
+		wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	savesizer->AddStretchSpacer(1);
@@ -331,13 +346,13 @@ void DupFinderDlg3::CreateControls() {
 	expandsizer->AddStretchSpacer(1);
 
 	expandsizer->Add(
-		new wxButton(this, ID_EXPANDALL, _T("Expand all")), 
+		new wxButton(this, ID_EXPANDALL, _T("&Expand all")), 
 		0, 
 		wxALIGN_RIGHT | wxLEFT | wxALIGN_CENTER_VERTICAL, 
 		10);
 
 	expandsizer->Add(
-		new wxButton(this, ID_COLLAPSEALL, _T("Collapse all")), 
+		new wxButton(this, ID_COLLAPSEALL, _T("Co&llapse all")), 
 		0, 
 		wxLEFT | wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL,  
 		10);
@@ -376,6 +391,8 @@ void DupFinderDlg3::CreateControls() {
 
 	SetSizer(topsizer);
 	topsizer->SetSizeHints(this);
+
+	m_wShowOptions->SetValue(false);
 }
 
 void DupFinderDlg3::OnClose(wxCloseEvent &WXUNUSED(event)) {
@@ -1232,6 +1249,22 @@ void DupFinderDlg3::RefreshStats()
 
 	wStats->GetStaticBox()->SetLabel(tmp);
 }
+
+void DupFinderDlg3::OnToggleDisplayOptions(wxCommandEvent &WXUNUSED(event))
+{
+	UpdateView();
+}
+
+void DupFinderDlg3::UpdateView()
+{
+	m_wOptions->Show(m_wShowOptions->GetValue());
+	GetSizer()->Layout();
+}
+
+
+
+
+
 
 
 
