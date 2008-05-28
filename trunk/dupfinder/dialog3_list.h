@@ -103,6 +103,10 @@ public:
 
 	void RefreshStats();
 
+	void OnToggleDisplayOptions(wxCommandEvent &);
+
+	void UpdateView();
+
 private:
 	static bool bHardLinkWarning;
 
@@ -118,6 +122,8 @@ private:
 	wxTextCtrl *wMask;
 	wxGauge    *wProgress;
 	wxStaticBoxSizer *wStats;
+	wxBoxSizer *m_wOptions;
+	wxToggleButton *m_wShowOptions;
 	
 	DupFinderDlg *parent;
 
