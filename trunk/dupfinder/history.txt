@@ -1,4 +1,7 @@
-Date : 2008/5/28
+Date : 2008/5/28 14:40
+New: Compiling.txt with old Readme.txt compiling section
+
+Date : 2008/5/28 12:30
 changed license headers
 
 Date : 2008/5/26 19:29
