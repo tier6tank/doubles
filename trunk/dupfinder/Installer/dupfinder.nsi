@@ -27,23 +27,20 @@ InstallDir "$PROGRAMFILES\Duplicate Files Finder"
 
 InstallDirRegKey HKLM "Software\Duplicate Files Finder" "Install_Dir"
 
-# one of the following must be defined:
-# GCC MSVC
-# standard: MSVC
+# Compiler must be one of the following
+# gcc msvc
+# standard: MSVC (perhaps still better gcc?)
 # i don't like borland, so it isn't included
-!ifndef MSVC 
-!ifndef GCC
-
+!ifndef Compiler
 # default, if nothing else valid is defined
-!define MSVC
-
+# !define MSVC
+!error "Define the Compiler variable (msvc/gcc)"
 !endif
-!endif
 
-!ifdef MSVC
+!if ${Compiler} == msvc
 	OutFile "DupFinderSetup-msvc.exe"
 !endif
-!ifdef GCC
+!if ${Compiler} == gcc
 	OutFile "DupFinderSetup-gcc.exe"
 !endif
 
@@ -82,12 +79,12 @@ Section "Main" MainSection
 	${If} $R0 == "95" 
 	${OrIf} $R0 == "98" 
 	${OrIf} $R0 == "ME" 
-		!ifdef GCC
+		!if ${Compiler} == gcc
 			File "/oname=dupf.exe" ..\gcc\dupf.exe
 			File "/oname=dupfgui.exe" ..\gcc\dupfgui.exe
 			File "/oname=dupfdll.dll" ..\gcc\dupfdll.dll
 		!endif
-		!ifdef MSVC
+		!if ${Compiler} == msvc
 			File "/oname=dupf.exe" ..\vc\dupf.exe
 			File "/oname=dupfgui.exe" ..\vc\dupfgui.exe
 			File "/oname=dupfdll.dll" ..\vc\dupfdll.dll
@@ -98,12 +95,12 @@ Section "Main" MainSection
 		FileWrite $1 `cd "$INSTDIR"`
 		FileClose $1
 	${Else}
-		!ifdef GCC
+		!if ${Compiler} == gcc
 			File "/oname=dupf.exe" ..\gccu\dupf.exe
 			File "/oname=dupfgui.exe" ..\gccu\dupfgui.exe
 			File "/oname=dupfdll.dll" ..\gccu\dupfdll.dll
 		!endif
-		!ifdef MSVC
+		!if ${Compiler} == msvc
 			File "/oname=dupf.exe" ..\vcu\dupf.exe
 			File "/oname=dupfgui.exe" ..\vcu\dupfgui.exe
 			File "/oname=dupfdll.dll" ..\vcu\dupfdll.dll
@@ -164,7 +161,7 @@ Section "Uninstall"
 	Delete $INSTDIR\dupfgui.exe
 	Delete $INSTDIR\mingwm10.dll
 	Delete $INSTDIR\dupfdll.dll
-	!ifdef MSVC
+	!if ${Compiler} == msvc
 		Delete $INSTDIR\dupf.exe.manifest
 		Delete $INSTDIR\dupfgui.exe.manifest
 		Delete $INSTDIR\dupfdll.dll.manifest
