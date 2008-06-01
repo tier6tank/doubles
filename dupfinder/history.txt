@@ -1,3 +1,6 @@
+Date : 2008/5/29 18:50
+Installer !ifdef's exchanged by !if ${Compiler}
+
 Date : 2008/5/28 16:18
 Setup file supporting both msvc and gcc now
 
