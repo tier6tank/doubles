@@ -1,3 +1,6 @@
+Date : 2008/6/01 12:46 -- Dupfinder 0.8.0
+nSumSizes correct now. 
+
 Date : 2008/5/29 18:50
 Installer !ifdef's exchanged by !if ${Compiler}
 

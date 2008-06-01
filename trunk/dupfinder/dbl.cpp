@@ -856,6 +856,7 @@ void DuplicateFilesFinder::RemoveUnimportantSizes() {
 			bDeleted = true;
 
 			m_nSumFiles--;
+			m_nSumSizes--;
 		}
 	}
 
