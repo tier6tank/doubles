@@ -279,6 +279,6 @@ Description of signs:
 - cygwin supporting shared dll?
 ? DLLEXPORT needed for structs without functions?
 - executables build with shared don't work
-- Installer choose vc/gcc by var ( + manifests, if present)
-- readme.txt compiling -> compiling.txt
++ Installer choose vc/gcc by var ( + manifests, if present)
++ readme.txt compiling -> compiling.txt done.
 - RUNTIME_LIBS = static? (or where to get msvc*80.dll's from?)

@@ -603,7 +603,7 @@ void DupFinderDlg::OnAbout(wxCommandEvent &WXUNUSED(event)) {
 		_T("(c) Matthias Boehm 2008"), 
 		_T("Find and delete duplicate files"), 
 		_T("Duplicate Files Finder"), 
-		_T("0.46")
+		_T("0.8.0")
 		);
 }
 
