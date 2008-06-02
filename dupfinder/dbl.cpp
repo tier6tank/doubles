@@ -570,8 +570,8 @@ bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &s
 	char *pb1, *pb2;
 	if(b1 == NULL) { b1 = new char[File::GetBufSize()]; }
 	if(b2 == NULL) { b2 = new char[File::GetBufSize()]; }
-	unsigned int BUFSIZE = File::GetBufSize();
-	unsigned int n1, n2;
+	size_t BUFSIZE = File::GetBufSize();
+	size_t n1, n2;
 
 	if(!f1.Open(size)) {
 		return false;
