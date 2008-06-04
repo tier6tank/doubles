@@ -75,6 +75,23 @@ LARGE_INTEGER fileread;
 #include "filetest.cpp"
 #endif
 
+// unconst: for mingw/gcc unix/cygwin only!
+// unix' STL library doesn't work like all other compilers' , 
+// sets don't support iterator (they return const_iterator in any case)
+// but i can safely change every other element that the size (because
+// the size is the element by which the set is sorted)
+
+#ifdef __GNUC__
+	template <class T> static T & unconst(const T & x) {
+		return const_cast<T &>(x);
+	}
+#else /*!def(__GNUC__) */
+	// else return identity
+	#define unconst(a) (a)
+#endif
+
+
+
 
 /******************************************************************************************/
 /********************************                       ***********************************/
@@ -216,7 +233,6 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 	}
 
 	File f;
-	fileinfosize fis;
 	multiset_fileinfosize::iterator it2;
 	wxULongLong size;
 	STARTTIME(__OnFile);
@@ -228,7 +244,8 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 		size = *pSize;
 	}
 	STOPTIME(__findsize);
-		
+	fileinfosize fis(size);
+	
 	bool bFitsMinSize = size >= spi->nMinSize;
 	bool bFitsMaxSize = size <= spi->nMaxSize || spi->nMaxSize == 0;
 
@@ -242,15 +259,12 @@ wxDirTraverseResult DuplicateFilesFinder::OnFile(const wxString &filename, const
 		STARTTIME(__insert);
 		f.SetName(filename);
 
-		fis.size = size;
 		it2 = m_sortedbysize.find(fis);
 
-			
 		if(it2 != m_sortedbysize.end()) {
 			unconst(*it2).files.push_back(f);
 		}
 		else {
-			fis.size = size;
 			fis.files.push_back(f);
 			m_sortedbysize.insert(fis);
 			m_nSumSizes++;
@@ -345,7 +359,6 @@ bool DuplicateFilesFinder::Traverse(const SearchPathInfo *spi)
 
 void	DuplicateFilesFinder::FindFiles()
 {
-	fileinfosize fis;
 	list<File>::iterator it;
 	multiset_fileinfosize::iterator it2;
 	list<SearchPathInfo>::iterator it3;

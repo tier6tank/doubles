@@ -1,3 +1,7 @@
+Date : 2008/6/4 15:14
+because of insecurity of unconst, size element in fileinfosize declared as const
+unconst moved to dbl.cpp and static
+
 Date : 2008/6/2 16:19 
 Fixed a 64-bit related error
 
