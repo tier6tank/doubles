@@ -113,7 +113,15 @@ private:
 
 	struct fileinfosize
 	{
-		wxULongLong size;
+		// as mingw uses different STL library, with 
+		// const_iterator instead of iterator in multiset, 
+		// and because const attribute is casted away, 
+		// but size value must not change, it is declared
+		// as const
+
+		// for initializing the constant size value
+		fileinfosize(const wxULongLong &_size) : size(_size) {}
+		const wxULongLong size; 
 		list<File> files;
 		list<fileinfoequal> equalfiles;
 	};
