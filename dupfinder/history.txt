@@ -1,3 +1,6 @@
+Date : 2008/6/4 15:19
+Main errands in todo list
+
 Date : 2008/6/4 15:14
 because of insecurity of unconst, size element in fileinfosize declared as const
 unconst moved to dbl.cpp and static

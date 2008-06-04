@@ -282,3 +282,11 @@ Description of signs:
 + Installer choose vc/gcc by var ( + manifests, if present)
 + readme.txt compiling -> compiling.txt done.
 - RUNTIME_LIBS = static? (or where to get msvc*80.dll's from?)
+- properties (windows only files: CRLF, unix only files: LF?, mime-type!)
+! analysing (msvc)
+
+- Internationalization
+- Sorting by folder
+- Cache class / read only first sector of each file
+- emulating tree ctrl with list (?!)
+- help file/ man page for windows/unix
