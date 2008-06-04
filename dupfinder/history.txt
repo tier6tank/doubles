@@ -1,3 +1,6 @@
+Date : 2008/6/4 15:25
+Fixed typo in makefile.vc
+
 Date : 2008/6/4 15:19
 Main errands in todo list
 

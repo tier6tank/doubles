@@ -29,9 +29,9 @@ shared = 0
 !endif
 
 # undocumented option to switch
-# on analysing (vc new enough only)
-!ifndef analyse
-analyse = 0
+# on analyzing (vc new enough only)
+!ifndef analyze
+analyze = 0
 !endif
 
 !ifndef wxdir
@@ -67,7 +67,7 @@ opt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
 	-I"$(wxdir)\include" -I"$(wxdir)\include\msvc" /D__WXMSW__ /DWIN32 -Yu"stdinc.h" \
 	-nologo
 
-!if $(analyse)==1
+!if $(analyze)==1
 opt = $(opt) -analyze
 !endif
 
