@@ -4,26 +4,34 @@
 
 <body style="font-family:Arial,sans-serif">
 
-<h1>Duplicate Files Finder homepage</h1>
+<h1>Duplicate Files Finder</h1>
 
-<h2>What is Duplicate Files Finder?</h2>
+<a name="Introduction"><h2>Introduction</h2></a>
 
-Duplicate Files Finder is a program which searches for duplicate files by comparing the contents of the files. 
-As it uses an algroithm which does not scan every file for creating a hash, but instead reads only as little as it 
-needs for determining whether two files are the same or not, the program is much faster than other similiar 
-programs. <p>
+Duplicate Files Finder is a program which searches (as the name says) for 
+duplicate files. It uses a <a href="#Algorithm">special algorithm</a> to find duplicate files, which 
+is much faster than the algorithm used by most programs of that sort (hashing); yet it compares the
+content of the files, not only the names. <br>
+It offers as well many options to get rid of duplicate files. You can either delete duplicate files, 
+or create hardlinks or symbolic links (if supported by the operating system). All this can 
+directly be done in the program. 
 
-<h2>Download</h2>
+<a name="Download"><h2>Download</h2>
 
-You can download the windows installer or the unix source from the sourceforge.net 
-<a href="http://sourceforge.net/project/platformdownload.php?group_id=211415">download page</a>. <p>
+<ul>
+<li>Windows users can download the 
+<a href="http://sourceforge.net/project/platformdownload.php?group_id=211415&sel_platform=6515">installer</a>. 
+<li>Linux users who want to compile the program themselves, can download the 
+<a href="http://sourceforge.net/project/platformdownload.php?group_id=211415&sel_platform=8737">source</a> 
+(and binaries, if you want, but no installer is included!)
 
-Binary rpm packages for (open)SuSE you find on 
-<a href="http://packman.links2linux.de/package/dupfinder">this page</a>.<p>
+<li>Binary rpm packages for (open)SuSE you find on 
+<a href="http://packman.links2linux.de/package/dupfinder">this page</a>.
 
-For debian, there isn't any .deb file distribution i know of (sorry). <br>
+<li>For debian, there isn't any .deb file distribution i know of (sorry). 
+</ul>
 
-<h2>Platforms supported</h2>
+<a name="SuppPlatforms"><h2>Platforms supported</h2></a>
 
 Duplicate Files Finder supports the following platforms:
 
@@ -34,18 +42,26 @@ Duplicate Files Finder supports the following platforms:
 </ul>
 
 
-<h2>Features</h2>
+<a name="Features"><h2>Features</h2></a>
 
 <ul>
- <li><b>Byte by byte</b> comparison</li>
- <li><b>Fast</b> search</li>
- <li>Support for <b>hardlinks</b> and <b>symbolic links</b></li>
- <li>Interactively delete files or create links</li>
- <li>Many <b>search options</b>
+ <li>Byte by byte comparison</li>
+ <li>Very fast search</li>
+ <li>Support for hardlinks and symbolic links</li>
+ <li>User interface to process the results by deleting duplicate files, or creating links</li>
+ <li>Many search options</b>
 </ul>
 
+<a name="Algorithm"><h2>Short description of the algorithm</h2>
 
-<h2>Links</h2>
+The algorithm is as follows: First, all files are sorted by their size, because files can be
+only equal, if they have the same size (logically). <br>
+Then the files are compared with each other, and thus the equal files are determined. If two
+files are not equal from a given point, reading is interrupted; no more has to be read for 
+determining that these files are not equal. <br>
+Additional caching of the contents of the files additionally improves performance.
+
+<a name="Links"><h2>Links</h2></a>
 
 <ul>
  <li><a href="http://sourceforge.net/projects/doubles">Sourceforge project page</a></li>
@@ -56,7 +72,6 @@ Duplicate Files Finder supports the following platforms:
 <hr></hr>
 
 <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=211415&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
-
 
 </body>
 
