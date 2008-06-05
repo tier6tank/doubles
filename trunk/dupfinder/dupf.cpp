@@ -222,23 +222,23 @@ DECLARE_MAIN
 		dirs.push_back(dir.GetFullPath());
 	}
 
-	list<wxString>::iterator it;
+	list<wxString>::iterator its;
 	bool bDisplayedHeader = false;
-	for(it = dirs.begin(); it != dirs.end(); it++) {
+	for(its = dirs.begin(); its != dirs.end(); its++) {
 		list<wxString>::iterator it2;
-		it2 = it;
+		it2 = its;
 		for(it2++; it2 != dirs.end(); it2++) {
 			// C:\dir1\dir2 C:\dir\dir3 is correct
 			// C:\dir1  C:\dir1\dir2 not
 
-			if(it->StartsWith(*it2) || it2->StartsWith(*it)) {
-				bool bCase = it->StartsWith(*it2);
+			if(its->StartsWith(*it2) || it2->StartsWith(*its)) {
+				bool bCase = its->StartsWith(*it2);
 				if(!bDisplayedHeader) {
 					_ftprintf(stderr, _T("\nWARNING: \n---------\n"));
 					bDisplayedHeader = true;
 				}
 				_ftprintf(stderr, _T("The Path \"%s\" is contained in \"%s\"! \n"), 
-					bCase ? it->c_str() : it2->c_str(), bCase ? it2->c_str() : it->c_str() );
+					bCase ? its->c_str() : it2->c_str(), bCase ? it2->c_str() : its->c_str() );
 			}			
 		}
 	}
@@ -347,7 +347,7 @@ static const char * ToAscii(const wxString &string)
 			result[i] = '?';
 		}
 		else {
-			result[i] = string[i];
+			result[i] = (char)(string[i] & 0xFF);
 		}
 	}
 	result[i] = 0;

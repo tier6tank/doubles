@@ -284,9 +284,25 @@ Description of signs:
 - RUNTIME_LIBS = static? (or where to get msvc*80.dll's from?)
 - properties (windows only files: CRLF, unix only files: LF?, mime-type!)
 ! analysing (msvc)
+- display lonely items option?
+- pch working for all source files
+- Wp64 warning fixes
+- Wall for all source files except stdinc.cpp?
 
 - Internationalization
 - Sorting by folder
 - Cache class / read only first sector of each file
 - emulating tree ctrl with list (?!)
 - help file/ man page for windows/unix
+
+
+
+
+
+
+
+
+
+
+
+

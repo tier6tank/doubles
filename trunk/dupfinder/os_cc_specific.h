@@ -124,19 +124,17 @@
 
 // structures
 
-struct DUPF_DLLEXPORT FileData
+struct FileData
 {
 	wxString name;
 	wxULongLong size;
 	// more is not needed
 };
 
-class DUPF_DLLEXPORT wxExtDirTraverser : public wxDirTraverser
+class wxExtDirTraverser : public wxDirTraverser
 {
 public:
-	virtual wxDirTraverseResult OnExtFile(const FileData &) {
-		return wxDIR_CONTINUE;
-	}
+	virtual wxDirTraverseResult OnExtFile(const FileData &)=0;
 	
 };
 
@@ -153,7 +151,7 @@ bool DUPF_DLLEXPORT CreateSymLink(const wxString &, const wxString &);
 bool DUPF_DLLEXPORT IsHardLinkSupported();
 bool DUPF_DLLEXPORT CreateHardLink(const wxString &, const wxString &);
 
-void DUPF_DLLEXPORT Traverse(const wxString &, const wxString *, int, /* wxString (*)[], int, */
+void DUPF_DLLEXPORT Traverse(const wxString &, const wxString *, size_t, /* wxString (*)[], int, */
 	int, wxExtDirTraverser &);
 
 wxChar DUPF_DLLEXPORT GetPathSepChar();

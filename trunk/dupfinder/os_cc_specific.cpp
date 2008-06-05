@@ -26,7 +26,7 @@ using namespace std;
 
 #ifdef _WIN32
 
-void Traverse(const wxString &RootDir, const wxString *mask, int nMask, 
+void Traverse(const wxString &RootDir, const wxString *mask, size_t nMask, 
 	/* wxString (*exclmask)[], int nExclMask, */ int flags, wxExtDirTraverser &sink) 
 {
 	WIN32_FIND_DATA fd;
@@ -35,7 +35,7 @@ void Traverse(const wxString &RootDir, const wxString *mask, int nMask,
 	HANDLE hFind;
 	bool bNoEnd;
 	bool bEnd = false;
-	int i;
+	size_t i;
 
 	wxFileName tmp = wxFileName::DirName(RootDir);
 
@@ -81,7 +81,7 @@ void Traverse(const wxString &RootDir, const wxString *mask, int nMask,
 				}
 			}
 
-			bNoEnd = FindNextFile(hFind, &fd);
+			bNoEnd = FindNextFile(hFind, &fd) == TRUE;
 
 		} while(bNoEnd);
 
@@ -143,7 +143,7 @@ void Traverse(const wxString &RootDir, const wxString *mask, int nMask,
 					}
 				}
 
-				bNoEnd = FindNextFile(hFind, &fd);
+				bNoEnd = FindNextFile(hFind, &fd) == TRUE;
 	
 			} while(bNoEnd);
 
@@ -266,7 +266,7 @@ bool CreateHardLink(const wxString &oldpath, const wxString &newpath) {
   			  LPCTSTR lpFileName,
 			  LPCTSTR lpExistingFileName,
 			  LPSECURITY_ATTRIBUTES lpSecurityAttributes
-			) ) CreateHardLinkFun)(newpath.fn_str(), oldpath.fn_str(), NULL);
+			) ) CreateHardLinkFun)(newpath.fn_str(), oldpath.fn_str(), NULL) == TRUE;
 	}
 }
 
@@ -363,8 +363,8 @@ static wxULongLong_t StrToULongLong(const wxString & str, bool &bResult) {
 	// no test whether it's a valid string
 	// not necessary because of Validator
 	wxULongLong_t value, lastvalue;
-	int size = str.Length();
-	int i;
+	size_t size = str.Length();
+	size_t i;
 	
 	value = lastvalue = 0;
 	for(i = 0; i < size; i++) {

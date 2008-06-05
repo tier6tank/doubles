@@ -70,6 +70,8 @@ void DupFinderDlg2::OnClose(wxCloseEvent &WXUNUSED(event))
 
 void DupFinderDlg2::CreateControls()
 {
+	try {
+
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 
 	wxStaticBoxSizer *progresssizer = new wxStaticBoxSizer(wxVERTICAL, this, _T("Progress"));
@@ -231,6 +233,12 @@ void DupFinderDlg2::CreateControls()
 	topsizer->SetSizeHints(this);
 
 	dynamic_cast<wxCheckBox *>(FindWindow(ID_SHOWMESSAGES))->SetValue(true);
+
+	}
+	catch (std::bad_alloc &WXUNUSED(e)) {
+		wxLogFatalError(_T("No memory left! "));
+		return;
+	}
 }
 
 void DupFinderDlg2::OnSize(wxSizeEvent &WXUNUSED(event)) 
