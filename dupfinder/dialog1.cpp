@@ -104,6 +104,8 @@ DupFinderDlg::~DupFinderDlg() {
 
 void DupFinderDlg::CreateControls()
 {
+	try {
+
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 
 	wxStaticBoxSizer *dirsizer = new wxStaticBoxSizer(wxVERTICAL, this, 
@@ -352,7 +354,11 @@ void DupFinderDlg::CreateControls()
 	topsizer->SetSizeHints(this);
 
 	/*************************************** dialog created ****************************/
-
+	}
+	catch (std::bad_alloc &WXUNUSED(e)) {
+		wxLogFatalError(_T("No memory left! "));
+		return;
+	}
 }
 
 void DupFinderDlg::InitControls() {

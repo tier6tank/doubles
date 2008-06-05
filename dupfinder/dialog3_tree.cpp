@@ -178,6 +178,7 @@ void DupFinderDlg3::OnIdle(wxIdleEvent &WXUNUSED(event)) {
 }
 
 void DupFinderDlg3::CreateControls() {
+	try {
 	
 	wxBoxSizer *topsizer = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *savesizer = new wxBoxSizer(wxHORIZONTAL);
@@ -393,6 +394,12 @@ void DupFinderDlg3::CreateControls() {
 	topsizer->SetSizeHints(this);
 
 	m_wShowOptions->SetValue(false);
+	
+	}
+	catch (std::bad_alloc &WXUNUSED(e)) {
+		wxLogFatalError(_T("No memory left! "));
+		return;
+	}
 }
 
 void DupFinderDlg3::OnClose(wxCloseEvent &WXUNUSED(event)) {
@@ -457,6 +464,7 @@ void DupFinderDlg3::DisplayResults() {
 	ItemData *itemdata;
 	list<DuplicatesGroup>::size_type i, size;
 	unsigned int percentage = 0;
+	bool bDisplayLonelyItems = false; /* option?? */
 
 	if(duplicates.empty()) {
 		wxMessageBox(_T("There are no double files! "), _T("Duplicate Files Finder"), 
@@ -488,7 +496,7 @@ void DupFinderDlg3::DisplayResults() {
 		bool bRestrict = bRestrictToMask || bRestrictToDir;
 
 		// don't include items which have only one element left ?
-		if(it->files.size() == 1 && false) {
+		if(it->files.size() == 1 && bDisplayLonelyOptions) {
 			bDisplay = false; 
 		} else {
 			if(bRestrict) {
@@ -1090,8 +1098,8 @@ void DupFinderDlg3::CreateLink(bool (*link_func)(const wxString &, const wxStrin
 						bFatalError = wxRenameFile(tmpfile, file.GetFullPath()) == false;
 					}
 					else {
-						bool bResult = wxRemoveFile(tmpfile);
-						if(!bResult) {
+						bool bResult2 = wxRemoveFile(tmpfile);
+						if(!bResult2) {
 							wxString tmp;
 							tmp.Printf(_T("Cannot delete %s! "), tmpfile.c_str());
 							wxMessageBox(tmp, _T("Error"), wxOK | wxICON_ERROR, this);

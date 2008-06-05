@@ -64,6 +64,7 @@ File & File::operator = (const File &rhs) {
 	if(&rhs != this) {
 		ReleaseData();
 		data = rhs.data;
+		assert(data);
 		data->rcount++;
 	}
 	return *this;
@@ -122,7 +123,10 @@ bool File::Read(char **buffer, size_t &ncount) {
 	}
 
 	if(wxULongLong(data->extdata->pos) < data->extdata->cachesize) {
-		ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
+		wxULongLong _ncount;
+		_ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
+		assert(!_ncount.GetHi());
+		ncount = _ncount.GetLo();
 		*buffer = data->extdata->cache+data->extdata->pos;
 	}
 	else { /* data->extdata->pos >= data->extdata->cachesize */

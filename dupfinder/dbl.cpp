@@ -205,6 +205,16 @@ void DuplicateFilesFinder::CalculateStats(DuplicateFilesStats &stats) const
 	}
 }
 
+void DuplicateFilesFinder::SetGui(GuiInfo *gui)
+{
+	m_gui = gui;
+}
+
+const list<SearchPathInfo> &DuplicateFilesFinder::GetPaths()
+{
+	return m_paths;
+}
+
 /******************************************************************************************/
 /********************************                        **********************************/
 /******************************** wxExtDirTraverser impl **********************************/
@@ -340,10 +350,10 @@ bool DuplicateFilesFinder::Traverse(const SearchPathInfo *spi)
 	return bSuccess;
 #else
 	wxStringTokenizer tok(spi->Include, GetPathSepChar());
-	int length = tok.CountTokens();
+	size_t length = tok.CountTokens();
 	wxString *masks = new wxString[length];
 
-	int i = 0;
+	size_t i = 0;
 	while(tok.HasMoreTokens()) {
 		masks[i] = tok.GetNextToken();
 		i++;
@@ -601,7 +611,8 @@ bool	DuplicateFilesFinder::CompareFiles(File &f1, File &f2, const wxULongLong &s
 		return false;
 	}
 
-	while(1) {
+	// == while(1) [compiler warning fix]
+	for( ; ; ) { 
 		UpdateStatusDisplay();
 
 		if(YieldAndTestAbort()) {
@@ -765,8 +776,8 @@ void DuplicateFilesFinder::UpdateStatusDisplay()
 void DuplicateFilesFinder::ResetLine() 
 {
 	if(!m_quiet) {
-		int n = m_output.Length();
-		int t;
+		size_t n = m_output.Length();
+		size_t t;
 		for(t = 0; t < n; t++) {
 			_ftprintf(stderr, _T("\b"));
 		}

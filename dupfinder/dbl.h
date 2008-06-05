@@ -24,6 +24,7 @@
 
 #include "file.h"
 #include "os_cc_specific.h"
+#include "dllexport.h"
 
 struct DuplicatesGroup
 {
@@ -83,25 +84,25 @@ struct DuplicateFilesStats
 
 // this is the class which does all the work
 
-class DUPF_DLLEXPORT DuplicateFilesFinder : public wxExtDirTraverser
+class DuplicateFilesFinder : public wxExtDirTraverser
 {
 public:
-	DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet);
-	~DuplicateFilesFinder();
+	DUPF_DLLEXPORT DuplicateFilesFinder(GuiInfo * _gui, bool _bQuiet);
+	DUPF_DLLEXPORT ~DuplicateFilesFinder();
 
-	void AddPath(const SearchPathInfo &path);
+	void DUPF_DLLEXPORT AddPath(const SearchPathInfo &path);
 
-	void Reset();
+	void DUPF_DLLEXPORT Reset();
 
-	void FindDuplicateFiles();
+	void DUPF_DLLEXPORT FindDuplicateFiles();
 
-	list<DuplicatesGroup> &GetDuplicates();
+	list<DuplicatesGroup> DUPF_DLLEXPORT &GetDuplicates();
 
-	void SetGui(GuiInfo *gui) { m_gui = gui; }
+	void DUPF_DLLEXPORT SetGui(GuiInfo *gui);
 
-	void CalculateStats(DuplicateFilesStats &) const;
+	void DUPF_DLLEXPORT CalculateStats(DuplicateFilesStats &) const;
 
-	const list<SearchPathInfo> &GetPaths() { return m_paths; }
+	const list<SearchPathInfo> DUPF_DLLEXPORT &GetPaths();
 
 private:
 	// private structures
