@@ -21,6 +21,15 @@
 #ifndef __STDINC_H_010987
 #define __STDINC_H_010987
 
+#ifdef _MSC_VER
+// disable these warnings
+#pragma warning(disable:4512)
+// standard library + wxWidgets do not need 
+// error checking with level 4. 
+// That avoids many warnings
+#pragma warning(push,3)
+#endif
+
 #include <wx/wx.h>
 
 // check wxWidgets version
@@ -38,12 +47,20 @@
 #include <wx/tokenzr.h>
 #include <wx/dynlib.h>
 #include <wx/tglbtn.h>
+
+
+
 #include <cstdio>
 #include <cassert>
 #include <ctime>
 #include <cmath>
 #include <list>
 #include <set>
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 #include "minmax.h"
 #include "os_cc_specific_includes.h"
 
