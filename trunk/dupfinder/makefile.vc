@@ -63,7 +63,7 @@ stversion = _shared
 
 outdir = $(outdir)$(version)$(stversion)
 
-opt = -w -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
+opt = -W4 -EHsc -Wp64  -Fp"$(outdir)\\" -Fo"$(outdir)\\" -Fd"$(outdir)\\" -GR  \
 	-I"$(wxdir)\include" -I"$(wxdir)\include\msvc" /D__WXMSW__ /DWIN32 -Yu"stdinc.h" \
 	-nologo
 
