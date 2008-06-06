@@ -56,7 +56,7 @@ void SetListItemData(wxListView * list, long item, void *data)
 {
 #if wxCHECK_VERSION(2,8,4)
 	// that line breaks compatibility versions < 2.8.4
-	list->SetItemPtrData(item, (wxUIntPtr)data);
+	list->SetItemPtrData(item, wxPtrToUInt(data));
 #else
 	list->SetItemData(item, (long)data);
 #endif

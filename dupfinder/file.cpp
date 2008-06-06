@@ -122,7 +122,7 @@ bool File::Read(char **buffer, size_t &ncount) {
 		return false;
 	}
 
-	if(wxULongLong(data->extdata->pos) < data->extdata->cachesize) {
+	if(data->extdata->pos < wxFileOffset(data->extdata->cachesize)) {
 		wxULongLong _ncount;
 		_ncount = min(data->extdata->cachesize - data->extdata->pos, File::BUFSIZE);
 		assert(!_ncount.GetHi());
@@ -131,7 +131,7 @@ bool File::Read(char **buffer, size_t &ncount) {
 	}
 	else { /* data->extdata->pos >= data->extdata->cachesize */
 		
-		bool bWriteToCache = wxULongLong(data->extdata->pos) < data->extdata->maxcachesize;
+		bool bWriteToCache = data->extdata->pos < wxFileOffset(data->extdata->maxcachesize);
 		if(bWriteToCache) {
 			*buffer = data->extdata->cache + data->extdata->pos;
 			assert(data->extdata->maxcachesize - data->extdata->pos >= ncount);

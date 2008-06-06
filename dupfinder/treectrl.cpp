@@ -69,7 +69,7 @@ void TreeCtrl::SetItemBackgroundColour(const TreeItemId &id, const wxColour &dat
 	control->SetItemBackgroundColour(id, data);
 }
 
-unsigned int TreeCtrl::GetChildrenCount(const TreeItemId &id, bool rec) const {
+size_t TreeCtrl::GetChildrenCount(const TreeItemId &id, bool rec) const {
 	return control->GetChildrenCount(id, rec);
 }
 

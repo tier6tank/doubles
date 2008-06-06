@@ -463,7 +463,7 @@ void DupFinderDlg3::DisplayResults() {
 	list<File>::iterator it3;
 	ItemData *itemdata;
 	list<DuplicatesGroup>::size_type i, size;
-	unsigned int percentage = 0;
+	size_t percentage = 0;
 	bool bDisplayLonelyItems = false; /* option?? */
 
 	if(duplicates.empty()) {
@@ -496,7 +496,7 @@ void DupFinderDlg3::DisplayResults() {
 		bool bRestrict = bRestrictToMask || bRestrictToDir;
 
 		// don't include items which have only one element left ?
-		if(it->files.size() == 1 && bDisplayLonelyOptions) {
+		if(it->files.size() == 1 && bDisplayLonelyItems) {
 			bDisplay = false; 
 		} else {
 			if(bRestrict) {
@@ -550,9 +550,10 @@ void DupFinderDlg3::DisplayResults() {
 		}
 
 		if((i*MAX_PROGRESS)/size != percentage) {
-			
 			percentage = (i*MAX_PROGRESS)/size;
-			wProgress->SetValue(percentage);
+
+			assert(percentage >= 0 && percentage <= 101);
+			wProgress->SetValue((int)percentage);
 			wxTheApp->Yield();
 		}
 	}

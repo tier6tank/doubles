@@ -394,7 +394,7 @@ static wxULongLong_t StrToULongLong(const wxString & str, bool &bResult) {
 
 bool StringToULongLong(const wxString &str, wxULongLong &_result) 
 {
-	wxULongLong_t result;
+	wxULongLong_t result = 0;
 	wxLongLong_t test;
 	bool bResult, bResultTest;
 
@@ -407,6 +407,8 @@ bool StringToULongLong(const wxString &str, wxULongLong &_result)
 	bResult = str.ToULongLong(&result);
 #else
 	bResult = false;
+	(void)test;
+	(void)bResultTest;
 #endif
 
 	if(!bResult) {

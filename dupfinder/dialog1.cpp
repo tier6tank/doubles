@@ -25,9 +25,9 @@
 #include "os_cc_specific.h"
 #include "os_cc_specific_gui.h"
 
-// abbreviation for ... = dynamic_cast<ClassName *> ((ClassName *)object);
-// question is if it makes any sense at all...
-#define safe_cast(a, b) dynamic_cast<b>((b)(a))
+// abbreviation for ... = dynamic_cast<ClassName *> ((ClassName *)wxUIntToPtr(object));
+// question is if the dynamic_cast makes any sense at all...
+#define safe_cast(a, b) dynamic_cast<b>((b)wxUIntToPtr(a))
 
 enum {
 	ID_DIRLIST = 1, 
