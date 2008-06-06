@@ -74,7 +74,7 @@ public:
 
 	void SetItemBackgroundColour(const TreeItemId &, const wxColour &);
 
-	unsigned int GetChildrenCount(const TreeItemId &, bool =true) const;
+	size_t GetChildrenCount(const TreeItemId &, bool =true) const;
 
 	void ExpandAllChildren(const TreeItemId &);
 	void Expand(const TreeItemId &);
