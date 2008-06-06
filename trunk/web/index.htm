@@ -1,23 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
 
-<head><title> Duplicate Files Finder</title></head>
+<head><title> Duplicate Files Finder</title>
 
-<body style="font-family:Arial,sans-serif">
+<link type="text/css" rel="stylesheet" href="style.css">
+</style>
+
+</head>
+
+
+<body">
 
 <h1>Duplicate Files Finder</h1>
 
 <a name="Introduction"><h2>Introduction</h2></a>
 
-Duplicate Files Finder is a program which searches (as the name says) for 
+<div class="indented">
+<span class="capi">Duplicate Files Finder</span> is a program which searches (as the name says) for 
 duplicate files. It uses a <a href="#Algorithm">special algorithm</a> to find duplicate files, which 
 is much faster than the algorithm used by most programs of that sort (hashing); yet it compares the
 content of the files, not only the names. <br>
-It offers as well many options to get rid of duplicate files. You can either delete duplicate files, 
+<span class="capi">Duplicate Files Finder</span> offers many options to get rid of duplicate files. You can either delete duplicate files, 
 or create hardlinks or symbolic links (if supported by the operating system). All this can 
 directly be done in the program. 
+</div>
 
 <a name="Download"><h2>Download</h2>
 
+<div class="indented">
 <ul>
 <li>Windows users can download the 
 <a href="http://sourceforge.net/project/platformdownload.php?group_id=211415&sel_platform=6515">installer</a>. 
@@ -30,48 +42,71 @@ directly be done in the program.
 
 <li>For debian, there isn't any .deb file distribution i know of (sorry). 
 </ul>
+</div>
 
 <a name="SuppPlatforms"><h2>Platforms supported</h2></a>
 
-Duplicate Files Finder supports the following platforms:
+<div class="indented">
+<span class="capi">Duplicate Files Finder</span> supports the following platforms:
 
 <ul>
  <li>The Windows 9x family (Windows 95, 98, ME)</li>
  <li>The Windows NT family (Windows NT, XP, 2000, Vista)</li>
  <li>POSIX-like operating systems (Unix, Linux)</li>
 </ul>
+</div>
 
 
 <a name="Features"><h2>Features</h2></a>
 
+<div class="indented">
 <ul>
- <li>Byte by byte comparison</li>
- <li>Very fast search</li>
- <li>Support for hardlinks and symbolic links</li>
- <li>User interface to process the results by deleting duplicate files, or creating links</li>
- <li>Many search options</b>
+ <li><b>Byte by byte</b> comparison</li>
+ <li>Fast search</li>
+ <li>Support for <b>hardlinks</b> and <b>symbolic links</b></li>
+ <li>User interface for deleting files and creating links</li>
+ <li>Many <b>search options</b>
 </ul>
+</div>
 
-<a name="Algorithm"><h2>Short description of the algorithm</h2>
+<a name="Screenshots"><h2>Screenshots</h2></a>
 
+<div class="indented">
+<img src="http://sourceforge.net/dbimage.php?id=174577"></img>
+<p><b>Choosing the directories to search in and search options</b><p>
+<img src="http://sourceforge.net/dbimage.php?id=174573"></img>
+<p><b>Searching</b><p>
+<img src="http://sourceforge.net/dbimage.php?id=174575"></img>
+<p><b>The results</b><p>
+</div>
+
+<a name="Algorithm"><h2>Description of the <span class="capi">Duplicate Files Finder</span> Algorithm</h2>
+
+<div class="indented">
 The algorithm is as follows: First, all files are sorted by their size, because files can be
 only equal, if they have the same size (logically). <br>
 Then the files are compared with each other, and thus the equal files are determined. If two
-files are not equal from a given point, reading is interrupted; no more has to be read for 
-determining that these files are not equal. <br>
+files are not equal from a given point on, reading is interrupted; no more has to be read for 
+determining that these files are not equal. <br>Because of this the results are determined much faster
+than in programs which use hashing algorithms, for which <i>all</i> files have to be read <i>completely</i>. <br>
 Additional caching of the contents of the files additionally improves performance.
+</div>
 
 <a name="Links"><h2>Links</h2></a>
 
+<div class="indented">
 <ul>
  <li><a href="http://sourceforge.net/projects/doubles">Sourceforge project page</a></li>
  <li><a href="http://sourceforge.net/project/screenshots.php?group_id=211415">Screenshots</a></li>
- <li><a href="http://sourceforge.net/project/platformdownload.php?group_id=211415">Download Duplicate Files Finder</a></li>
+ <li><a href="http://sourceforge.net/project/platformdownload.php?group_id=211415">Download <span class="capi">Duplicate Files Finder</span></a></li>
 </ul> 
+</div>
 
+<div style="margin-left: 0%; margin-right: -0%">
 <hr></hr>
 
 <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=211415&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+</div>
 
 </body>
 
