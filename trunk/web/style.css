@@ -7,7 +7,7 @@ body {
 }
 
 div.indented { 
-	margin-left: 4%
+	margin-left: +4%
 }
 
 span.capi {
@@ -22,7 +22,7 @@ h1 {
 
 h2 {
 	color: Green;
-	margin-left: +2 %;
+	margin-left: +2%;
 }
 
 b {
