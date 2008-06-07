@@ -1,3 +1,6 @@
+Date : 2008/6/7 17:12
+Changed properties (MIME for icon, eol-style for other files)
+
 Date : 2008/6/6 17:19
 Fixed all Wp64 warnings
 
