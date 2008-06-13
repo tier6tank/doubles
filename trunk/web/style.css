@@ -1,13 +1,13 @@
 body {
 	font-family:Arial,sans-serif;
 	margin-left: 10%;
-	margin-right: 10 %;
+	margin-right: 10%;
 	color: black;
-	background-color: ivory;
+	background-color: #FFFFF0;
 }
 
 div.indented { 
-	margin-left: +4%
+	margin-left: +4% 
 }
 
 span.capi {
@@ -21,12 +21,12 @@ h1 {
 }
 
 h2 {
-	color: Green;
-	margin-left: +2%;
+	color: DarkBlue;
+	/* margin-left: +2%;  */
 }
 
 b {
-	color: Red;
+	color: DarkRed;
 }
 
 img { 
