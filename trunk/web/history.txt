@@ -1,3 +1,6 @@
+Date : 2008/6/16 15:50
+description rewritten
+
 Date : 2008/6/6 14:58
 content table added;
 bug section added;
